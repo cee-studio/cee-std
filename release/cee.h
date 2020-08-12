@@ -316,7 +316,7 @@ extern struct cee_vect * cee_map_values(struct cee_map *m);
 
 union cee_ptr {
   void * _;
-  struct cee_char      * str;
+  struct cee_str       * str;
   struct cee_set       * set;
   struct cee_vect      * vect;
   struct cee_map       * map;
@@ -325,7 +325,7 @@ union cee_ptr {
   struct cee_triple    * triple;
   struct cee_quadruple * quadruple;
   struct cee_block     * block;
-  struct cee_box       * box;
+  struct cee_boxed     * boxed;
   struct cee_singleton * singleton;
   struct cee_stack     * stack;
 };
@@ -429,39 +429,40 @@ union cee_primitive_value {
 /*
  * boxed primitive value
  */
-struct cee_box {
+struct cee_boxed {
   union cee_primitive_value _;
 };
 
-extern struct cee_box * cee_box_double(double);
-extern struct cee_box * cee_box_float(float);
+extern struct cee_boxed * cee_boxed_from_double(double);
+extern struct cee_boxed * cee_boxed_from_float(float);
 
-extern struct cee_box * cee_box_u64(uint64_t);
-extern struct cee_box * cee_box_u32(uint32_t);
-extern struct cee_box * cee_box_u16(uint16_t);
-extern struct cee_box * cee_box_u8(uint8_t);
+extern struct cee_boxed * cee_boxed_from_u64(uint64_t);
+extern struct cee_boxed * cee_boxed_from_u32(uint32_t);
+extern struct cee_boxed * cee_boxed_from_u16(uint16_t);
+extern struct cee_boxed * cee_boxed_from_u8(uint8_t);
 
-extern struct cee_box * cee_box_i64(int64_t);
-extern struct cee_box * cee_box_i32(int32_t);
-extern struct cee_box * cee_box_i16(int16_t);
-extern struct cee_box * cee_box_i8(int8_t);
+extern struct cee_boxed * cee_boxed_from_i64(int64_t);
+extern struct cee_boxed * cee_boxed_from_i32(int32_t);
+extern struct cee_boxed * cee_boxed_from_i16(int16_t);
+extern struct cee_boxed * cee_boxed_from_i8(int8_t);
 
-extern double cee_box_as_double(struct cee_box * x);
-extern float cee_box_as_float(struct cee_box * x);
-extern uint64_t cee_box_as_u64(struct cee_box * x);
-extern uint32_t cee_box_as_u32(struct cee_box * x);
-extern uint16_t cee_box_as_u16(struct cee_box * x);
-extern uint8_t  cee_box_as_u8(struct cee_box * x);
+extern double cee_boxed_to_double(struct cee_boxed * x);
+extern float cee_boxed_to_float(struct cee_boxed * x);
 
-extern int64_t cee_box_as_i64(struct cee_box * x);
-extern int32_t cee_box_as_i32(struct cee_box * x);
-extern int16_t cee_box_as_i16(struct cee_box * x);
-extern int8_t  cee_box_as_i8(struct cee_box * x);
+extern uint64_t cee_boxed_to_u64(struct cee_boxed * x);
+extern uint32_t cee_boxed_to_u32(struct cee_boxed * x);
+extern uint16_t cee_boxed_to_u16(struct cee_boxed * x);
+extern uint8_t  cee_boxed_to_u8(struct cee_boxed * x);
+
+extern int64_t cee_boxed_to_i64(struct cee_boxed * x);
+extern int32_t cee_boxed_to_i32(struct cee_boxed * x);
+extern int16_t cee_boxed_to_i16(struct cee_boxed * x);
+extern int8_t  cee_boxed_to_i8(struct cee_boxed * x);
 
 /*
  * number of bytes needed to print out the value
  */
-extern size_t cee_box_snprint (char * buf, size_t size, struct cee_box *p);
+extern size_t cee_boxed_snprint (char * buf, size_t size, struct cee_boxed *p);
 
 enum cee_tag { dummy };
 /*
@@ -476,9 +477,9 @@ struct cee_tagged {
  * tag: any integer value
  * v: a value 
  */
-extern struct cee_tagged * cee_tag (uintptr_t tag, void * v);
-extern struct cee_tagged * cee_tag_e (enum cee_del_policy o, 
-                                      uintptr_t tag, void *v);
+extern struct cee_tagged * cee_tagged (uintptr_t tag, void * v);
+extern struct cee_tagged * cee_tagged_e (enum cee_del_policy o, 
+                                         uintptr_t tag, void *v);
 
 struct cee_closure {
   void * context;
