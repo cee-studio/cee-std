@@ -67,12 +67,12 @@ int main () {
   struct cee_map * mp = NULL;
   mp = cee_map((cee_cmp_fun)strcmp);
   
-  cee_map_add(mp, cee_str("1"), cee_box_i32(10));
-  cee_map_add(mp, cee_str("2"), cee_box_i32(20));
-  cee_map_add(mp, cee_str("3"), cee_box_i32(30));
+  cee_map_add(mp, cee_str("1"), cee_boxed_from_i32(10));
+  cee_map_add(mp, cee_str("2"), cee_boxed_from_i32(20));
+  cee_map_add(mp, cee_str("3"), cee_boxed_from_i32(30));
   
   struct cee_box * t = cee_map_find(mp, "1");
-  printf ("found value %d\n", cee_box_as_i32(t));
+  printf ("found value %d\n", cee_boxed_to_i32(t));
   
   struct cee_vect * keys = cee_map_keys(mp);
   for (i = 0; i < cee_vect_size(keys); i++)

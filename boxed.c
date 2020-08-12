@@ -1,6 +1,6 @@
 #ifdef CEE_AMALGAMATION
 #undef   S
-#define  S(f)  _cee_box_##f
+#define  S(f)  _cee_boxed_##f
 #else
 #define  S(f)  _##f
 #include "cee.h"
@@ -55,12 +55,12 @@ static int S(cmp_double)(double v1, double v2) {
     return -1;
 }
 
-struct cee_box * cee_box_double (double d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_double (double d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_f64);
   b->cs.cmp = S(cmp_double);
   b->_[0].f64 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
 static int S(cmp_float)(float v1, float v2) {
@@ -72,12 +72,12 @@ static int S(cmp_float)(float v1, float v2) {
     return -1;
 }
 
-struct cee_box * cee_box_float (float d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_float (float d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_f32);
   b->cs.cmp = S(cmp_float);
   b->_[0].f32 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
 static int S(cmp_u64)(uint64_t v1, uint64_t v2) {
@@ -89,11 +89,11 @@ static int S(cmp_u64)(uint64_t v1, uint64_t v2) {
     return -1;
 }
 
-struct cee_box * cee_box_u64 (uint64_t d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_u64 (uint64_t d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_u64);
   b->_[0].u64 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
 static int S(cmp_u32)(uint32_t v1, uint32_t v2) {
@@ -105,12 +105,12 @@ static int S(cmp_u32)(uint32_t v1, uint32_t v2) {
     return -1;
 }
 
-struct cee_box * cee_box_u32 (uint32_t d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_u32 (uint32_t d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_u32);
   b->cs.cmp = S(cmp_u32);
   b->_[0].u32 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
 
@@ -123,12 +123,12 @@ static int S(cmp_u16)(uint16_t v1, uint16_t v2) {
     return -1;
 }
 
-struct cee_box * cee_box_u16 (uint16_t d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_u16 (uint16_t d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_u16);
   b->cs.cmp = S(cmp_u16);
   b->_[0].u16 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
 
@@ -141,12 +141,12 @@ static int S(cmp_u8)(uint8_t v1, uint8_t v2) {
     return -1;
 }
 
-struct cee_box * cee_box_u8 (uint8_t d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_u8 (uint8_t d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_u8);
   b->cs.cmp = S(cmp_u8);
   b->_[0].u8 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
 
@@ -159,12 +159,12 @@ static int S(cmp_i64)(int64_t v1, int64_t v2) {
     return -1;
 }
 
-struct cee_box * cee_box_i64 (int64_t d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_i64 (int64_t d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_i64);
   b->cs.cmp = S(cmp_i64);
   b->_[0].i64 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
 static int S(cmp_i32)(int32_t v1, int32_t v2) {
@@ -176,12 +176,12 @@ static int S(cmp_i32)(int32_t v1, int32_t v2) {
     return -1;
 }
 
-struct cee_box * cee_box_i32 (int32_t d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_i32 (int32_t d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_i32);
   b->cs.cmp = S(cmp_i32);
   b->_[0].i32 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
 static int S(cmp_i16)(int16_t v1, int16_t v2) {
@@ -193,12 +193,12 @@ static int S(cmp_i16)(int16_t v1, int16_t v2) {
     return -1;
 }
 
-struct cee_box * cee_box_i16 (int16_t d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_i16 (int16_t d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_i16);
   b->cs.cmp = S(cmp_i16);
   b->_[0].i16 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
 static int S(cmp_i8)(int8_t v1, int8_t v2) {
@@ -210,15 +210,15 @@ static int S(cmp_i8)(int8_t v1, int8_t v2) {
     return -1;
 }
 
-struct cee_box * cee_box_i8 (int8_t d) {
-  size_t mem_block_size = sizeof(struct cee_box);
+struct cee_boxed * cee_boxed_from_i8 (int8_t d) {
+  size_t mem_block_size = sizeof(struct cee_boxed);
   struct S(header) * b = S(mk_header)(cee_primitive_i8);
   b->cs.cmp = S(cmp_i8);
   b->_[0].i8 = d;
-  return (struct cee_box *)b->_;
+  return (struct cee_boxed *)b->_;
 }
 
-size_t cee_box_snprint (char * buf, size_t size, struct cee_box * x) {
+size_t cee_boxed_snprint (char * buf, size_t size, struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   int s;
   switch(h->type)
@@ -255,7 +255,7 @@ size_t cee_box_snprint (char * buf, size_t size, struct cee_box * x) {
     cee_segfault();    
 }
 
-double cee_box_as_double (struct cee_box * x) {
+double cee_boxed_to_double (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_f64)
     return h->_[0].f64;
@@ -263,7 +263,7 @@ double cee_box_as_double (struct cee_box * x) {
     cee_segfault();
 }
 
-float cee_box_as_float (struct cee_box * x) {
+float cee_boxed_to_float (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_f32)
     return h->_[0].f32;
@@ -271,7 +271,7 @@ float cee_box_as_float (struct cee_box * x) {
     cee_segfault();
 }
 
-uint64_t cee_box_as_u64 (struct cee_box * x) {
+uint64_t cee_boxed_to_u64 (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_u64)
     return h->_[0].u64;
@@ -279,7 +279,7 @@ uint64_t cee_box_as_u64 (struct cee_box * x) {
     cee_segfault();
 }
 
-uint32_t cee_box_as_u32 (struct cee_box * x) {
+uint32_t cee_boxed_to_u32 (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_u32)
     return h->_[0].u32;
@@ -287,7 +287,7 @@ uint32_t cee_box_as_u32 (struct cee_box * x) {
     cee_segfault();
 }
 
-uint16_t cee_box_as_u16 (struct cee_box * x) {
+uint16_t cee_boxed_to_u16 (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_u16)
     return h->_[0].u16;
@@ -295,7 +295,7 @@ uint16_t cee_box_as_u16 (struct cee_box * x) {
     cee_segfault();
 }
 
-uint8_t cee_box_as_u8 (struct cee_box * x) {
+uint8_t cee_boxed_to_u8 (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_u8)
     return h->_[0].u8;
@@ -304,7 +304,7 @@ uint8_t cee_box_as_u8 (struct cee_box * x) {
 }
 
 
-int64_t cee_box_as_i64 (struct cee_box * x) {
+int64_t cee_boxed_to_i64 (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_i64)
     return h->_[0].i64;
@@ -312,7 +312,7 @@ int64_t cee_box_as_i64 (struct cee_box * x) {
     cee_segfault();
 }
 
-int32_t cee_box_as_i32 (struct cee_box * x) {
+int32_t cee_boxed_to_i32 (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_i32)
     return h->_[0].i32;
@@ -320,7 +320,7 @@ int32_t cee_box_as_i32 (struct cee_box * x) {
     cee_segfault();
 }
 
-int16_t cee_box_as_i16 (struct cee_box * x) {
+int16_t cee_boxed_to_i16 (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_i16)
     return h->_[0].i16;
@@ -328,7 +328,7 @@ int16_t cee_box_as_i16 (struct cee_box * x) {
     cee_segfault();
 }
 
-int8_t cee_box_as_i8 (struct cee_box * x) {
+int8_t cee_boxed_to_i8 (struct cee_boxed * x) {
   struct S(header) * h = FIND_HEADER(x);
   if (h->type == cee_primitive_i8)
     return h->_[0].i8;
