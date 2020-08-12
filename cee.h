@@ -477,9 +477,9 @@ struct cee_tagged {
  * tag: any integer value
  * v: a value 
  */
-extern struct cee_tagged * cee_tag (uintptr_t tag, void * v);
-extern struct cee_tagged * cee_tag_e (enum cee_del_policy o, 
-                                      uintptr_t tag, void *v);
+extern struct cee_tagged * cee_tagged (uintptr_t tag, void * v);
+extern struct cee_tagged * cee_tagged_e (enum cee_del_policy o, 
+                                         uintptr_t tag, void *v);
 
 struct cee_closure {
   void * context;

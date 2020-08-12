@@ -22,7 +22,8 @@ static void S(del) (void * v) {
   free(m);
 }
 
-struct cee_tagged * cee_tag_e (enum cee_del_policy o, uintptr_t tag, void *p) {
+struct cee_tagged * cee_tagged_e (enum cee_del_policy o, 
+                                  uintptr_t tag, void *p) {
   size_t mem_block_size = sizeof(struct S(header));
   struct S(header) * b = malloc(mem_block_size);
   ZERO_CEE_SECT(&b->cs);
@@ -36,6 +37,6 @@ struct cee_tagged * cee_tag_e (enum cee_del_policy o, uintptr_t tag, void *p) {
   return &b->_;
 }
 
-struct cee_tagged * cee_tag (uintptr_t tag, void *p){
-  return cee_tag_e (CEE_DEFAULT_DEL_POLICY, tag, p);
+struct cee_tagged * cee_tagged (uintptr_t tag, void *p){
+  return cee_tagged_e (CEE_DEFAULT_DEL_POLICY, tag, p);
 }
