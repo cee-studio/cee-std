@@ -6,8 +6,8 @@ But it does not intend to replicate C++ STL function by function.
 
 1. Download the two files;
 ```
-  wget https://raw.githubusercontent.com/cee-studio/cee-std/master/release/cee.h
-  wget https://raw.githubusercontent.com/cee-studio/cee-std/master/release/cee.c
+  wget https://raw.githubusercontent.com/cee-studio/orca/master/cee/release/cee.h
+  wget https://raw.githubusercontent.com/cee-studio/orca/master/cee/release/cee.c
 ```
 2. Add them to your source folder
 
@@ -148,6 +148,6 @@ make
 [DESIGN](./DESIGN.md)
 
 
-## Contirubtion are welcome
+## Contirubtion is welcome
 
-Please oin our discord [https://discord.gg/nBUqrWf](https://discord.gg/nBUqrWf)
+Please join our discord [https://discord.gg/nBUqrWf](https://discord.gg/nBUqrWf)
