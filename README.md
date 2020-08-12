@@ -6,8 +6,8 @@ But it does not intend to replicate C++ STL function by function.
 
 1. Download the two files;
 ```
-  wget https://raw.githubusercontent.com/cee-studio/orca/master/cee/release/cee.h
-  wget https://raw.githubusercontent.com/cee-studio/orca/master/cee/release/cee.c
+  wget https://raw.githubusercontent.com/cee-studio/cee-std/master/release/cee.h
+  wget https://raw.githubusercontent.com/cee-studio/cee-std/master/release/cee.c
 ```
 2. Add them to your source folder
 
@@ -126,7 +126,7 @@ any memory blocks pointed by a `cee struct` can be freed with `cee_del` like the
 ## How to test/develop it ?
 
 ### Using https://cee.studio cloud IDE
-1. click [https://cee.studio/?bucket=orca&name=cee](https://cee.studio/?bucket=orca&name=cee)
+1. click [https://cee.studio/?bucket=orca&name=cee-std](https://cee.studio/?bucket=orca&name=cee-std)
 2. clone to my account
 3. click Start
 4. run it Terminal
@@ -137,8 +137,8 @@ All memory access violations will be detected and reproted.
 ### Using your computer
 
 ```
-git clone https://github.com/cee-studio/orca.git
-cd orca/cee
+git clone https://github.com/cee-studio/cee-std.git
+cd cee-std
 make
 ./a.out
 ```
