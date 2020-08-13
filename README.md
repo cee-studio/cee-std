@@ -66,8 +66,8 @@ But it does not intend to replicate C++ STL function by function.
 
   struct cee_set * st = cee_set((cee_cmp_fun)strcmp);
   printf ("st: %p\n", st);
-  cee_set_add(st, "a");
-  cee_set_add(st, "aabc");
+  cee_set_add(st, cee_str("a"));
+  cee_set_add(st, cee_str("aabc"));
   char * p = cee_set_find(st, "aabc");
   printf ("%s\n", p);
 
