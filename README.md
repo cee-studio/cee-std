@@ -2,6 +2,12 @@
 
 But it does not intend to replicate C++ STL function by function.
 
+## When should you use this lib ?
+1. If you need a simple C style containers that has minimum dependency.
+                                                                                
+2. If you want to develop your own dynamic typed scripting languages but 
+   you don't want reinvent the wheel to develop its runtime system. 
+
 ## How to use it ?
 
 1. Download the two files;
