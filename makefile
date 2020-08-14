@@ -31,6 +31,7 @@ cee-one.o: cee-one.c
 
 release:
 	$(call cee_amalgamation, cee.c,-P)
+	@mkdir -p release
 	@mv cee.c  release
 	@cp cee.h  release
 
