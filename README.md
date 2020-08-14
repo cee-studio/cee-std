@@ -1,6 +1,8 @@
 # A single file C container library
 
-It provides similar functionalities of C++ STL, but it does not intend to replicate C++ STL function by function.
+It provides similar functionalities of C++ STL, but it does not intend to replicate 
+C++ STL function by function.  It utializes C's memory layout to achieve 
+interoperability with idiomatic C code.
 
 ## It's optimized for the following use cases:
 
