@@ -1,6 +1,6 @@
 # A simple single file C container library
 
-The goal is to improve C lover's productivity for "high level" programming 
+The goal is to improve C lover's productivity for "*high level*" programming
 by providing similar functionalities of C++ STL, but it does not intend to 
 replicate C++ STL function by function.  It relies on C's memory layout to 
 achieve interoperability with idiomatic C code without requiring any wrappers.
