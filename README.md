@@ -53,7 +53,7 @@ But it does not intend to replicate C++ STL function by function.
   
   printf("v.count %u\n", cee_vect_count(v));
   for (int i = 0; i < cee_vect_count(v); i++) {
-    printf ("%d:%s\n", i, (char *)v->e[i]);
+    printf ("%d:%s\n", i, (char *)v->_[i]);
   }
 
   // delete vector
@@ -89,7 +89,7 @@ But it does not intend to replicate C++ STL function by function.
   
   struct cee_vect * keys = cee_map_keys(mp);
   for (int i = 0; i < cee_vect_count(keys); i++) {
-    printf ("[%d] key:%s\n", i, (char *)keys->e[i]);
+    printf ("[%d] key:%s\n", i, (char *)keys->_[i]);
   }
  
   // delete map
