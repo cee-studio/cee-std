@@ -7,7 +7,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 
 ## It's optimized for the following use cases:
 
-1. If you need a simple minimum C style containers. 
+1. If you need simple and minimum C style containers.
                                                                                 
 2. If you want to develop your own dynamic typed scripting languages but 
    you don't want to reinvent a runtime system.
