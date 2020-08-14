@@ -10,7 +10,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 1. If you need a simple minimum C style containers. 
                                                                                 
 2. If you want to develop your own dynamic typed scripting languages but 
-   you don't want reinvent a runtime system.
+   you don't want to reinvent a runtime system.
 
 ## How to use it ?
 
