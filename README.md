@@ -1,9 +1,10 @@
-# A single file C library to provide similar productivity of C++ STL
+# A single file C container library
 
-But it does not intend to replicate C++ STL function by function.
+It provides similar functionalities of C++ STL, but it does not intend to replicate C++ STL function by function.
 
-## When should you use this lib ?
-1. If you need a simple C style containers that has minimum dependency.
+## It's optimized for the following use cases:
+
+1. If you need a simple minimum C style containers. 
                                                                                 
 2. If you want to develop your own dynamic typed scripting languages but 
    you don't want reinvent a runtime system.
@@ -18,9 +19,10 @@ But it does not intend to replicate C++ STL function by function.
 2. Add them to your source folder
 
 
-## Usage Examples
+## Examples
 
 **string**
+
 ```
   #include "cee.h"
 
