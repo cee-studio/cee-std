@@ -136,7 +136,7 @@ any memory blocks pointed by a `cee struct` can be freed with `cee_del` like the
 
 ## How to test/develop it ?
 
-### Using https://cee.studio cloud IDE
+### Using https://www.cee.studio cloud IDE
 1. click [https://cee.studio/?bucket=orca&name=cee-std](https://cee.studio/?bucket=orca&name=cee-std)
 2. clone to my account
 3. click Start
