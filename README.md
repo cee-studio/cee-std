@@ -1,4 +1,4 @@
-# A simple single file C container library
+# A minimalist C container library
 
 The goal is to improve C lover's productivity for "*high level*" programming
 by providing similar functionalities of C++ STL, but it does not intend to 
