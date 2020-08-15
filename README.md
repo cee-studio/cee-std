@@ -46,22 +46,23 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
   cee_del(s2);
 ```
 
-**vector**
+**array** (auto expandable)
 ```
   #include "cee.h"
-  struct cee_vect *v;
+  struct cee_array *v;
   
-  v = cee_vect(1);
-  v = cee_vect_append(v, cee_str("1"));
-  v = cee_vect_append(v, cee_str("2"));
-  v = cee_vect_append(v, cee_str("3"));
+  v = cee_array(1);
+
+  v = cee_array_append(v, cee_str("1"));
+  v = cee_array_append(v, cee_str("2"));
+  v = cee_array_append(v, cee_str("3"));
   
-  printf("v.count %u\n", cee_vect_count(v));
-  for (int i = 0; i < cee_vect_count(v); i++) {
+  printf("v.count %u\n", cee_array_size(v));
+  for (int i = 0; i < cee_array_size(v); i++) {
     printf ("%d:%s\n", i, (char *)v->_[i]);
   }
 
-  // delete vector
+  // delete array
   cee_del(v);
 ```
 
@@ -137,14 +138,21 @@ any memory blocks pointed by a `cee struct` can be freed with `cee_del` like the
 ## How to test/develop it ?
 
 ### Using https://www.cee.studio cloud IDE
+
+cee.studio is our primary development IDE, as it can automatically detect and 
+report all memory access violations, and memory leaks.
+
 1. click [https://cee.studio/?bucket=orca&name=cee-std](https://cee.studio/?bucket=orca&name=cee-std)
 2. clone to my account
 3. click Start
 4. run it Terminal
 
-All memory access violations will be detected and reported.
+cee.studio will detect and report all memory access violations.
+
 
 ### Using your computer
+
+You will need to install `valgrind` to debug memory access violations, and memory leaks.
 
 ```
 git clone https://github.com/cee-studio/cee-std.git
