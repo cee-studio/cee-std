@@ -18,3 +18,13 @@
 
 *  Performance optimziation should be easy to do by removing abstraction and 
    falling back to more C idiomatic implementations.
+
+
+## Other considerations
+* struct cee_* are used intentionally to distinguish them from their memory layout 
+  equivalent data structures, but they need to be handled different in memory deallocation
+
+* Code readability triumphs conciseness with the assumption morden IDE's 
+  auto-completion will be used to write code
+
+* More concise abstraction should be handled by libraries built on top of this lib
