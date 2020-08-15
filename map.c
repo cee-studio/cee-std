@@ -115,7 +115,7 @@ void * cee_map_remove(struct cee_map * m, void * key) {
 static void S(get_key) (const void *nodep, const VISIT which, const int depth) {
   struct S(pair) * p;
   struct S(header) * h;
-  struct cee_vect * keys;
+  struct cee_array * keys;
   switch (which) 
   {
     case preorder:
@@ -123,17 +123,17 @@ static void S(get_key) (const void *nodep, const VISIT which, const int depth) {
       p = *(struct S(pair) **)nodep;
       h = p->h;
       keys = h->context;
-      h->context = cee_vect_append(keys, p->value->_[0]);
+      h->context = cee_array_append(keys, p->value->_[0]);
       break;
     default:
       break;
   }
 }
 
-struct cee_vect * cee_map_keys(struct cee_map * m) {
+struct cee_array * cee_map_keys(struct cee_map * m) {
   uintptr_t s = cee_map_size(m);
   struct S(header) * b = FIND_HEADER(m);
-  struct cee_vect * keys = cee_vect(s);
+  struct cee_array * keys = cee_array(s);
   b->context = keys;
   twalk(b->_[0], S(get_key));
   return keys;
@@ -143,7 +143,7 @@ struct cee_vect * cee_map_keys(struct cee_map * m) {
 static void S(get_value) (const void *nodep, const VISIT which, const int depth) {
   struct S(pair) * p;
   struct S(header) * h;
-  struct cee_vect * values;
+  struct cee_array * values;
   switch (which) 
   {
     case preorder:
@@ -151,7 +151,7 @@ static void S(get_value) (const void *nodep, const VISIT which, const int depth)
       p = *(void **)nodep;
       h = p->h;
       values = h->context;
-      h->context = cee_vect_append(values, p->value->_[1]);
+      h->context = cee_array_append(values, p->value->_[1]);
       break;
     default:
       break;
@@ -159,10 +159,10 @@ static void S(get_value) (const void *nodep, const VISIT which, const int depth)
 }
 
 
-struct cee_vect * cee_map_values(struct cee_map * m) {
+struct cee_array * cee_map_values(struct cee_map * m) {
   uintptr_t s = cee_map_size(m);
   struct S(header) * b = FIND_HEADER(m);
-  struct cee_vect * values = cee_vect(s);
+  struct cee_array * values = cee_array(s);
   b->context = values;
   twalk(b->_[0], S(get_value));
   return values;

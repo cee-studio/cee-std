@@ -143,17 +143,17 @@ static void S(get_value) (const void *nodep, const VISIT which, const int depth)
     case leaf:
       p = *(void **)nodep;
       h = p->h;
-      h->context = cee_vect_append((struct cee_vect *) h->context, p->value);
+      h->context = cee_array_append((struct cee_array *) h->context, p->value);
       break;
     default:
       break;
   }
 }
 
-struct cee_vect * cee_set_values(struct cee_set * m) {
+struct cee_array * cee_set_values(struct cee_set * m) {
   uintptr_t s = cee_set_size(m);
   struct S(header) * h = FIND_HEADER(m);
-  h->context = cee_vect(s);
+  h->context = cee_array(s);
   cee_use_realloc(h->context);
   twalk(h->_[0], S(get_value));
   return h->context;
@@ -178,13 +178,13 @@ struct cee_set * cee_set_union (struct cee_set * s1, struct cee_set * s2) {
   struct S(header) * h2 = FIND_HEADER(s2);
   if (h1->cmp == h2->cmp) {
     struct cee_set * s0 = cee_set(h1->cmp);
-    struct cee_vect * v1 = cee_set_values(s1);
-    struct cee_vect * v2 = cee_set_values(s2);
+    struct cee_array * v1 = cee_set_values(s1);
+    struct cee_array * v2 = cee_set_values(s2);
     int i;
-    for (i = 0; i < cee_vect_size(v1); i++)
+    for (i = 0; i < cee_array_size(v1); i++)
       cee_set_add(s0, v1->_[i]);
     
-    for (i = 0; i < cee_vect_size(v2); i++)
+    for (i = 0; i < cee_array_size(v2); i++)
       cee_set_add(s0, v2->_[i]);
     
     cee_del(v1);

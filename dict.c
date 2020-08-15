@@ -14,8 +14,8 @@
 #include "cee-header.h"
 
 struct S(header) {
-  struct cee_vect * keys;
-  struct cee_vect * vals;
+  struct cee_array * keys;
+  struct cee_array * vals;
   uintptr_t size;
   enum cee_del_policy del_policy;
   struct cee_sect cs;
@@ -35,10 +35,10 @@ struct cee_dict * cee_dict_e (enum cee_del_policy o, size_t size) {
   size_t mem_block_size = sizeof(struct S(header));
   struct S(header) * m = malloc(mem_block_size);
   m->del_policy = o;
-  m->keys = cee_vect(size);
+  m->keys = cee_array(size);
   cee_use_realloc(m->keys);
   
-  m->vals = cee_vect(size);
+  m->vals = cee_array(size);
   cee_use_realloc(m->vals);
   
   m->size = size;
@@ -70,8 +70,8 @@ void cee_dict_add (struct cee_dict * d, char * key, void * value) {
   n.data = value;
   if (!hsearch_r(n, ENTER, &np, m->_))
     cee_segfault();
-  m->keys = cee_vect_append(m->keys, key);
-  m->vals = cee_vect_append(m->vals, value);
+  m->keys = cee_array_append(m->keys, key);
+  m->vals = cee_array_append(m->vals, value);
 }
 
 void * cee_dict_find(struct cee_dict * d, char * key) {

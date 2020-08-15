@@ -1,5 +1,5 @@
 CEE_SRC=cee-common.c boxed.c str.c dict.c map.c set.c stack.c tuple.c \
-  triple.c quadruple.c vect.c tagged.c singleton.c closure.c block.c \
+  triple.c quadruple.c array.c tagged.c singleton.c closure.c block.c \
   n_tuple.c
 
 HEADERS=stdio.h string.h stdlib.h stdarg.h search.h assert.h errno.h
