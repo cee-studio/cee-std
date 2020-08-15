@@ -139,7 +139,7 @@ any memory blocks pointed by a `cee struct` can be freed with `cee_del` like the
 
 ### Using https://www.cee.studio cloud IDE
 
-cee.studio is our primary development IDE, as it can automatically detect and 
+cee.studio is our primary development IDE as it can automatically detect and 
 report all memory access violations, and memory leaks.
 
 1. click [https://cee.studio/?bucket=orca&name=cee-std](https://cee.studio/?bucket=orca&name=cee-std)
