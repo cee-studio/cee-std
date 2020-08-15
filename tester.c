@@ -40,10 +40,17 @@ int main () {
   for (i = 0; i < cee_vect_size(v); i++)
     printf ("%d:%s\n", i, (char *)v->_[i]);
   
-  //cee_del(s);
-  //cee_del(s1);
-  //cee_del(s2);
   cee_del(v);
+  
+  /* a dynamic typed array */
+  v = cee_vect(1);
+  cee_use_realloc(v);
+  
+  v = cee_vect_append(v, cee_tagged(1, cee_boxed_from_i32(10)));
+  v = cee_vect_append(v, cee_tagged(2, cee_boxed_from_float(10.1)));
+  v = cee_vect_append(v, cee_tagged(3, cee_str("10")));
+  cee_del(v);
+  
   
   /* test set */
   struct cee_set * st = NULL;
@@ -71,7 +78,7 @@ int main () {
   cee_map_add(mp, cee_str("2"), cee_boxed_from_i32(20));
   cee_map_add(mp, cee_str("3"), cee_boxed_from_i32(30));
   
-  struct cee_box * t = cee_map_find(mp, "1");
+  struct cee_boxed * t = cee_map_find(mp, "1");
   printf ("found value %d\n", cee_boxed_to_i32(t));
   
   struct cee_vect * keys = cee_map_keys(mp);

@@ -252,12 +252,26 @@ struct cee_quadruple {
  * v2: the second value of the quaruple
  * v3: the third value of the quadruple
  * v4: the fourth value of the quadruple
- * when the quadruple is deleted, its elements will not be deleted
+ *
+ * the default deletion policy will be used to handle how these values will
+ * be deleted when the returned container is deleted.
+ *
+ * return: a quadruple container with the above for values.
  */
 extern struct cee_quadruple * cee_quadruple(void * v1, void * v2, void * v3, 
                                             void * v4);
 
-extern struct cee_quadruple * cee_quadruple_e(enum cee_del_policy o[4],
+/*
+ * construct a triple from its parameters
+ * v1: the first value of the quaruple
+ * v2: the second value of the quaruple
+ * v3: the third value of the quadruple
+ * v4: the fourth value of the quadruple
+ * 
+ * dp: the deletion policy that dictates how handle these values when
+ *     the returned container is deleted.
+ */
+extern struct cee_quadruple * cee_quadruple_e(enum cee_del_policy dp[4],
                                              void * v1, void * v2, void *v3, void *v4);
 
 struct cee_n_tuple {
