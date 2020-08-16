@@ -1,5 +1,5 @@
 CEE_SRC=cee-common.c boxed.c str.c dict.c map.c set.c stack.c tuple.c \
-  triple.c quadruple.c array.c tagged.c singleton.c closure.c block.c \
+  triple.c quadruple.c list.c tagged.c singleton.c closure.c block.c \
   n_tuple.c
 
 HEADERS=stdio.h string.h stdlib.h stdarg.h search.h assert.h errno.h
@@ -14,7 +14,7 @@ define cee_amalgamation
 	@cat cee.h >> $(1)
 	@echo " " >> $(1)
 	@cat cee-internal.h >> $(1)
-	$(CC) -E $(2) -nostdinc tmp.c >> $(1)
+	$(CC) -E -CC $(2) -nostdinc tmp.c >> $(1)
 	@echo "#endif" >> $(1)
 endef
 

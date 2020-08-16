@@ -171,48 +171,49 @@ extern struct cee_str * cee_str_catf (struct cee_str *, const char * fmt, ...);
 extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
 
 /*
- * an expandable array just like Javascript's array
+ * an expandable list 
  */
-struct cee_array {
+struct cee_list {
   void * _[1]; // an array of `void *`s
 };
 
 /*
- * size: the initial size of the expandable array
- * when the vector is deleted, its elements will not be deleted
+ * capacity: the initial capacity of the expandable list
+ * when the vector is deleted, its elements will be handled according
+ * to the default deletion policy
  */
-extern struct cee_array * cee_array (size_t size);
+extern struct cee_list * cee_list (size_t capacity);
 
-extern struct cee_array * cee_array_e (enum cee_del_policy o, size_t size);
+extern struct cee_list * cee_list_e (enum cee_del_policy o, size_t size);
 
 /*
- * it may return a new array if the parameter array is too small
+ * it may return a new list if the parameter list is too small
  */
-extern struct cee_array * cee_array_append(struct cee_array * v, void * e);
+extern struct cee_list * cee_list_append(struct cee_list * v, void * e);
 
 
 /*
  * it inserts an element e at index and shift the rest elements 
  * to higher indices
  */
-extern struct cee_array * cee_array_insert(struct cee_array * v, size_t index,
-                                           void * e);
+extern struct cee_list * cee_list_insert(struct cee_list * v, size_t index,
+                                         void * e);
 
 /*
  * it removes an element at index and shift the rest elements 
  * to lower indices
  */
-extern struct cee_array * cee_array_remove(struct cee_array * v, size_t index);
+extern struct cee_list * cee_list_remove(struct cee_list * v, size_t index);
 
 /*
- * returns the number of elements in an array
+ * returns the number of elements in an list
  */
-extern size_t cee_array_size(struct cee_array *);
+extern size_t cee_list_size(struct cee_list *);
 
 /*
  *
  */
-extern size_t cee_array_capacity (struct cee_array *);
+extern size_t cee_list_capacity (struct cee_list *);
 
 
 struct cee_tuple {
@@ -310,7 +311,7 @@ extern void * cee_set_remove(struct cee_set * m, void * key);
 extern void cee_set_clear (struct cee_set * m);
 extern size_t cee_set_size(struct cee_set * m);
 extern bool cee_set_empty(struct cee_set * s);
-extern struct cee_array * cee_set_values(struct cee_set * m);
+extern struct cee_list * cee_set_values(struct cee_set * m);
 extern struct cee_set * cee_set_union (struct cee_set * s1, struct cee_set * s2);
 
 struct cee_map {
@@ -328,14 +329,14 @@ extern uintptr_t cee_map_size(struct cee_map *);
 extern void cee_map_add(struct cee_map * m, void * key, void * value);
 extern void * cee_map_find(struct cee_map * m, void * key);
 extern void * cee_map_remove(struct cee_map *m, void * key);
-extern struct cee_array * cee_map_keys(struct cee_map *m);
-extern struct cee_array * cee_map_values(struct cee_map *m);
+extern struct cee_list * cee_map_keys(struct cee_map *m);
+extern struct cee_list * cee_map_values(struct cee_map *m);
 
 union cee_ptr {
   void * _;
   struct cee_str       * str;
   struct cee_set       * set;
-  struct cee_array     * array;
+  struct cee_list      * list;
   struct cee_map       * map;
   struct cee_dict      * dict;
   struct cee_tuple     * tuple;

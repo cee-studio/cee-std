@@ -181,48 +181,49 @@ extern struct cee_str * cee_str_catf (struct cee_str *, const char * fmt, ...);
 extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
 
 /*
- * an expandable array just like Javascript's array
+ * an expandable list 
  */
-struct cee_array {
+struct cee_list {
   void * _[1]; // an array of `void *`s
 };
 
 /*
- * size: the initial size of the expandable array
- * when the vector is deleted, its elements will not be deleted
+ * capacity: the initial capacity of the expandable list
+ * when the vector is deleted, its elements will be handled according
+ * to the default deletion policy
  */
-extern struct cee_array * cee_array (size_t size);
+extern struct cee_list * cee_list (size_t capacity);
 
-extern struct cee_array * cee_array_e (enum cee_del_policy o, size_t size);
+extern struct cee_list * cee_list_e (enum cee_del_policy o, size_t size);
 
 /*
- * it may return a new array if the parameter array is too small
+ * it may return a new list if the parameter list is too small
  */
-extern struct cee_array * cee_array_append(struct cee_array * v, void * e);
+extern struct cee_list * cee_list_append(struct cee_list * v, void * e);
 
 
 /*
  * it inserts an element e at index and shift the rest elements 
  * to higher indices
  */
-extern struct cee_array * cee_array_insert(struct cee_array * v, size_t index,
-                                           void * e);
+extern struct cee_list * cee_list_insert(struct cee_list * v, size_t index,
+                                         void * e);
 
 /*
  * it removes an element at index and shift the rest elements 
  * to lower indices
  */
-extern struct cee_array * cee_array_remove(struct cee_array * v, size_t index);
+extern struct cee_list * cee_list_remove(struct cee_list * v, size_t index);
 
 /*
- * returns the number of elements in an array
+ * returns the number of elements in an list
  */
-extern size_t cee_array_size(struct cee_array *);
+extern size_t cee_list_size(struct cee_list *);
 
 /*
  *
  */
-extern size_t cee_array_capacity (struct cee_array *);
+extern size_t cee_list_capacity (struct cee_list *);
 
 
 struct cee_tuple {
@@ -320,7 +321,7 @@ extern void * cee_set_remove(struct cee_set * m, void * key);
 extern void cee_set_clear (struct cee_set * m);
 extern size_t cee_set_size(struct cee_set * m);
 extern bool cee_set_empty(struct cee_set * s);
-extern struct cee_array * cee_set_values(struct cee_set * m);
+extern struct cee_list * cee_set_values(struct cee_set * m);
 extern struct cee_set * cee_set_union (struct cee_set * s1, struct cee_set * s2);
 
 struct cee_map {
@@ -338,14 +339,14 @@ extern uintptr_t cee_map_size(struct cee_map *);
 extern void cee_map_add(struct cee_map * m, void * key, void * value);
 extern void * cee_map_find(struct cee_map * m, void * key);
 extern void * cee_map_remove(struct cee_map *m, void * key);
-extern struct cee_array * cee_map_keys(struct cee_map *m);
-extern struct cee_array * cee_map_values(struct cee_map *m);
+extern struct cee_list * cee_map_keys(struct cee_map *m);
+extern struct cee_list * cee_map_values(struct cee_map *m);
 
 union cee_ptr {
   void * _;
   struct cee_str       * str;
   struct cee_set       * set;
-  struct cee_array     * array;
+  struct cee_list      * list;
   struct cee_map       * map;
   struct cee_dict      * dict;
   struct cee_tuple     * tuple;
@@ -543,6 +544,9 @@ extern void cee_segfault() __attribute__((noreturn));
 #endif 
 
 #endif // CEE_INTERNAL_H
+/*
+ * a generic resource delete function for all cee_* pointers
+ */
 void cee_del(void *p) {
   if (!p) cee_segfault();
   struct cee_sect * cs = ((void *)((char *)p - sizeof(struct cee_sect)));
@@ -552,6 +556,9 @@ void cee_del_ref(void *p) {
   if (!p) cee_segfault();
   struct cee_sect * cs = ((void *)((char *)p - sizeof(struct cee_sect)));
   if (cs->in_degree) cs->in_degree --;
+  /* if it's retained by an owner,
+     it should be freed by cee_del
+  */
   if (cs->retained) return;
   if (!cs->in_degree) cs->del(p);
 }
@@ -581,6 +588,7 @@ static void _cee_common_decr_rc (void * p) {
   if (cs->in_degree)
     cs->in_degree --;
   else {
+    // report warnings
   }
 }
 uint16_t cee_get_in_degree (void * p) {
@@ -596,6 +604,7 @@ static void _cee_common_release (void * p) {
   if(cs->retained)
     cs->retained = 0;
   else {
+    // report error
     cee_segfault();
   }
 }
@@ -951,6 +960,8 @@ static void _cee_str_del (void * p) {
 }
 struct cee_str * cee_str (const char * fmt, ...) {
   if (!fmt) {
+    // fmt cannot be null
+    // intentionally cause a segfault
     cee_segfault();
   }
   uintptr_t s;
@@ -980,7 +991,7 @@ struct cee_str * cee_str_n (size_t n, const char * fmt, ...) {
   if (fmt) {
     va_start(ap, fmt);
     s = vsnprintf(NULL, 0, fmt, ap);
-    s ++;
+    s ++; // including the null terminator
   }
   else
     s = n;
@@ -999,7 +1010,7 @@ struct cee_str * cee_str_n (size_t n, const char * fmt, ...) {
     vsnprintf(m->_, mem_block_size, fmt, ap);
   }
   else {
-    m->_[0] = '\0';
+    m->_[0] = '\0'; // terminates with '\0'
   }
   return (struct cee_str *)(m->_);
 }
@@ -1013,10 +1024,25 @@ struct cee_block * cee_block_empty () {
   singleton._[0] = 0;
   return (struct cee_block *)&singleton._;
 }
+/*
+ * if it's not NULL terminated, NULL should be returned
+ */
 char * cee_str_end(struct cee_str * str) {
   struct _cee_str_header * b = ((void *)((char *)(str) - (__builtin_offsetof(struct _cee_str_header, _))));
+  // TODO: fixes this
   return (char *)str + strlen((char *)str);
+  /*
+  int i = 0; 
+  for (i = 0;i < b->used; i++)
+    if (b->_[i] == '\0')
+      return (b->_ + i);
+  
+  return NULL;
+  */
 }
+/*
+ * append any char (including '\0') to str;
+ */
 struct cee_str * cee_str_add(struct cee_str * str, char c) {
   struct _cee_str_header * b = ((void *)((char *)(str) - (__builtin_offsetof(struct _cee_str_header, _))));
   uint32_t slen = strlen((char *)str);
@@ -1041,7 +1067,7 @@ struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   size_t s = vsnprintf(NULL, 0, fmt, ap);
-  s ++;
+  s ++; // including the null terminator
   va_start(ap, fmt);
   if (slen + s < b->capacity) {
     vsnprintf(b->_ + slen, s, fmt, ap);
@@ -1057,8 +1083,8 @@ struct cee_str * cee_str_ncat (struct cee_str * str, char * s, size_t slen) {
   return NULL;
 }
 struct _cee_dict_header {
-  struct cee_array * keys;
-  struct cee_array * vals;
+  struct cee_list * keys;
+  struct cee_list * vals;
   uintptr_t size;
   enum cee_del_policy del_policy;
   struct cee_sect cs;
@@ -1075,16 +1101,16 @@ struct cee_dict * cee_dict_e (enum cee_del_policy o, size_t size) {
   size_t mem_block_size = sizeof(struct _cee_dict_header);
   struct _cee_dict_header * m = malloc(mem_block_size);
   m->del_policy = o;
-  m->keys = cee_array(size);
+  m->keys = cee_list(size);
   cee_use_realloc(m->keys);
-  m->vals = cee_array(size);
+  m->vals = cee_list(size);
   cee_use_realloc(m->vals);
   m->size = size;
   do{ memset(&m->cs, 0, sizeof(struct cee_sect)); } while(0);;
   m->cs.del = _cee_dict_del;
   m->cs.mem_block_size = mem_block_size;
   m->cs.resize_method = resize_with_identity;
-  m->cs.n_product = 2;
+  m->cs.n_product = 2; // key:str, value
   size_t hsize = (size_t)((float)size * 1.25);
   memset(m->_, 0, sizeof(struct hsearch_data));
   if (hcreate_r(hsize, m->_))
@@ -1106,8 +1132,8 @@ void cee_dict_add (struct cee_dict * d, char * key, void * value) {
   n.data = value;
   if (!hsearch_r(n, ENTER, &np, m->_))
     cee_segfault();
-  m->keys = cee_array_append(m->keys, key);
-  m->vals = cee_array_append(m->vals, value);
+  m->keys = cee_list_append(m->keys, key);
+  m->vals = cee_list_append(m->vals, value);
 }
 void * cee_dict_find(struct cee_dict * d, char * key) {
   struct _cee_dict_header * m = ((void *)((char *)(d) - (__builtin_offsetof(struct _cee_dict_header, _))));
@@ -1162,7 +1188,7 @@ struct cee_map * cee_map (int (*cmp)(const void *, const void *)) {
   m->cs.mem_block_size = mem_block_size;
   m->cs.cmp = 0;
   m->cs.cmp_stop_at_null = 0;
-  m->cs.n_product = 2;
+  m->cs.n_product = 2; // key, value
   m->_[0] = 0;
   return (struct cee_map *)m->_;
 }
@@ -1177,7 +1203,7 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
   triple->value = cee_tuple(key, value);
   struct _cee_map_pair ** oldp = tsearch(triple, b->_, _cee_map_cmp);
   if (oldp == NULL)
-    cee_segfault();
+    cee_segfault(); // run out of memory
   else if (*oldp != triple)
     _cee_map_free_pair(triple);
   else
@@ -1214,7 +1240,7 @@ void * cee_map_remove(struct cee_map * m, void * key) {
 static void _cee_map_get_key (const void *nodep, const VISIT which, const int depth) {
   struct _cee_map_pair * p;
   struct _cee_map_header * h;
-  struct cee_array * keys;
+  struct cee_list * keys;
   switch (which)
   {
     case preorder:
@@ -1222,16 +1248,16 @@ static void _cee_map_get_key (const void *nodep, const VISIT which, const int de
       p = *(struct _cee_map_pair **)nodep;
       h = p->h;
       keys = h->context;
-      h->context = cee_array_append(keys, p->value->_[0]);
+      h->context = cee_list_append(keys, p->value->_[0]);
       break;
     default:
       break;
   }
 }
-struct cee_array * cee_map_keys(struct cee_map * m) {
+struct cee_list * cee_map_keys(struct cee_map * m) {
   uintptr_t s = cee_map_size(m);
   struct _cee_map_header * b = ((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
-  struct cee_array * keys = cee_array(s);
+  struct cee_list * keys = cee_list(s);
   b->context = keys;
   twalk(b->_[0], _cee_map_get_key);
   return keys;
@@ -1239,7 +1265,7 @@ struct cee_array * cee_map_keys(struct cee_map * m) {
 static void _cee_map_get_value (const void *nodep, const VISIT which, const int depth) {
   struct _cee_map_pair * p;
   struct _cee_map_header * h;
-  struct cee_array * values;
+  struct cee_list * values;
   switch (which)
   {
     case preorder:
@@ -1247,16 +1273,16 @@ static void _cee_map_get_value (const void *nodep, const VISIT which, const int 
       p = *(void **)nodep;
       h = p->h;
       values = h->context;
-      h->context = cee_array_append(values, p->value->_[1]);
+      h->context = cee_list_append(values, p->value->_[1]);
       break;
     default:
       break;
   }
 }
-struct cee_array * cee_map_values(struct cee_map * m) {
+struct cee_list * cee_map_values(struct cee_map * m) {
   uintptr_t s = cee_map_size(m);
   struct _cee_map_header * b = ((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
-  struct cee_array * values = cee_array(s);
+  struct cee_list * values = cee_list(s);
   b->context = values;
   twalk(b->_[0], _cee_map_get_value);
   return values;
@@ -1291,6 +1317,11 @@ static int _cee_set_cmp (const void * v1, const void * v2) {
   else
     cee_segfault();
 }
+/*
+ * create a new set and the equality of 
+ * its two elements are decided by cmp
+ * dt: specify how its elements should be handled if the set is deleted.
+ */
 struct cee_set * cee_set_e (enum cee_del_policy o, int (*cmp)(const void *, const void *)) {
   struct _cee_set_header * m = malloc(sizeof(struct _cee_set_header));
   m->cmp = cmp;
@@ -1315,6 +1346,10 @@ bool cee_set_empty (struct cee_set * s) {
   struct _cee_set_header * h = ((void *)((char *)(s) - (__builtin_offsetof(struct _cee_set_header, _))));
   return h->size == 0;
 }
+/*
+ * add an element key to the set m
+ * 
+ */
 void cee_set_add(struct cee_set *m, void * val) {
   struct _cee_set_header * h = ((void *)((char *)(m) - (__builtin_offsetof(struct _cee_set_header, _))));
   void ** c = malloc(sizeof(void *) * 2);
@@ -1368,16 +1403,16 @@ static void _cee_set_get_value (const void *nodep, const VISIT which, const int 
     case leaf:
       p = *(void **)nodep;
       h = p->h;
-      h->context = cee_array_append((struct cee_array *) h->context, p->value);
+      h->context = cee_list_append((struct cee_list *) h->context, p->value);
       break;
     default:
       break;
   }
 }
-struct cee_array * cee_set_values(struct cee_set * m) {
+struct cee_list * cee_set_values(struct cee_set * m) {
   uintptr_t s = cee_set_size(m);
   struct _cee_set_header * h = ((void *)((char *)(m) - (__builtin_offsetof(struct _cee_set_header, _))));
-  h->context = cee_array(s);
+  h->context = cee_list(s);
   cee_use_realloc(h->context);
   twalk(h->_[0], _cee_set_get_value);
   return h->context;
@@ -1400,12 +1435,12 @@ struct cee_set * cee_set_union (struct cee_set * s1, struct cee_set * s2) {
   struct _cee_set_header * h2 = ((void *)((char *)(s2) - (__builtin_offsetof(struct _cee_set_header, _))));
   if (h1->cmp == h2->cmp) {
     struct cee_set * s0 = cee_set(h1->cmp);
-    struct cee_array * v1 = cee_set_values(s1);
-    struct cee_array * v2 = cee_set_values(s2);
+    struct cee_list * v1 = cee_set_values(s1);
+    struct cee_list * v2 = cee_set_values(s2);
     int i;
-    for (i = 0; i < cee_array_size(v1); i++)
+    for (i = 0; i < cee_list_size(v1); i++)
       cee_set_add(s0, v1->_[i]);
-    for (i = 0; i < cee_array_size(v2); i++)
+    for (i = 0; i < cee_list_size(v2); i++)
       cee_set_add(s0, v2->_[i]);
     cee_del(v1);
     cee_del(v2);
@@ -1467,6 +1502,10 @@ void * cee_stack_pop (struct cee_stack * v) {
     return p;
   }
 }
+/*
+ *  nth: 0 -> the topest element
+ *       1 -> 1 element way from the topest element
+ */
 void * cee_stack_top (struct cee_stack * v, uintptr_t nth) {
   struct _cee_stack_header * b = ((void *)((char *)(v) - (__builtin_offsetof(struct _cee_stack_header, _))));
   if (b->used == 0 || nth >= b->used)
@@ -1591,16 +1630,16 @@ struct cee_quadruple * cee_quadruple_e (enum cee_del_policy o[4],
   }
   return (struct cee_quadruple *)&m->_;
 }
-struct _cee_array_header {
+struct _cee_list_header {
   uintptr_t size;
   uintptr_t capacity;
   enum cee_del_policy del_policy;
   struct cee_sect cs;
   void * _[];
 };
-static struct _cee_array_header * _cee_array_resize(struct _cee_array_header * h, size_t s)
+static struct _cee_list_header * _cee_list_resize(struct _cee_list_header * h, size_t s)
 {
-  struct _cee_array_header * ret;
+  struct _cee_list_header * ret;
   switch(h->cs.resize_method)
   {
     case resize_with_realloc:
@@ -1618,50 +1657,50 @@ static struct _cee_array_header * _cee_array_resize(struct _cee_array_header * h
   }
   return ret;
 }
-static void _cee_array_del (void * v) {
-  struct _cee_array_header * m = ((void *)((char *)(v) - (__builtin_offsetof(struct _cee_array_header, _))));
+static void _cee_list_del (void * v) {
+  struct _cee_list_header * m = ((void *)((char *)(v) - (__builtin_offsetof(struct _cee_list_header, _))));
   int i;
   for (i = 0; i < m->size; i++)
     cee_del_e(m->del_policy, m->_[i]);
   free(m);
 }
-struct cee_array * cee_array_e (enum cee_del_policy o, size_t cap) {
-  size_t mem_block_size = sizeof(struct _cee_array_header) + cap * sizeof(void *);
-  struct _cee_array_header * m = malloc(mem_block_size);
+struct cee_list * cee_list_e (enum cee_del_policy o, size_t cap) {
+  size_t mem_block_size = sizeof(struct _cee_list_header) + cap * sizeof(void *);
+  struct _cee_list_header * m = malloc(mem_block_size);
   m->capacity = cap;
   m->size = 0;
   m->del_policy = o;
   do{ memset(&m->cs, 0, sizeof(struct cee_sect)); } while(0);;
-  m->cs.del = _cee_array_del;
+  m->cs.del = _cee_list_del;
   m->cs.resize_method = resize_with_malloc;
   m->cs.mem_block_size = mem_block_size;
-  return (struct cee_array *)(m->_);
+  return (struct cee_list *)(m->_);
 }
-struct cee_array * cee_array (size_t cap) {
-  return cee_array_e(cee_dp_del_rc, cap);
+struct cee_list * cee_list (size_t cap) {
+  return cee_list_e(cee_dp_del_rc, cap);
 }
-struct cee_array * cee_array_append (struct cee_array * v, void *e) {
-  struct _cee_array_header * m = ((void *)((char *)(v) - (__builtin_offsetof(struct _cee_array_header, _))));
+struct cee_list * cee_list_append (struct cee_list * v, void *e) {
+  struct _cee_list_header * m = ((void *)((char *)(v) - (__builtin_offsetof(struct _cee_list_header, _))));
   size_t capacity = m->capacity;
   size_t extra_cap = capacity ? capacity : 1;
   if (m->size == m->capacity) {
     size_t new_mem_block_size = m->cs.mem_block_size + extra_cap * sizeof(void *);
-    struct _cee_array_header * m1 = _cee_array_resize(m, new_mem_block_size);
+    struct _cee_list_header * m1 = _cee_list_resize(m, new_mem_block_size);
     m1->capacity = capacity + extra_cap;
     m = m1;
   }
   m->_[m->size] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  return (struct cee_array *)m->_;
+  return (struct cee_list *)m->_;
 }
-struct cee_array * cee_array_insert(struct cee_array * v, size_t index, void *e) {
-  struct _cee_array_header * m = ((void *)((char *)(v) - (__builtin_offsetof(struct _cee_array_header, _))));
+struct cee_list * cee_list_insert(struct cee_list * v, size_t index, void *e) {
+  struct _cee_list_header * m = ((void *)((char *)(v) - (__builtin_offsetof(struct _cee_list_header, _))));
   size_t capacity = m->capacity;
   size_t extra_cap = capacity ? capacity : 1;
   if (m->size == m->capacity) {
     size_t new_mem_block_size = m->cs.mem_block_size + extra_cap * sizeof(void *);
-    struct _cee_array_header * m1 = _cee_array_resize(m, new_mem_block_size);
+    struct _cee_list_header * m1 = _cee_list_resize(m, new_mem_block_size);
     m1->capacity = capacity + extra_cap;
     m = m1;
   }
@@ -1671,10 +1710,10 @@ struct cee_array * cee_array_insert(struct cee_array * v, size_t index, void *e)
   m->_[index] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  return (struct cee_array *)m->_;
+  return (struct cee_list *)m->_;
 }
-struct cee_array * cee_array_remove(struct cee_array * v, size_t index) {
-  struct _cee_array_header * m = ((void *)((char *)(v) - (__builtin_offsetof(struct _cee_array_header, _))));
+struct cee_list * cee_list_remove(struct cee_list * v, size_t index) {
+  struct _cee_list_header * m = ((void *)((char *)(v) - (__builtin_offsetof(struct _cee_list_header, _))));
   if (index >= m->size) return v;
   void * e = m->_[index];
   m->_[index] = 0;
@@ -1683,14 +1722,14 @@ struct cee_array * cee_array_remove(struct cee_array * v, size_t index) {
     m->_[i] = m->_[i+1];
   m->size --;
   cee_decr_indegree(m->del_policy, e);
-  return (struct cee_array *)m->_;
+  return (struct cee_list *)m->_;
 }
-size_t cee_array_size (struct cee_array *x) {
-  struct _cee_array_header * m = ((void *)((char *)(x) - (__builtin_offsetof(struct _cee_array_header, _))));
+size_t cee_list_size (struct cee_list *x) {
+  struct _cee_list_header * m = ((void *)((char *)(x) - (__builtin_offsetof(struct _cee_list_header, _))));
   return m->size;
 }
-size_t cee_array_capacity (struct cee_array * x) {
-  struct _cee_array_header * h = ((void *)((char *)(x) - (__builtin_offsetof(struct _cee_array_header, _))));
+size_t cee_list_capacity (struct cee_list * x) {
+  struct _cee_list_header * h = ((void *)((char *)(x) - (__builtin_offsetof(struct _cee_list_header, _))));
   return h->capacity;
 }
 struct _cee_tagged_header {
@@ -1722,10 +1761,17 @@ struct cee_tagged * cee_tagged (uintptr_t tag, void *p){
 }
 struct _cee_singleton_header {
   struct cee_sect cs;
-  uintptr_t _;
+  uintptr_t _; // tag
   uintptr_t val;
 };
+/*
+ * singleton should never be deleted, hence we pass a noop
+ */
 static void _cee_singleton_noop(void *p) {}
+/*
+ * the parameter of this function has to be a global/static 
+ * uintptr_t array of two elements
+ */
 struct cee_singleton * cee_singleton_init(uintptr_t tag, void *s) {
   struct _cee_singleton_header * b = (struct _cee_singleton_header *)s;
   do{ memset(&b->cs, 0, sizeof(struct cee_sect)); } while(0);;
@@ -1761,7 +1807,7 @@ struct _cee_block_header {
   uintptr_t capacity;
   enum cee_del_policy del_policy;
   struct cee_sect cs;
-  char _[1];
+  char _[1]; // actual data
 };
 static struct _cee_block_header * _cee_block_resize(struct _cee_block_header * h, size_t s)
 {

@@ -1,6 +1,6 @@
 #ifdef CEE_AMALGAMATION
 #undef   S
-#define  S(f)  _cee_array_##f
+#define  S(f)  _cee_list_##f
 #else
 #define  S(f)  _##f
 #include "cee.h"
@@ -30,7 +30,7 @@ static void S(del) (void * v) {
   free(m);
 }
 
-struct cee_array * cee_array_e (enum cee_del_policy o, size_t cap) {
+struct cee_list * cee_list_e (enum cee_del_policy o, size_t cap) {
   size_t mem_block_size = sizeof(struct S(header)) + cap * sizeof(void *);
   struct S(header) * m = malloc(mem_block_size);
   m->capacity = cap;
@@ -40,15 +40,14 @@ struct cee_array * cee_array_e (enum cee_del_policy o, size_t cap) {
   m->cs.del = S(del);
   m->cs.resize_method = resize_with_malloc;
   m->cs.mem_block_size = mem_block_size;
-  return (struct cee_array *)(m->_);
+  return (struct cee_list *)(m->_);
 }
 
-struct cee_array * cee_array (size_t cap) {
-  return cee_array_e(cee_dp_del_rc, cap);
+struct cee_list * cee_list (size_t cap) {
+  return cee_list_e(cee_dp_del_rc, cap);
 }
 
-
-struct cee_array * cee_array_append (struct cee_array * v, void *e) {
+struct cee_list * cee_list_append (struct cee_list * v, void *e) {
   struct S(header) * m = FIND_HEADER(v);
   size_t capacity = m->capacity;
   size_t extra_cap = capacity ? capacity : 1;
@@ -61,10 +60,10 @@ struct cee_array * cee_array_append (struct cee_array * v, void *e) {
   m->_[m->size] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  return (struct cee_array *)m->_;
+  return (struct cee_list *)m->_;
 }
 
-struct cee_array * cee_array_insert(struct cee_array * v, size_t index, void *e) {
+struct cee_list * cee_list_insert(struct cee_list * v, size_t index, void *e) {
   struct S(header) * m = FIND_HEADER(v);
   size_t capacity = m->capacity;
   size_t extra_cap = capacity ? capacity : 1;
@@ -81,10 +80,10 @@ struct cee_array * cee_array_insert(struct cee_array * v, size_t index, void *e)
   m->_[index] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  return (struct cee_array *)m->_;
+  return (struct cee_list *)m->_;
 }
 
-struct cee_array * cee_array_remove(struct cee_array * v, size_t index) {
+struct cee_list * cee_list_remove(struct cee_list * v, size_t index) {
   struct S(header) * m = FIND_HEADER(v);
   if (index >= m->size) return v;
  
@@ -96,15 +95,15 @@ struct cee_array * cee_array_remove(struct cee_array * v, size_t index) {
   
   m->size --;
   cee_decr_indegree(m->del_policy, e);
-  return (struct cee_array *)m->_;
+  return (struct cee_list *)m->_;
 }
 
-size_t cee_array_size (struct cee_array *x) {
+size_t cee_list_size (struct cee_list *x) {
   struct S(header) * m = FIND_HEADER(x);
   return m->size;
 }
 
-size_t cee_array_capacity (struct cee_array * x) {
+size_t cee_list_capacity (struct cee_list * x) {
   struct S(header) * h = FIND_HEADER(x);
   return h->capacity;
 }

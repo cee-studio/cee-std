@@ -26,29 +26,29 @@ int main () {
   printf("%s\n", s2->_);
   
   /* test vector */
-  struct cee_array *v, *v1, *v2;
+  struct cee_list *v, *v1, *v2;
   
-  v = cee_array(1);
+  v = cee_list(1);
   cee_use_realloc(v);
   
-  v = cee_array_append(v, s);
-  v = cee_array_append(v, s1);
-  v = cee_array_append(v, s2);
+  v = cee_list_append(v, s);
+  v = cee_list_append(v, s1);
+  v = cee_list_append(v, s2);
   
-  printf("v.count %u\n", cee_array_size(v));
+  printf("v.count %u\n", cee_list_size(v));
   int i;
-  for (i = 0; i < cee_array_size(v); i++)
+  for (i = 0; i < cee_list_size(v); i++)
     printf ("%d:%s\n", i, (char *)v->_[i]);
   
   cee_del(v);
   
   /* a dynamic typed array */
-  v = cee_array(1);
+  v = cee_list(1);
   cee_use_realloc(v);
   
-  v = cee_array_append(v, cee_tagged(1, cee_boxed_from_i32(10)));
-  v = cee_array_append(v, cee_tagged(2, cee_boxed_from_float(10.1)));
-  v = cee_array_append(v, cee_tagged(3, cee_str("10")));
+  v = cee_list_append(v, cee_tagged(1, cee_boxed_from_i32(10)));
+  v = cee_list_append(v, cee_tagged(2, cee_boxed_from_float(10.1)));
+  v = cee_list_append(v, cee_tagged(3, cee_str("10")));
   cee_del(v);
   
   
@@ -62,9 +62,9 @@ int main () {
   char * p = cee_set_find(st, "aabc");
   printf ("%s\n", p);
   
-  struct cee_array * svals = NULL;
+  struct cee_list * svals = NULL;
   svals = cee_set_values(st);
-  for (i = 0; i < cee_array_size(svals); i++)
+  for (i = 0; i < cee_list_size(svals); i++)
     printf ("%d %s\n", i, svals->_[i]);
   
   cee_del(st);
@@ -81,8 +81,8 @@ int main () {
   struct cee_boxed * t = cee_map_find(mp, "1");
   printf ("found value %d\n", cee_boxed_to_i32(t));
   
-  struct cee_array * keys = cee_map_keys(mp);
-  for (i = 0; i < cee_array_size(keys); i++)
+  struct cee_list * keys = cee_map_keys(mp);
+  for (i = 0; i < cee_list_size(keys); i++)
     printf ("[%d] key:%s\n", i, (char *)keys->_[i]);
   
   cee_del(keys);

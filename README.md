@@ -46,23 +46,23 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
   cee_del(s2);
 ```
 
-**array** (auto expandable)
+**list**
 ```
   #include "cee.h"
-  struct cee_array *v;
+  struct cee_list *v;
   
-  v = cee_array(1);
+  v = cee_list(1);
 
-  v = cee_array_append(v, cee_str("1"));
-  v = cee_array_append(v, cee_str("2"));
-  v = cee_array_append(v, cee_str("3"));
+  v = cee_list_append(v, cee_str("1"));
+  v = cee_list_append(v, cee_str("2"));
+  v = cee_list_append(v, cee_str("3"));
   
-  printf("v.count %u\n", cee_array_size(v));
-  for (int i = 0; i < cee_array_size(v); i++) {
+  printf("v.count %u\n", cee_list_size(v));
+  for (int i = 0; i < cee_list_size(v); i++) {
     printf ("%d:%s\n", i, (char *)v->_[i]);
   }
 
-  // delete array
+  // delete list
   cee_del(v);
 ```
 
