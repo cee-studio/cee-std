@@ -143,7 +143,7 @@ static void S(get_value) (const void *nodep, const VISIT which, const int depth)
     case leaf:
       p = *(void **)nodep;
       h = p->h;
-      h->context = cee_list_append((struct cee_list *) h->context, p->value);
+      cee_list_append((struct cee_list **) &h->context, p->value);
       break;
     default:
       break;

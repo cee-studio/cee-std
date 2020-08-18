@@ -115,15 +115,13 @@ void * cee_map_remove(struct cee_map * m, void * key) {
 static void S(get_key) (const void *nodep, const VISIT which, const int depth) {
   struct S(pair) * p;
   struct S(header) * h;
-  struct cee_list * keys;
   switch (which) 
   {
     case preorder:
     case leaf:
       p = *(struct S(pair) **)nodep;
       h = p->h;
-      keys = h->context;
-      h->context = cee_list_append(keys, p->value->_[0]);
+      cee_list_append((struct cee_list **)&h->context, p->value->_[0]);
       break;
     default:
       break;
@@ -143,15 +141,13 @@ struct cee_list * cee_map_keys(struct cee_map * m) {
 static void S(get_value) (const void *nodep, const VISIT which, const int depth) {
   struct S(pair) * p;
   struct S(header) * h;
-  struct cee_list * values;
   switch (which) 
   {
     case preorder:
     case leaf:
       p = *(void **)nodep;
       h = p->h;
-      values = h->context;
-      h->context = cee_list_append(values, p->value->_[1]);
+      cee_list_append((struct cee_list **)&h->context, p->value->_[1]);
       break;
     default:
       break;

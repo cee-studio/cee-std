@@ -187,23 +187,33 @@ extern struct cee_list * cee_list (size_t capacity);
 extern struct cee_list * cee_list_e (enum cee_del_policy o, size_t size);
 
 /*
- * it may return a new list if the parameter list is too small
+ * v: the address of a list pointer
+ * e: the element to be appended to this list 
+ *
+ * The function will do the following:
+ *    if the list pointer *v is NULL or the list is full, 
+ *       allocate struct cee_list and assigned to v;
+ *
+ *    otherwise, append e to the end of the list 
+ * 
+ * return:
+ *    a list pointer that contains e as the last element.
  */
-extern struct cee_list * cee_list_append(struct cee_list * v, void * e);
+extern struct cee_list * cee_list_append(struct cee_list ** v, void * e);
 
 
 /*
  * it inserts an element e at index and shift the rest elements 
  * to higher indices
  */
-extern struct cee_list * cee_list_insert(struct cee_list * v, size_t index,
+extern struct cee_list * cee_list_insert(struct cee_list ** v, size_t index,
                                          void * e);
 
 /*
  * it removes an element at index and shift the rest elements 
  * to lower indices
  */
-extern struct cee_list * cee_list_remove(struct cee_list * v, size_t index);
+extern bool cee_list_remove(struct cee_list * v, size_t index);
 
 /*
  * returns the number of elements in an list

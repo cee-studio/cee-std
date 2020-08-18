@@ -47,7 +47,14 @@ struct cee_list * cee_list (size_t cap) {
   return cee_list_e(cee_dp_del_rc, cap);
 }
 
-struct cee_list * cee_list_append (struct cee_list * v, void *e) {
+struct cee_list * cee_list_append (struct cee_list ** l, void *e) {
+  struct cee_list * v = *l;
+  
+  if (v == NULL) {
+    v = cee_list(10);
+    cee_use_realloc(v);
+  }
+ 
   struct S(header) * m = FIND_HEADER(v);
   size_t capacity = m->capacity;
   size_t extra_cap = capacity ? capacity : 1;
@@ -60,10 +67,18 @@ struct cee_list * cee_list_append (struct cee_list * v, void *e) {
   m->_[m->size] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  return (struct cee_list *)m->_;
+  *l = (struct cee_list *)m->_;
+  return *l;
 }
 
-struct cee_list * cee_list_insert(struct cee_list * v, size_t index, void *e) {
+struct cee_list * cee_list_insert(struct cee_list ** l, size_t index, void *e) {
+  struct cee_list * v = *l;
+  
+  if (v == NULL) {
+    v = cee_list(10);
+    cee_use_realloc(v);
+  }
+  
   struct S(header) * m = FIND_HEADER(v);
   size_t capacity = m->capacity;
   size_t extra_cap = capacity ? capacity : 1;
@@ -80,12 +95,13 @@ struct cee_list * cee_list_insert(struct cee_list * v, size_t index, void *e) {
   m->_[index] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  return (struct cee_list *)m->_;
+  *l = (struct cee_list *)m->_;
+  return *l;
 }
 
-struct cee_list * cee_list_remove(struct cee_list * v, size_t index) {
+bool cee_list_remove(struct cee_list * v, size_t index) {
   struct S(header) * m = FIND_HEADER(v);
-  if (index >= m->size) return v;
+  if (index >= m->size) return false;
  
   void * e = m->_[index];
   m->_[index] = 0;
@@ -95,7 +111,7 @@ struct cee_list * cee_list_remove(struct cee_list * v, size_t index) {
   
   m->size --;
   cee_decr_indegree(m->del_policy, e);
-  return (struct cee_list *)m->_;
+  return true;
 }
 
 size_t cee_list_size (struct cee_list *x) {

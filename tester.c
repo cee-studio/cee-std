@@ -25,15 +25,11 @@ int main () {
   s2 = cee_str("%s, %s", s, s1);
   printf("%s\n", s2->_);
   
-  /* test vector */
-  struct cee_list *v, *v1, *v2;
-  
-  v = cee_list(1);
-  cee_use_realloc(v);
-  
-  v = cee_list_append(v, s);
-  v = cee_list_append(v, s1);
-  v = cee_list_append(v, s2);
+  /* test list */
+  struct cee_list *v = NULL;
+  cee_list_append(&v, s);
+  cee_list_append(&v, s1);
+  cee_list_append(&v, s2);
   
   printf("v.count %u\n", cee_list_size(v));
   int i;
@@ -42,13 +38,17 @@ int main () {
   
   cee_del(v);
   
-  /* a dynamic typed array */
-  v = cee_list(1);
-  cee_use_realloc(v);
+  /* heterogeneous list [ 10, 10.0, "10"] */
+  enum T {
+    I_T,
+    F_T,
+    S_T,
+  };
   
-  v = cee_list_append(v, cee_tagged(1, cee_boxed_from_i32(10)));
-  v = cee_list_append(v, cee_tagged(2, cee_boxed_from_float(10.1)));
-  v = cee_list_append(v, cee_tagged(3, cee_str("10")));
+  v = NULL;
+  cee_list_append(&v, cee_tagged(I_T, cee_boxed_from_i32(10)));
+  cee_list_append(&v, cee_tagged(F_T, cee_boxed_from_float(10.1)));
+  cee_list_append(&v, cee_tagged(S_T, cee_str("10")));
   cee_del(v);
   
   
