@@ -31,13 +31,13 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 
   struct cee_str * s, * s1, * s2;
   
-  s = cee_str("the number ten: %d", 10);
+  s = cee_str_mk(NULL, "the number ten: %d", 10);
   printf("%s\n", (char *)s);
   
-  s1 = cee_str("the number ten point three: %.1f", 10.3);
+  s1 = cee_str_mk(NULL, "the number ten point three: %.1f", 10.3);
   printf("%s\n", (char *)e);
   
-  s2 = cee_str("%s, %s", s, s1);
+  s2 = cee_str_mk(NULL, "%s, %s", s, s1);
   printf("%s\n", (char *)s2);
 
   // delete strings
@@ -51,7 +51,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
   #include "cee.h"
   struct cee_list *v;
   
-  v = cee_list(1);
+  v = cee_list_mk(NULL, 1);
 
   v = cee_list_append(v, cee_str("1"));
   v = cee_list_append(v, cee_str("2"));
@@ -70,7 +70,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 ```c
   #include "cee.h"
 
-  struct cee_set * st = cee_set((cee_cmp_fun)strcmp);
+  struct cee_set * st = cee_set_mk(NULL, (cee_cmp_fun)strcmp);
   printf ("st: %p\n", st);
   cee_set_add(st, cee_str("a"));
   cee_set_add(st, cee_str("aabc"));
@@ -85,7 +85,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 ```c
   #include "cee.h"
 
-  struct cee_map * mp = cee_map((cee_cmp_fun)strcmp);  
+  struct cee_map * mp = cee_map_mk(NULL, (cee_cmp_fun)strcmp);  
   cee_map_add(mp, cee_str("1"), cee_box_i32(10));
   cee_map_add(mp, cee_str("2"), cee_box_i32(20));
   cee_map_add(mp, cee_str("3"), cee_box_i32(30));
@@ -106,7 +106,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 ```c
   #include "cee.h"
 
-  struct cee_stack * sp = cee_stack_o(cee_non_owner, 100);
+  struct cee_stack * sp = cee_stack_mk_e(NULL, CEE_DP_NOOP, 100);
   cee_stack_push(sp, "1");
   cee_stack_push(sp, "2");
   cee_stack_push(sp, "3");
