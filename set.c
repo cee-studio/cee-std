@@ -47,18 +47,18 @@ static void S(trace_pair) (void * cxt, const void *nodep, const VISIT which, con
 static void S(trace)(void * p, enum cee_trace_action ta) {
   struct S(header) * h = FIND_HEADER (p);
   switch (ta) {
-    case trace_del_no_follow:
+    case CEE_TRACE_DEL_NO_FOLLOW:
       musl_tdestroy(NULL, h->_[0], NULL);
       S(de_chain)(h);
       free(h);
       break;
-    case trace_del_follow:
+    case CEE_TRACE_DEL_FOLLOW:
       musl_tdestroy(NULL, h->_[0], S(free_pair_follow));
       S(de_chain)(h);
       free(h);
       break;
     default:
-      h->cs.gc_mark = ta - trace_mark;
+      h->cs.gc_mark = ta - CEE_TRACE_MARK;
       h->ta = ta;
       musl_twalk(&ta, h->_[0], S(trace_pair));
       break;
@@ -85,7 +85,7 @@ struct cee_set * cee_set_mk_e (struct cee_state * st, enum cee_del_policy o,
   S(chain)(m, st);
   
   m->cs.trace = S(trace);
-  m->cs.resize_method = resize_with_identity;
+  m->cs.resize_method = CEE_RESIZE_WITH_IDENTITY;
   m->cs.n_product = 1;
   m->context = NULL;
   m->_[0] = NULL;
@@ -129,13 +129,13 @@ void cee_set_add(struct cee_set *m, void * val) {
 static void S(del)(void * cxt, void * p) {
   enum cee_del_policy dp = *((enum cee_del_policy *)cxt);
   switch(dp) {
-    case dp_del_rc:
+    case CEE_DP_DEL_RC:
       cee_del_ref(p);
       break;  
-    case dp_del:
+    case CEE_DP_DEL:
       cee_del(p);
       break;
-    case dp_noop:
+    case CEE_DP_NOOP:
       break;
   }
 }    

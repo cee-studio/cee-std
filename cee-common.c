@@ -20,7 +20,7 @@ void cee_del(void *p) {
   if (!p) return;
   
   struct cee_sect * cs = FIND_SECT(p);
-  cs->trace(p, trace_del_follow);
+  cs->trace(p, CEE_TRACE_DEL_FOLLOW);
 }
 
 void cee_del_ref(void *p) {
@@ -35,19 +35,19 @@ void cee_del_ref(void *p) {
   */
   if (cs->retained) return;
   
-  if (!cs->in_degree) cs->trace(p, trace_del_follow);
+  if (!cs->in_degree) cs->trace(p, CEE_TRACE_DEL_FOLLOW);
 }
 
 void cee_use_realloc(void * p) {
   struct cee_sect * cs = FIND_SECT(p);
   if (cs->resize_method)
-    cs->resize_method = resize_with_realloc;
+    cs->resize_method = CEE_RESIZE_WITH_REALLOC;
 }
 
 void cee_use_malloc(void * p) {
   struct cee_sect * cs = FIND_SECT(p);
   if (cs->resize_method)
-    cs->resize_method = resize_with_malloc;
+    cs->resize_method = CEE_RESIZE_WITH_MALLOC;
 }
 
 void cee_segfault() {
@@ -96,26 +96,26 @@ static void _cee_common_release (void * p) {
 
 void cee_incr_indegree (enum cee_del_policy o, void * p) {
   switch(o) {
-    case dp_del_rc:
+    case CEE_DP_DEL_RC:
       _cee_common_incr_rc(p);
       break;
-    case dp_del:
+    case CEE_DP_DEL:
       _cee_common_retain(p);
       break;
-    case dp_noop:
+    case CEE_DP_NOOP:
       break;
   }
 }
 
 void cee_decr_indegree (enum cee_del_policy o, void * p) {
   switch(o) {
-    case dp_del_rc:
+    case CEE_DP_DEL_RC:
       _cee_common_decr_rc(p);
       break;
-    case dp_del:
+    case CEE_DP_DEL:
       _cee_common_release(p);
       break;
-    case dp_noop:
+    case CEE_DP_NOOP:
       break;
   }
 }
@@ -123,13 +123,13 @@ void cee_decr_indegree (enum cee_del_policy o, void * p) {
 
 void cee_del_e (enum cee_del_policy o, void *p) {
   switch(o) {
-    case dp_del_rc:
+    case CEE_DP_DEL_RC:
       cee_del_ref(p);
       break;
-    case dp_del:
+    case CEE_DP_DEL:
       cee_del(p);
       break;
-    case dp_noop:
+    case CEE_DP_NOOP:
       break;
   }
 }

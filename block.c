@@ -28,13 +28,13 @@ struct S(header) {
 static void S(trace) (void * p, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(p);
   switch (ta) {
-    case trace_del_follow:
-    case trace_del_no_follow:
+    case CEE_TRACE_DEL_FOLLOW:
+    case CEE_TRACE_DEL_NO_FOLLOW:
       S(de_chain)(m);
       free(m);
       break;
     default:
-      m->cs.gc_mark = ta - trace_mark;
+      m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   } 
 }
@@ -50,11 +50,11 @@ void * cee_block_mk (struct cee_state * s, size_t n) {
   struct S(header) * m = malloc(mem_block_size);
   
   ZERO_CEE_SECT(&m->cs);
-  m->del_policy = dp_del_rc;
+  m->del_policy = CEE_DP_DEL_RC;
   S(chain)(m, s);
   
   m->cs.trace = S(trace);
-  m->cs.resize_method = resize_with_malloc;
+  m->cs.resize_method = CEE_RESIZE_WITH_MALLOC;
   m->cs.mem_block_size = mem_block_size;
   m->cs.cmp = (void *)memcmp;
   m->capacity = n;

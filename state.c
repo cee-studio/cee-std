@@ -19,18 +19,18 @@ struct S(header) {
 static void S(trace) (void * v, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(v);
   switch (ta) {
-    case trace_del_follow: 
+    case CEE_TRACE_DEL_FOLLOW: 
     {
       // following this tracing chain but not the relations
       struct cee_sect * tail = m->_.trace_tail;
       while (tail != &m->cs) {
-        cee_trace(tail + 1, trace_del_no_follow);
+        cee_trace(tail + 1, CEE_TRACE_DEL_NO_FOLLOW);
         tail = m->_.trace_tail;
       }
       free(m);
       break;
     }
-    case trace_del_no_follow: 
+    case CEE_TRACE_DEL_NO_FOLLOW: 
     {
       // TODO detach the this state from all memory blocks
       free(m);
@@ -38,7 +38,7 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
     }
     default:
     {
-      m->cs.gc_mark = ta - trace_mark;
+      m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->_.roots, ta);
       cee_trace(m->_.stack, ta);
       cee_trace(m->_.contexts, ta);
@@ -52,8 +52,8 @@ static void S(sweep) (void * v, enum cee_trace_action ta) {
   struct cee_sect * head  = &m->cs;
   while (head != NULL) {
     struct cee_sect * next = head->trace_next;
-    if (head->gc_mark != ta - trace_mark)
-      cee_trace(head + 1, trace_del_no_follow);
+    if (head->gc_mark != ta - CEE_TRACE_MARK)
+      cee_trace(head + 1, CEE_TRACE_DEL_NO_FOLLOW);
     head = next;
   }
 }
@@ -75,7 +75,7 @@ struct cee_state * cee_state_mk(size_t n) {
   h->cs.trace = S(trace);
   h->_.trace_tail = &h->cs; // points to self;
   
-  struct cee_set * roots = cee_set_mk_e(&h->_, dp_noop, S(cmp));
+  struct cee_set * roots = cee_set_mk_e(&h->_, CEE_DP_NOOP, S(cmp));
   h->_.roots = roots;
   h->_.next_mark = 1;
   h->_.stack = cee_stack_mk(&h->_, n);
@@ -105,7 +105,7 @@ void * cee_state_get_context (struct cee_state * s, char * key) {
   
 void cee_state_gc (struct cee_state * s) {
   struct S(header) * h = FIND_HEADER(s);
-  int mark = trace_mark + s->next_mark;
+  int mark = CEE_TRACE_MARK + s->next_mark;
   
   cee_trace(s, (enum cee_trace_action)mark);
   S(sweep)(s, (enum cee_trace_action) mark);

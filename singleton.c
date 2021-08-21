@@ -28,7 +28,7 @@ struct cee_singleton * cee_singleton_init(void *s, uintptr_t tag, uintptr_t val)
   struct S(header) * b = (struct S(header) *)s;
   ZERO_CEE_SECT(&b->cs);
   b->cs.trace = S(noop);
-  b->cs.resize_method = resize_with_identity;
+  b->cs.resize_method = CEE_RESIZE_WITH_IDENTITY;
   b->cs.mem_block_size = 0;
   b->cs.n_product = 0;
   b->_ = tag;

@@ -29,12 +29,12 @@ static void S(trace)(void *d, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(d);
   
   switch (ta) {
-    case trace_del_no_follow:
+    case CEE_TRACE_DEL_NO_FOLLOW:
       musl_hdestroy_r(m->_);
       S(de_chain)(m);
       free(m);
       break;
-    case trace_del_follow:
+    case CEE_TRACE_DEL_FOLLOW:
       cee_del_e(m->del_policy, m->keys);
       cee_del_e(m->del_policy, m->vals);
       musl_hdestroy_r(m->_);
@@ -42,7 +42,7 @@ static void S(trace)(void *d, enum cee_trace_action ta) {
       free(m);
       break;
     default:
-      m->cs.gc_mark = ta - trace_mark;
+      m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->keys, ta);
       cee_trace(m->vals, ta);
       break;
@@ -65,7 +65,7 @@ struct cee_dict * cee_dict_mk_e (struct cee_state * s, enum cee_del_policy o, si
   
   m->cs.trace = S(trace);
   m->cs.mem_block_size = mem_block_size;
-  m->cs.resize_method = resize_with_identity;
+  m->cs.resize_method = CEE_RESIZE_WITH_IDENTITY;
   m->cs.n_product = 2; // key:str, value
   size_t  hsize = (size_t)((float)size * 1.25);
   memset(m->_, 0, sizeof(struct musl_hsearch_data));

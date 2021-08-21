@@ -12,15 +12,15 @@ typedef uintptr_t cee_tag_t;
 typedef int (*cee_cmp_fun) (const void *, const void *);
 
 enum cee_resize_method {
-  resize_with_identity = 0, // resize with identity function
-  resize_with_malloc = 1,   // resize with malloc  (safe, but leak)
-  resize_with_realloc = 2   // resize with realloc (probably unsafe)
+  CEE_RESIZE_WITH_IDENTITY = 0, // resize with identity function
+  CEE_RESIZE_WITH_MALLOC = 1,   // resize with malloc  (safe, but leak)
+  CEE_RESIZE_WITH_REALLOC = 2   // resize with realloc (probably unsafe)
 };
 
 enum cee_trace_action {
-  trace_del_no_follow = 0,
-  trace_del_follow, // trace points-to graph and delete each node
-  trace_mark,       // trace points-to graph and mark each node
+  CEE_TRACE_DEL_NO_FOLLOW = 0,
+  CEE_TRACE_DEL_FOLLOW, // trace points-to graph and delete each node
+  CEE_TRACE_MARK,       // trace points-to graph and mark each node
 };
 
 
@@ -35,29 +35,29 @@ enum cee_trace_action {
  * how the elements of the container will be handled once the container is 
  * deleted (freed).
  * 
- * dp_del_rc: if a container is freed, its cee element's in-degree will be 
+ * CEE_DP_DEL_RC: if a container is freed, its cee element's in-degree will be 
  *         decreased by one. If any cee element's in-degree is zero, the element 
  *         will be freed. It's developer's responsibility to prevent cyclically
  *         pointed containers from having this policy.
  * 
- * dp_del: if a container is freed, all its cee elements will be freed 
+ * CEE_DP_DEL: if a container is freed, all its cee elements will be freed 
  *         immediately. It's developer's responsiblity to prevent an element is 
  *         retained by multiple containers that have this policy.
  *
- * dp_noop: if a container is freed, nothing will happen to its elements.
+ * CEE_DP_NOOP: if a container is freed, nothing will happen to its elements.
  *          It's developer's responsiblity to prevent memory leaks.
  *
- * the default del_policy is cee_dp_del_rc, which can be configured at compile
+ * the default del_policy is CEE_DP_DEL_RC, which can be configured at compile
  * time with CEE_DEFAULT_DEL_POLICY
  */
 enum cee_del_policy {
-  dp_del_rc = 0,
-  dp_del = 1,
-  dp_noop = 2
+  CEE_DP_DEL_RC = 0,
+  CEE_DP_DEL = 1,
+  CEE_DP_NOOP = 2
 };
 
 #ifndef CEE_DEFAULT_DEL_POLICY
-#define CEE_DEFAULT_DEL_POLICY  dp_del_rc
+#define CEE_DEFAULT_DEL_POLICY  CEE_DP_DEL_RC
 #endif
 /*
  *
@@ -407,16 +407,16 @@ extern struct cee_singleton * cee_singleton_init(void *, uintptr_t tag, uintptr_
   
   
 enum cee_boxed_primitive_type {
-  primitive_f64 = 1,
-  primitive_f32,
-  primitive_u64,
-  primitive_u32,
-  primitive_u16,
-  primitive_u8,
-  primitive_i64,
-  primitive_i32,
-  primitive_i16,
-  primitive_i8
+  cee_primitive_f64 = 1,
+  cee_primitive_f32,
+  cee_primitive_u64,
+  cee_primitive_u32,
+  cee_primitive_u16,
+  cee_primitive_u8,
+  cee_primitive_i64,
+  cee_primitive_i32,
+  cee_primitive_i16,
+  cee_primitive_i8
 };
 union cee_boxed_primitive_value {
   double   f64;

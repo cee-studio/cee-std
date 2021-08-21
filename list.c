@@ -27,18 +27,18 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
   int i;
   
   switch(ta) {
-    case trace_del_no_follow:
+    case CEE_TRACE_DEL_NO_FOLLOW:
       S(de_chain)(m);
       free(m);
       break;
-    case trace_del_follow:
+    case CEE_TRACE_DEL_FOLLOW:
       for (i = 0; i < m->size; i++)
         cee_del_e(m->del_policy, m->_[i]);
       S(de_chain)(m);
       free(m);
       break;
     default:
-      m->cs.gc_mark = ta - trace_mark;
+      m->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < m->size; i++)
         cee_trace(m->_[i], ta);
       break;
@@ -55,7 +55,7 @@ struct cee_list * cee_list_mk_e (struct cee_state * st, enum cee_del_policy o, s
   S(chain)(m, st);
   
   m->cs.trace = S(trace);
-  m->cs.resize_method = resize_with_malloc;
+  m->cs.resize_method = CEE_RESIZE_WITH_MALLOC;
   m->cs.mem_block_size = mem_block_size;
   
   return (struct cee_list *)(m->_);

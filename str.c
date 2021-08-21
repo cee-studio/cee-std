@@ -27,13 +27,13 @@ struct S(header) {
 static void S(trace) (void * p, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(p);
   switch (ta) {
-    case trace_del_no_follow:
-    case trace_del_follow:
+    case CEE_TRACE_DEL_NO_FOLLOW:
+    case CEE_TRACE_DEL_FOLLOW:
       S(de_chain)(m);
       free(m);
       break;
     default:
-      m->cs.gc_mark = ta - trace_mark;
+      m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }
 }
@@ -61,7 +61,7 @@ struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
   S(chain)(h, st);
   
   h->cs.trace = S(trace);
-  h->cs.resize_method = resize_with_malloc;
+  h->cs.resize_method = CEE_RESIZE_WITH_MALLOC;
   h->cs.mem_block_size = mem_block_size;
   h->cs.cmp = (void *)strcmp;
   h->cs.cmp_stop_at_null = 1;
@@ -93,7 +93,7 @@ struct cee_str * cee_str_mk_e (struct cee_state * st, size_t n, const char * fmt
 
   ZERO_CEE_SECT(&m->cs);
   m->cs.trace = S(trace);
-  m->cs.resize_method = resize_with_malloc;
+  m->cs.resize_method = CEE_RESIZE_WITH_MALLOC;
   m->cs.mem_block_size = mem_block_size;
   m->cs.cmp = (void *)strcmp;
   m->cs.cmp_stop_at_null = 1;
@@ -115,7 +115,7 @@ static void S(noop)(void * v, enum cee_trace_action ta) {}
 struct cee_block * cee_block_empty () {
   static struct S(header) singleton;
   singleton.cs.trace = S(noop);
-  singleton.cs.resize_method = resize_with_malloc;
+  singleton.cs.resize_method = CEE_RESIZE_WITH_MALLOC;
   singleton.cs.mem_block_size = sizeof(struct S(header));
   singleton.capacity = 1;
   singleton._[0] = 0;

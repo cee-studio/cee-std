@@ -28,18 +28,18 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
   int i;
   
   switch (ta) {
-    case trace_del_no_follow:
+    case CEE_TRACE_DEL_NO_FOLLOW:
       S(de_chain)(m);
       free(m);
       break;
-    case trace_del_follow:
+    case CEE_TRACE_DEL_FOLLOW:
       for (i = 0; i < m->used; i++)
         cee_del_e(m->del_policy, m->_[i]);
       S(de_chain)(m);
       free(m);
       break;
     default:
-      m->cs.gc_mark = ta - trace_mark;
+      m->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < m->used; i++)
         cee_trace(m->_[i], ta);
       break;

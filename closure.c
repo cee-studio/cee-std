@@ -22,8 +22,8 @@ struct S(header) {
 static void S(trace) (void * v, enum cee_trace_action sa) {
   struct S(header) * m = FIND_HEADER(v);
   switch (sa) {
-    case trace_del_no_follow:
-    case trace_del_follow:
+    case CEE_TRACE_DEL_NO_FOLLOW:
+    case CEE_TRACE_DEL_FOLLOW:
       S(de_chain)(m);
       free(m);
       break;
@@ -39,7 +39,7 @@ struct cee_closure * cee_closure_mk (struct cee_state * s, struct cee_env * env,
   S(chain)(b, s);
   
   b->cs.trace = S(trace);
-  b->cs.resize_method = resize_with_identity;
+  b->cs.resize_method = CEE_RESIZE_WITH_IDENTITY;
   b->cs.mem_block_size = mem_block_size;
   
   b->_.env = env;

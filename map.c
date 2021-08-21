@@ -47,18 +47,18 @@ static void S(trace_pair) (void * cxt, const void *nodep, const VISIT which, con
 static void S(trace)(void * p, enum cee_trace_action ta) {
   struct S(header) * h = FIND_HEADER (p);
   switch (ta) {
-    case trace_del_no_follow:
+    case CEE_TRACE_DEL_NO_FOLLOW:
       musl_tdestroy(NULL, h->_[0], NULL);
       S(de_chain)(h);
       free(h);
       break;
-    case trace_del_follow:
+    case CEE_TRACE_DEL_FOLLOW:
       musl_tdestroy((void *)&ta, h->_[0], S(free_pair_follow));
       S(de_chain)(h);
       free(h);
       break;
     default:
-      h->cs.gc_mark = ta - trace_mark;
+      h->cs.gc_mark = ta - CEE_TRACE_MARK;
       h->ta = ta;
       musl_twalk(&ta, h->_[0], S(trace_pair));
       break;
@@ -83,7 +83,7 @@ struct cee_map * cee_map_mk_e (struct cee_state * st, enum cee_del_policy o[2],
   S(chain)(m, st);
   
   m->cs.trace = S(trace);
-  m->cs.resize_method = resize_with_identity;
+  m->cs.resize_method = CEE_RESIZE_WITH_IDENTITY;
   m->cs.mem_block_size = mem_block_size;
   m->cs.cmp = 0;
   m->cs.cmp_stop_at_null = 0;

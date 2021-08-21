@@ -30,19 +30,19 @@ static struct S(header) * S(resize)(struct S(header) * h, size_t n)
   struct S(header) * ret;
   switch(h->cs.resize_method)
   {
-    case resize_with_realloc:
+    case CEE_RESIZE_WITH_REALLOC:
       S(de_chain)(h);
     	ret = realloc(h, n);
       ret->cs.mem_block_size = n;
       S(chain)(ret, state);
       break;
-    case resize_with_malloc:
+    case CEE_RESIZE_WITH_MALLOC:
     	ret = malloc(n);
     	memcpy(ret, h, h->cs.mem_block_size);
       ret->cs.mem_block_size = n;
       S(chain)(ret, state);
       break;
-    case resize_with_identity:
+    case CEE_RESIZE_WITH_IDENTITY:
       ret = h;
       break;
   }

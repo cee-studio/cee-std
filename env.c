@@ -23,18 +23,18 @@ struct S(header) {
 static void S(trace) (void * v, enum cee_trace_action ta) {
   struct S(header) * h = FIND_HEADER(v);
   switch (ta) {
-    case trace_del_no_follow:
+    case CEE_TRACE_DEL_NO_FOLLOW:
       S(de_chain)(h);
       free(h);
       break;
-    case trace_del_follow:
+    case CEE_TRACE_DEL_FOLLOW:
       cee_del_e(h->env_dp, h->_.outer);
       cee_del_e(h->vars_dp, h->_.vars);
       S(de_chain)(h);
       free(h);
       break;
     default:
-      h->cs.gc_mark = ta - trace_mark;
+      h->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(h->_.outer, ta);
       cee_trace(h->_.vars, ta);
       break;
@@ -49,7 +49,7 @@ struct cee_env * cee_env_mk_e(struct cee_state * st, enum cee_del_policy dp[2], 
   S(chain)(h, st);
   
   h->cs.trace = S(trace);
-  h->cs.resize_method = resize_with_identity;
+  h->cs.resize_method = CEE_RESIZE_WITH_IDENTITY;
   h->cs.mem_block_size = mem_block_size;
   h->cs.cmp = NULL;
   h->cs.n_product = 0;
