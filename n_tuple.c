@@ -12,31 +12,50 @@
 #include "cee-header.h"
 
 #define CEE_MAX_N_TUPLE  16
+
 struct S(header) {
   enum cee_del_policy del_policies[CEE_MAX_N_TUPLE];
   struct cee_sect cs;
   void * _[CEE_MAX_N_TUPLE];
 };
-
-static void S(del)(void * v) {
+    
+#include "cee-resize.h"
+    
+static void S(trace)(void * v, enum cee_trace_action ta) {
   struct S(header) * b = FIND_HEADER(v);
   int i; 
-  for (i = 0; i < b->cs.n_product; i++)
-    cee_del_e(b->del_policies[i], b->_[i]);
-  free(b);
+  
+  switch (ta) {
+    case trace_del_no_follow:
+      S(de_chain)(b);
+      free(b);
+      break;
+    case trace_del_follow:
+      for (i = 0; i < b->cs.n_product; i++)
+        cee_del_e(b->del_policies[i], b->_[i]);
+      
+      S(de_chain)(b);
+      free(b);
+      break;
+    default:
+      b->cs.gc_mark = ta - trace_mark;
+      for (i = 0; i < b->cs.n_product; i++)
+        cee_trace(b->_[i], ta);
+      break;
+  }
 }
 
-
-static struct S(header) * cee_n_tuple_v (size_t ntuple, 
-                                         enum cee_del_policy o[ntuple], 
-                                         va_list ap) {
+static struct S(header) * cee_n_tuple_v (struct cee_state * st, size_t ntuple, 
+                                         enum cee_del_policy o[], va_list ap) {
   if (ntuple > CEE_MAX_N_TUPLE)
     cee_segfault();
   
   size_t mem_block_size = sizeof(struct S(header));
   struct S(header) * m = malloc(mem_block_size);
   ZERO_CEE_SECT(&m->cs);
-  m->cs.del = S(del);
+  S(chain)(m, st);
+  
+  m->cs.trace = S(trace);
   m->cs.resize_method = resize_with_identity;
   m->cs.mem_block_size = mem_block_size;
   m->cs.n_product = ntuple;
@@ -50,8 +69,7 @@ static struct S(header) * cee_n_tuple_v (size_t ntuple,
   return m;
 }
 
-
-struct cee_n_tuple * cee_n_tuple (size_t ntuple, ...) {
+struct cee_n_tuple * cee_n_tuple_mk (struct cee_state * st, size_t ntuple, ...) {
   va_list ap;
   va_start(ap, ntuple);
   enum cee_del_policy * o = malloc(ntuple * sizeof (enum cee_del_policy));
@@ -59,7 +77,7 @@ struct cee_n_tuple * cee_n_tuple (size_t ntuple, ...) {
   for (i = 0; i < ntuple; i++)
     o[i] = CEE_DEFAULT_DEL_POLICY;
   
-  struct S(header) * h = cee_n_tuple_v(ntuple, o, ap);
+  struct S(header) * h = cee_n_tuple_v(st, ntuple, o, ap);
   free(o);
   return (struct cee_n_tuple *)(h->_);
 }

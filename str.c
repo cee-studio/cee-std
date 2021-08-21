@@ -24,48 +24,61 @@ struct S(header) {
 
 #include "cee-resize.h"
 
-static void S(del) (void * p) {
+static void S(trace) (void * p, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(p);
-  free(m);
+  switch (ta) {
+    case trace_del_no_follow:
+    case trace_del_follow:
+      S(de_chain)(m);
+      free(m);
+      break;
+    default:
+      m->cs.gc_mark = ta - trace_mark;
+      break;
+  }
 }
 
-struct cee_str * cee_str (const char * fmt, ...) {
+struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
   if (!fmt) {
     // fmt cannot be null
     // intentionally cause a segfault
     cee_segfault();
   }
-  
+
   uintptr_t s;
   va_list ap;
-  
+
   va_start(ap, fmt);
   s = vsnprintf(NULL, 0, fmt, ap);
   s ++;
-  
+
   s += sizeof(struct S(header));
   s = (s / CEE_BLOCK + 1) * CEE_BLOCK;
   size_t mem_block_size = s;
   struct S(header) * h = malloc(mem_block_size);
-  
+
   ZERO_CEE_SECT(&h->cs);
-  h->cs.del = S(del);
+  S(chain)(h, st);
+  
+  h->cs.trace = S(trace);
   h->cs.resize_method = resize_with_malloc;
   h->cs.mem_block_size = mem_block_size;
-  h->cs.cmp = strcmp;
+  h->cs.cmp = (void *)strcmp;
   h->cs.cmp_stop_at_null = 1;
   h->cs.n_product = 0;
-  h->capacity = s - sizeof(struct S(header));
   
+  h->capacity = s - sizeof(struct S(header));
+
   va_start(ap, fmt);
   vsnprintf(h->_, s, fmt, ap);
+  
   return (struct cee_str *)(h->_);
 } 
 
-struct cee_str * cee_str_n (size_t n, const char * fmt, ...) {
+struct cee_str * cee_str_mk_e (struct cee_state * st, size_t n, const char * fmt, ...) {
   uintptr_t s;
   va_list ap;
-  
+
   if (fmt) {
     va_start(ap, fmt);
     s = vsnprintf(NULL, 0, fmt, ap);
@@ -73,17 +86,20 @@ struct cee_str * cee_str_n (size_t n, const char * fmt, ...) {
   }
   else
     s = n;
-  
+
   s += sizeof(struct S(header));
   size_t mem_block_size = (s / CEE_BLOCK + 1) * CEE_BLOCK;
   struct S(header) * m = malloc(mem_block_size);
-  
+
   ZERO_CEE_SECT(&m->cs);
-  m->cs.del = S(del);
+  m->cs.trace = S(trace);
   m->cs.resize_method = resize_with_malloc;
   m->cs.mem_block_size = mem_block_size;
-  m->cs.cmp = strcmp;
+  m->cs.cmp = (void *)strcmp;
   m->cs.cmp_stop_at_null = 1;
+  
+  S(chain)(m, st);
+  
   m->capacity = mem_block_size - sizeof(struct S(header));
   if (fmt) {
     va_start(ap, fmt);
@@ -92,14 +108,13 @@ struct cee_str * cee_str_n (size_t n, const char * fmt, ...) {
   else {
     m->_[0] = '\0'; // terminates with '\0'
   }
-  
   return (struct cee_str *)(m->_);
 }
 
-static void S(noop)(void * v) {}
+static void S(noop)(void * v, enum cee_trace_action ta) {}
 struct cee_block * cee_block_empty () {
   static struct S(header) singleton;
-  singleton.cs.del = S(noop);
+  singleton.cs.trace = S(noop);
   singleton.cs.resize_method = resize_with_malloc;
   singleton.cs.mem_block_size = sizeof(struct S(header));
   singleton.capacity = 1;
@@ -119,7 +134,7 @@ char * cee_str_end(struct cee_str * str) {
   for (i = 0;i < b->used; i++)
     if (b->_[i] == '\0')
       return (b->_ + i);
-  
+
   return NULL;
   */
 }
@@ -148,14 +163,14 @@ struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
   struct S(header) * b = FIND_HEADER(str);
   if (!fmt)
     return str;
-  
+
   size_t slen = strlen((char *)str);
-  
+
   va_list ap;
   va_start(ap, fmt);
   size_t s = vsnprintf(NULL, 0, fmt, ap);
   s ++; // including the null terminator
-  
+
   va_start(ap, fmt);
   if (slen + s < b->capacity) {
     vsnprintf(b->_ + slen, s, fmt, ap);

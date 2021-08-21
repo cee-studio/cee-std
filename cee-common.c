@@ -1,29 +1,30 @@
-#ifdef CEE_AMALGAMATION
-#undef   S
-#define  S(f)  _cee_common_##f
-#else
-#define  S(f)  _##f
 #include "cee.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include "cee-internal.h"
-#endif
 
-#define FIND_SECT(p)  ((void *)((char *)p - sizeof(struct cee_sect)))
+#define FIND_SECT(p)  (struct cee_sect *)((void *)((char *)p - sizeof(struct cee_sect)))
+
+void cee_trace (void *p, enum cee_trace_action ta) {
+  if (!p) return;
+  
+  struct cee_sect * cs = FIND_SECT(p);
+  cs->trace(p, ta);
+}
 
 /*
  * a generic resource delete function for all cee_* pointers
  */
 void cee_del(void *p) {
-  if (!p) cee_segfault();
+  if (!p) return;
   
   struct cee_sect * cs = FIND_SECT(p);
-  cs->del(p);
+  cs->trace(p, trace_del_follow);
 }
 
 void cee_del_ref(void *p) {
-  if (!p) cee_segfault();
+  if (!p) return;
   
   struct cee_sect * cs = FIND_SECT(p);
   
@@ -34,7 +35,7 @@ void cee_del_ref(void *p) {
   */
   if (cs->retained) return;
   
-  if (!cs->in_degree) cs->del(p);
+  if (!cs->in_degree) cs->trace(p, trace_del_follow);
 }
 
 void cee_use_realloc(void * p) {
@@ -55,14 +56,14 @@ void cee_segfault() {
   __builtin_unreachable();
 }
 
-static void S(incr_rc) (void * p) {
+static void _cee_common_incr_rc (void * p) {
   struct cee_sect * cs = FIND_SECT(p);
   if (cs->retained) return;
   
   cs->in_degree ++;
 }
 
-static void S(decr_rc) (void * p) {
+static void _cee_common_decr_rc (void * p) {
   struct cee_sect * cs = FIND_SECT(p);
   if (cs->retained) return;
   
@@ -73,17 +74,17 @@ static void S(decr_rc) (void * p) {
   }
 }
 
-uint16_t cee_get_in_degree (void * p) {
+uint16_t get_in_degree (void * p) {
   struct cee_sect * cs = FIND_SECT(p);
   return cs->in_degree;
 }
 
-static void S(retain) (void *p) {
+static void _cee_common_retain (void *p) {
   struct cee_sect * cs = FIND_SECT(p);
   cs->retained = 1;
 }
 
-static void S(release) (void * p) {
+static void _cee_common_release (void * p) {
   struct cee_sect * cs = FIND_SECT(p);
   if(cs->retained)
     cs->retained = 0;
@@ -95,26 +96,26 @@ static void S(release) (void * p) {
 
 void cee_incr_indegree (enum cee_del_policy o, void * p) {
   switch(o) {
-    case cee_dp_del_rc:
-      S(incr_rc)(p);
+    case dp_del_rc:
+      _cee_common_incr_rc(p);
       break;
-    case cee_dp_del:
-      S(retain)(p);
+    case dp_del:
+      _cee_common_retain(p);
       break;
-    case cee_dp_noop:
+    case dp_noop:
       break;
   }
 }
 
 void cee_decr_indegree (enum cee_del_policy o, void * p) {
   switch(o) {
-    case cee_dp_del_rc:
-      S(decr_rc)(p);
+    case dp_del_rc:
+      _cee_common_decr_rc(p);
       break;
-    case cee_dp_del:
-      S(release)(p);
+    case dp_del:
+      _cee_common_release(p);
       break;
-    case cee_dp_noop:
+    case dp_noop:
       break;
   }
 }
@@ -122,13 +123,13 @@ void cee_decr_indegree (enum cee_del_policy o, void * p) {
 
 void cee_del_e (enum cee_del_policy o, void *p) {
   switch(o) {
-    case cee_dp_del_rc:
+    case dp_del_rc:
       cee_del_ref(p);
       break;
-    case cee_dp_del:
+    case dp_del:
       cee_del(p);
       break;
-    case cee_dp_noop:
+    case dp_noop:
       break;
   }
 }

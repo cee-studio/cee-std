@@ -1,0 +1,1869 @@
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:12:6: error: nested redefinition of ‘enum cee_resize_method’
+   12 | enum cee_resize_method {
+      |      ^~~~~~~~~~~~~~~~~
+cee.h:12:6: error: redeclaration of ‘enum cee_resize_method’
+cee-one.c:21:6: note: originally defined here
+   21 | enum cee_resize_method {
+      |      ^~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:13:3: error: redeclaration of enumerator ‘resize_with_identity’
+   13 |   resize_with_identity = 0, // resize with identity function
+      |   ^~~~~~~~~~~~~~~~~~~~
+cee-one.c:22:3: note: previous definition of ‘resize_with_identity’ was here
+   22 |   resize_with_identity = 0, // resize with identity function
+      |   ^~~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:14:3: error: redeclaration of enumerator ‘resize_with_malloc’
+   14 |   resize_with_malloc = 1,   // resize with malloc  (safe, but leak)
+      |   ^~~~~~~~~~~~~~~~~~
+cee-one.c:23:3: note: previous definition of ‘resize_with_malloc’ was here
+   23 |   resize_with_malloc = 1,   // resize with malloc  (safe, but leak)
+      |   ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:15:3: error: redeclaration of enumerator ‘resize_with_realloc’
+   15 |   resize_with_realloc = 2   // resize with realloc (probably unsafe)
+      |   ^~~~~~~~~~~~~~~~~~~
+cee-one.c:24:3: note: previous definition of ‘resize_with_realloc’ was here
+   24 |   resize_with_realloc = 2   // resize with realloc (probably unsafe)
+      |   ^~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:18:6: error: nested redefinition of ‘enum cee_trace_action’
+   18 | enum cee_trace_action {
+      |      ^~~~~~~~~~~~~~~~
+cee.h:18:6: error: redeclaration of ‘enum cee_trace_action’
+cee-one.c:27:6: note: originally defined here
+   27 | enum cee_trace_action {
+      |      ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:19:3: error: redeclaration of enumerator ‘trace_del_no_follow’
+   19 |   trace_del_no_follow = 0,
+      |   ^~~~~~~~~~~~~~~~~~~
+cee-one.c:28:3: note: previous definition of ‘trace_del_no_follow’ was here
+   28 |   trace_del_no_follow = 0,
+      |   ^~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:20:3: error: redeclaration of enumerator ‘trace_del_follow’
+   20 |   trace_del_follow, // trace points-to graph and delete each node
+      |   ^~~~~~~~~~~~~~~~
+cee-one.c:29:3: note: previous definition of ‘trace_del_follow’ was here
+   29 |   trace_del_follow, // trace points-to graph and delete each node
+      |   ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:21:3: error: redeclaration of enumerator ‘trace_mark’
+   21 |   trace_mark,       // trace points-to graph and mark each node
+      |   ^~~~~~~~~~
+cee-one.c:30:3: note: previous definition of ‘trace_mark’ was here
+   30 |   trace_mark,       // trace points-to graph and mark each node
+      |   ^~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:51:6: error: nested redefinition of ‘enum cee_del_policy’
+   51 | enum cee_del_policy {
+      |      ^~~~~~~~~~~~~~
+cee.h:51:6: error: redeclaration of ‘enum cee_del_policy’
+cee-one.c:60:6: note: originally defined here
+   60 | enum cee_del_policy {
+      |      ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:52:3: error: redeclaration of enumerator ‘dp_del_rc’
+   52 |   dp_del_rc = 0,
+      |   ^~~~~~~~~
+cee-one.c:61:3: note: previous definition of ‘dp_del_rc’ was here
+   61 |   dp_del_rc = 0,
+      |   ^~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:53:3: error: redeclaration of enumerator ‘dp_del’
+   53 |   dp_del = 1,
+      |   ^~~~~~
+cee-one.c:62:3: note: previous definition of ‘dp_del’ was here
+   62 |   dp_del = 1,
+      |   ^~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:54:3: error: redeclaration of enumerator ‘dp_noop’
+   54 |   dp_noop = 2
+      |   ^~~~~~~
+cee-one.c:63:3: note: previous definition of ‘dp_noop’ was here
+   63 |   dp_noop = 2
+      |   ^~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:69:8: error: redefinition of ‘struct cee_sect’
+   69 | struct cee_sect {
+      |        ^~~~~~~~
+cee-one.c:78:8: note: originally defined here
+   78 | struct cee_sect {
+      |        ^~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:94:8: error: redefinition of ‘struct cee_block’
+   94 | struct cee_block {
+      |        ^~~~~~~~~
+cee-one.c:103:8: note: originally defined here
+  103 | struct cee_block {
+      |        ^~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:114:8: error: redefinition of ‘struct cee_str’
+  114 | struct cee_str {
+      |        ^~~~~~~
+cee-one.c:123:8: note: originally defined here
+  123 | struct cee_str {
+      |        ^~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:138:25: error: conflicting types for ‘cee_str_mk’
+  138 | extern struct cee_str  * cee_str_mk (struct cee_state *s, const char * fmt, ...);
+      |                         ^~~~~~~~~~
+cee-one.c:147:26: note: previous declaration of ‘cee_str_mk’ was here
+  147 | extern struct cee_str  * cee_str_mk (struct cee_state *s, const char * fmt, ...);
+      |                          ^~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:159:25: error: conflicting types for ‘cee_str_mk_e’
+  159 | extern struct cee_str  * cee_str_mk_e (struct cee_state * s, size_t n, const char * fmt, ...);
+      |                         ^~~~~~~~~~~~
+cee-one.c:168:26: note: previous declaration of ‘cee_str_mk_e’ was here
+  168 | extern struct cee_str  * cee_str_mk_e (struct cee_state * s, size_t n, const char * fmt, ...);
+      |                          ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:166:15: error: conflicting types for ‘cee_str_end’
+  166 | extern char * cee_str_end (struct cee_str *);
+      |               ^~~~~~~~~~~
+cee-one.c:175:15: note: previous declaration of ‘cee_str_end’ was here
+  175 | extern char * cee_str_end (struct cee_str *);
+      |               ^~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:177:25: error: conflicting types for ‘cee_str_add’
+  177 | extern struct cee_str * cee_str_add (struct cee_str * str, char);
+      |                         ^~~~~~~~~~~
+cee-one.c:186:25: note: previous declaration of ‘cee_str_add’ was here
+  186 | extern struct cee_str * cee_str_add (struct cee_str * str, char);
+      |                         ^~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:183:25: error: conflicting types for ‘cee_str_catf’
+  183 | extern struct cee_str * cee_str_catf (struct cee_str *, const char * fmt, ...);
+      |                         ^~~~~~~~~~~~
+cee-one.c:192:25: note: previous declaration of ‘cee_str_catf’ was here
+  192 | extern struct cee_str * cee_str_catf (struct cee_str *, const char * fmt, ...);
+      |                         ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:184:25: error: conflicting types for ‘cee_str_ncat’
+  184 | extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
+      |                         ^~~~~~~~~~~~
+cee-one.c:193:25: note: previous declaration of ‘cee_str_ncat’ was here
+  193 | extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
+      |                         ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:187:8: error: redefinition of ‘struct cee_list’
+  187 | struct cee_list {
+      |        ^~~~~~~~
+cee-one.c:196:8: note: originally defined here
+  196 | struct cee_list {
+      |        ^~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:196:26: error: conflicting types for ‘cee_list_mk’
+  196 | extern struct cee_list * cee_list_mk (struct cee_state * s, size_t capacity);
+      |                          ^~~~~~~~~~~
+cee-one.c:205:26: note: previous declaration of ‘cee_list_mk’ was here
+  205 | extern struct cee_list * cee_list_mk (struct cee_state * s, size_t capacity);
+      |                          ^~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:201:26: error: conflicting types for ‘cee_list_mk_e’
+  201 | extern struct cee_list * cee_list_mk_e (struct cee_state * s, enum cee_del_policy o, size_t size);
+      |                          ^~~~~~~~~~~~~
+cee-one.c:210:26: note: previous declaration of ‘cee_list_mk_e’ was here
+  210 | extern struct cee_list * cee_list_mk_e (struct cee_state * s, enum cee_del_policy o, size_t size);
+      |                          ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:206:26: error: conflicting types for ‘cee_list_append’
+  206 | extern struct cee_list * cee_list_append(struct cee_list ** v, void * e);
+      |                          ^~~~~~~~~~~~~~~
+cee-one.c:215:26: note: previous declaration of ‘cee_list_append’ was here
+  215 | extern struct cee_list * cee_list_append(struct cee_list ** v, void * e);
+      |                          ^~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:213:26: error: conflicting types for ‘cee_list_insert’
+  213 | extern struct cee_list * cee_list_insert(struct cee_list ** v, size_t index, void * e);
+      |                          ^~~~~~~~~~~~~~~
+cee-one.c:222:26: note: previous declaration of ‘cee_list_insert’ was here
+  222 | extern struct cee_list * cee_list_insert(struct cee_list ** v, size_t index, void * e);
+      |                          ^~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:219:13: error: conflicting types for ‘cee_list_remove’
+  219 | extern bool cee_list_remove(struct cee_list * v, size_t index);
+      |             ^~~~~~~~~~~~~~~
+cee-one.c:228:13: note: previous declaration of ‘cee_list_remove’ was here
+  228 | extern bool cee_list_remove(struct cee_list * v, size_t index);
+      |             ^~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:224:15: error: conflicting types for ‘cee_list_size’
+  224 | extern size_t cee_list_size(struct cee_list *);
+      |               ^~~~~~~~~~~~~
+cee-one.c:233:15: note: previous declaration of ‘cee_list_size’ was here
+  233 | extern size_t cee_list_size(struct cee_list *);
+      |               ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:229:15: error: conflicting types for ‘cee_list_capacity’
+  229 | extern size_t cee_list_capacity (struct cee_list *);
+      |               ^~~~~~~~~~~~~~~~~
+cee-one.c:238:15: note: previous declaration of ‘cee_list_capacity’ was here
+  238 | extern size_t cee_list_capacity (struct cee_list *);
+      |               ^~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:232:8: error: redefinition of ‘struct cee_tuple’
+  232 | struct cee_tuple {
+      |        ^~~~~~~~~
+cee-one.c:241:8: note: originally defined here
+  241 | struct cee_tuple {
+      |        ^~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:242:27: error: conflicting types for ‘cee_tuple_mk’
+  242 | extern struct cee_tuple * cee_tuple_mk (struct cee_state * s, void * v1, void * v2);
+      |                           ^~~~~~~~~~~~
+cee-one.c:251:27: note: previous declaration of ‘cee_tuple_mk’ was here
+  251 | extern struct cee_tuple * cee_tuple_mk (struct cee_state * s, void * v1, void * v2);
+      |                           ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:243:27: error: conflicting types for ‘cee_tuple_mk_e’
+  243 | extern struct cee_tuple * cee_tuple_mk_e (struct cee_state * s,
+      |                           ^~~~~~~~~~~~~~
+cee-one.c:252:27: note: previous declaration of ‘cee_tuple_mk_e’ was here
+  252 | extern struct cee_tuple * cee_tuple_mk_e (struct cee_state * s,
+      |                           ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:246:8: error: redefinition of ‘struct cee_triple’
+  246 | struct cee_triple {
+      |        ^~~~~~~~~~
+cee-one.c:255:8: note: originally defined here
+  255 | struct cee_triple {
+      |        ^~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:257:28: error: conflicting types for ‘cee_triple_mk’
+  257 | extern struct cee_triple * cee_triple_mk(struct cee_state * s, void * v1, void * v2, void * v3);
+      |                            ^~~~~~~~~~~~~
+cee-one.c:266:28: note: previous declaration of ‘cee_triple_mk’ was here
+  266 | extern struct cee_triple * cee_triple_mk(struct cee_state * s, void * v1, void * v2, void * v3);
+      |                            ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:258:28: error: conflicting types for ‘cee_triple_mk_e’
+  258 | extern struct cee_triple * cee_triple_mk_e(struct cee_state * s,
+      |                            ^~~~~~~~~~~~~~~
+cee-one.c:267:28: note: previous declaration of ‘cee_triple_mk_e’ was here
+  267 | extern struct cee_triple * cee_triple_mk_e(struct cee_state * s,
+      |                            ^~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:262:8: error: redefinition of ‘struct cee_quadruple’
+  262 | struct cee_quadruple {
+      |        ^~~~~~~~~~~~~
+cee-one.c:271:8: note: originally defined here
+  271 | struct cee_quadruple {
+      |        ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:274:31: error: conflicting types for ‘cee_quadruple_mk’
+  274 | extern struct cee_quadruple * cee_quadruple_mk(struct cee_state * s,
+      |                               ^~~~~~~~~~~~~~~~
+cee-one.c:283:31: note: previous declaration of ‘cee_quadruple_mk’ was here
+  283 | extern struct cee_quadruple * cee_quadruple_mk(struct cee_state * s,
+      |                               ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:277:31: error: conflicting types for ‘cee_quadruple_mk_e’
+  277 | extern struct cee_quadruple * cee_quadruple_mk_e(struct cee_state * s,
+      |                               ^~~~~~~~~~~~~~~~~~
+cee-one.c:286:31: note: previous declaration of ‘cee_quadruple_mk_e’ was here
+  286 | extern struct cee_quadruple * cee_quadruple_mk_e(struct cee_state * s,
+      |                               ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:281:8: error: redefinition of ‘struct cee_n_tuple’
+  281 | struct cee_n_tuple {
+      |        ^~~~~~~~~~~
+cee-one.c:290:8: note: originally defined here
+  290 | struct cee_n_tuple {
+      |        ^~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:284:29: error: conflicting types for ‘cee_n_tuple_mk’
+  284 | extern struct cee_n_tuple * cee_n_tuple_mk (struct cee_state * s, size_t n, ...);
+      |                             ^~~~~~~~~~~~~~
+cee-one.c:293:29: note: previous declaration of ‘cee_n_tuple_mk’ was here
+  293 | extern struct cee_n_tuple * cee_n_tuple_mk (struct cee_state * s, size_t n, ...);
+      |                             ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:285:29: error: conflicting types for ‘cee_n_tuple_mk_e’
+  285 | extern struct cee_n_tuple * cee_n_tuple_mk_e (struct cee_state * s, size_t n, enum cee_del_policy o[], ...);
+      |                             ^~~~~~~~~~~~~~~~
+cee-one.c:294:29: note: previous declaration of ‘cee_n_tuple_mk_e’ was here
+  294 | extern struct cee_n_tuple * cee_n_tuple_mk_e (struct cee_state * s, size_t n, enum cee_del_policy o[], ...);
+      |                             ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:288:8: error: redefinition of ‘struct cee_set’
+  288 | struct cee_set {
+      |        ^~~~~~~
+cee-one.c:297:8: note: originally defined here
+  297 | struct cee_set {
+      |        ^~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:303:25: error: conflicting types for ‘cee_set_mk’
+  303 | extern struct cee_set * cee_set_mk (struct cee_state * s, int (*cmp)(const void *, const void *));
+      |                         ^~~~~~~~~~
+cee-one.c:312:25: note: previous declaration of ‘cee_set_mk’ was here
+  312 | extern struct cee_set * cee_set_mk (struct cee_state * s, int (*cmp)(const void *, const void *));
+      |                         ^~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:304:25: error: conflicting types for ‘cee_set_mk_e’
+  304 | extern struct cee_set * cee_set_mk_e (struct cee_state *s, enum cee_del_policy o,
+      |                         ^~~~~~~~~~~~
+cee-one.c:313:25: note: previous declaration of ‘cee_set_mk_e’ was here
+  313 | extern struct cee_set * cee_set_mk_e (struct cee_state *s, enum cee_del_policy o,
+      |                         ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:307:13: error: conflicting types for ‘cee_set_add’
+  307 | extern void cee_set_add(struct cee_set * m, void * key);
+      |             ^~~~~~~~~~~
+cee-one.c:316:13: note: previous declaration of ‘cee_set_add’ was here
+  316 | extern void cee_set_add(struct cee_set * m, void * key);
+      |             ^~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:308:15: error: conflicting types for ‘cee_set_find’
+  308 | extern void * cee_set_find(struct cee_set * m, void * key);
+      |               ^~~~~~~~~~~~
+cee-one.c:317:15: note: previous declaration of ‘cee_set_find’ was here
+  317 | extern void * cee_set_find(struct cee_set * m, void * key);
+      |               ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:309:15: error: conflicting types for ‘cee_set_remove’
+  309 | extern void * cee_set_remove(struct cee_set * m, void * key);
+      |               ^~~~~~~~~~~~~~
+cee-one.c:318:15: note: previous declaration of ‘cee_set_remove’ was here
+  318 | extern void * cee_set_remove(struct cee_set * m, void * key);
+      |               ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:310:13: error: conflicting types for ‘cee_set_clear’
+  310 | extern void cee_set_clear (struct cee_set * m);
+      |             ^~~~~~~~~~~~~
+cee-one.c:319:13: note: previous declaration of ‘cee_set_clear’ was here
+  319 | extern void cee_set_clear (struct cee_set * m);
+      |             ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:311:15: error: conflicting types for ‘cee_set_size’
+  311 | extern size_t cee_set_size(struct cee_set * m);
+      |               ^~~~~~~~~~~~
+cee-one.c:320:15: note: previous declaration of ‘cee_set_size’ was here
+  320 | extern size_t cee_set_size(struct cee_set * m);
+      |               ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:312:13: error: conflicting types for ‘cee_set_empty’
+  312 | extern bool cee_set_empty(struct cee_set * s);
+      |             ^~~~~~~~~~~~~
+cee-one.c:321:13: note: previous declaration of ‘cee_set_empty’ was here
+  321 | extern bool cee_set_empty(struct cee_set * s);
+      |             ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:313:26: error: conflicting types for ‘cee_set_values’
+  313 | extern struct cee_list * cee_set_values(struct cee_set * m);
+      |                          ^~~~~~~~~~~~~~
+cee-one.c:322:26: note: previous declaration of ‘cee_set_values’ was here
+  322 | extern struct cee_list * cee_set_values(struct cee_set * m);
+      |                          ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:314:25: error: conflicting types for ‘cee_set_union_sets’
+  314 | extern struct cee_set * cee_set_union_sets (struct cee_set * s1, struct cee_set * s2);
+      |                         ^~~~~~~~~~~~~~~~~~
+cee-one.c:323:25: note: previous declaration of ‘cee_set_union_sets’ was here
+  323 | extern struct cee_set * cee_set_union_sets (struct cee_set * s1, struct cee_set * s2);
+      |                         ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:316:8: error: redefinition of ‘struct cee_map’
+  316 | struct cee_map {
+      |        ^~~~~~~
+cee-one.c:325:8: note: originally defined here
+  325 | struct cee_map {
+      |        ^~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:324:25: error: conflicting types for ‘cee_map_mk’
+  324 | extern struct cee_map * cee_map_mk(struct cee_state * s, cee_cmp_fun cmp);
+      |                         ^~~~~~~~~~
+cee-one.c:333:25: note: previous declaration of ‘cee_map_mk’ was here
+  333 | extern struct cee_map * cee_map_mk(struct cee_state * s, cee_cmp_fun cmp);
+      |                         ^~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:325:25: error: conflicting types for ‘cee_map_mk_e’
+  325 | extern struct cee_map * cee_map_mk_e(struct cee_state * s, enum cee_del_policy o[2], cee_cmp_fun cmp);
+      |                         ^~~~~~~~~~~~
+cee-one.c:334:25: note: previous declaration of ‘cee_map_mk_e’ was here
+  334 | extern struct cee_map * cee_map_mk_e(struct cee_state * s, enum cee_del_policy o[2], cee_cmp_fun cmp);
+      |                         ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:327:18: error: conflicting types for ‘cee_map_size’
+  327 | extern uintptr_t cee_map_size(struct cee_map *);
+      |                  ^~~~~~~~~~~~
+cee-one.c:336:18: note: previous declaration of ‘cee_map_size’ was here
+  336 | extern uintptr_t cee_map_size(struct cee_map *);
+      |                  ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:328:13: error: conflicting types for ‘cee_map_add’
+  328 | extern void cee_map_add(struct cee_map * m, void * key, void * value);
+      |             ^~~~~~~~~~~
+cee-one.c:337:13: note: previous declaration of ‘cee_map_add’ was here
+  337 | extern void cee_map_add(struct cee_map * m, void * key, void * value);
+      |             ^~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:329:15: error: conflicting types for ‘cee_map_find’
+  329 | extern void * cee_map_find(struct cee_map * m, void * key);
+      |               ^~~~~~~~~~~~
+cee-one.c:338:15: note: previous declaration of ‘cee_map_find’ was here
+  338 | extern void * cee_map_find(struct cee_map * m, void * key);
+      |               ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:330:15: error: conflicting types for ‘cee_map_remove’
+  330 | extern void * cee_map_remove(struct cee_map *m, void * key);
+      |               ^~~~~~~~~~~~~~
+cee-one.c:339:15: note: previous declaration of ‘cee_map_remove’ was here
+  339 | extern void * cee_map_remove(struct cee_map *m, void * key);
+      |               ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:331:26: error: conflicting types for ‘cee_map_keys’
+  331 | extern struct cee_list * cee_map_keys(struct cee_map *m);
+      |                          ^~~~~~~~~~~~
+cee-one.c:340:26: note: previous declaration of ‘cee_map_keys’ was here
+  340 | extern struct cee_list * cee_map_keys(struct cee_map *m);
+      |                          ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:332:26: error: conflicting types for ‘cee_map_values’
+  332 | extern struct cee_list * cee_map_values(struct cee_map *m);
+      |                          ^~~~~~~~~~~~~~
+cee-one.c:341:26: note: previous declaration of ‘cee_map_values’ was here
+  341 | extern struct cee_list * cee_map_values(struct cee_map *m);
+      |                          ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:343:8: error: redefinition of ‘struct cee_dict’
+  343 | struct cee_dict {
+      |        ^~~~~~~~
+cee-one.c:352:8: note: originally defined here
+  352 | struct cee_dict {
+      |        ^~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:350:26: error: conflicting types for ‘cee_dict_mk’
+  350 | extern struct cee_dict * cee_dict_mk (struct cee_state * s, size_t n);
+      |                          ^~~~~~~~~~~
+cee-one.c:359:26: note: previous declaration of ‘cee_dict_mk’ was here
+  359 | extern struct cee_dict * cee_dict_mk (struct cee_state * s, size_t n);
+      |                          ^~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:351:26: error: conflicting types for ‘cee_dict_mk_e’
+  351 | extern struct cee_dict * cee_dict_mk_e (struct cee_state * s, enum cee_del_policy o, size_t n);
+      |                          ^~~~~~~~~~~~~
+cee-one.c:360:26: note: previous declaration of ‘cee_dict_mk_e’ was here
+  360 | extern struct cee_dict * cee_dict_mk_e (struct cee_state * s, enum cee_del_policy o, size_t n);
+      |                          ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:353:13: error: conflicting types for ‘cee_dict_add’
+  353 | extern void cee_dict_add(struct cee_dict * d, char * key, void * value);
+      |             ^~~~~~~~~~~~
+cee-one.c:362:13: note: previous declaration of ‘cee_dict_add’ was here
+  362 | extern void cee_dict_add(struct cee_dict * d, char * key, void * value);
+      |             ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:354:15: error: conflicting types for ‘cee_dict_find’
+  354 | extern void * cee_dict_find(struct cee_dict * d, char * key);
+      |               ^~~~~~~~~~~~~
+cee-one.c:363:15: note: previous declaration of ‘cee_dict_find’ was here
+  363 | extern void * cee_dict_find(struct cee_dict * d, char * key);
+      |               ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:359:8: error: redefinition of ‘struct cee_stack’
+  359 | struct cee_stack {
+      |        ^~~~~~~~~
+cee-one.c:368:8: note: originally defined here
+  368 | struct cee_stack {
+      |        ^~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:367:27: error: conflicting types for ‘cee_stack_mk’
+  367 | extern struct cee_stack * cee_stack_mk(struct cee_state *s, size_t n);
+      |                           ^~~~~~~~~~~~
+cee-one.c:376:27: note: previous declaration of ‘cee_stack_mk’ was here
+  376 | extern struct cee_stack * cee_stack_mk(struct cee_state *s, size_t n);
+      |                           ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:368:27: error: conflicting types for ‘cee_stack_mk_e’
+  368 | extern struct cee_stack * cee_stack_mk_e (struct cee_state *s, enum cee_del_policy o, size_t n);
+      |                           ^~~~~~~~~~~~~~
+cee-one.c:377:27: note: previous declaration of ‘cee_stack_mk_e’ was here
+  377 | extern struct cee_stack * cee_stack_mk_e (struct cee_state *s, enum cee_del_policy o, size_t n);
+      |                           ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:373:15: error: conflicting types for ‘cee_stack_top’
+  373 | extern void * cee_stack_top(struct cee_stack *, size_t nth);
+      |               ^~~~~~~~~~~~~
+cee-one.c:382:15: note: previous declaration of ‘cee_stack_top’ was here
+  382 | extern void * cee_stack_top(struct cee_stack *, size_t nth);
+      |               ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:377:15: error: conflicting types for ‘cee_stack_pop’
+  377 | extern void * cee_stack_pop(struct cee_stack *);
+      |               ^~~~~~~~~~~~~
+cee-one.c:386:15: note: previous declaration of ‘cee_stack_pop’ was here
+  386 | extern void * cee_stack_pop(struct cee_stack *);
+      |               ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:381:12: error: conflicting types for ‘cee_stack_push’
+  381 | extern int cee_stack_push(struct cee_stack *, void *);
+      |            ^~~~~~~~~~~~~~
+cee-one.c:390:12: note: previous declaration of ‘cee_stack_push’ was here
+  390 | extern int cee_stack_push(struct cee_stack *, void *);
+      |            ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:385:13: error: conflicting types for ‘cee_stack_empty’
+  385 | extern bool cee_stack_empty (struct cee_stack *);
+      |             ^~~~~~~~~~~~~~~
+cee-one.c:394:13: note: previous declaration of ‘cee_stack_empty’ was here
+  394 | extern bool cee_stack_empty (struct cee_stack *);
+      |             ^~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:389:13: error: conflicting types for ‘cee_stack_full’
+  389 | extern bool cee_stack_full (struct cee_stack *);
+      |             ^~~~~~~~~~~~~~
+cee-one.c:398:13: note: previous declaration of ‘cee_stack_full’ was here
+  398 | extern bool cee_stack_full (struct cee_stack *);
+      |             ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:393:18: error: conflicting types for ‘cee_stack_size’
+  393 | extern uintptr_t cee_stack_size (struct cee_stack *);
+      |                  ^~~~~~~~~~~~~~
+cee-one.c:402:18: note: previous declaration of ‘cee_stack_size’ was here
+  402 | extern uintptr_t cee_stack_size (struct cee_stack *);
+      |                  ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:399:8: error: redefinition of ‘struct cee_singleton’
+  399 | struct cee_singleton {
+      |        ^~~~~~~~~~~~~
+cee-one.c:408:8: note: originally defined here
+  408 | struct cee_singleton {
+      |        ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:403:31: error: conflicting types for ‘cee_singleton_init’
+  403 | extern struct cee_singleton * cee_singleton_init(void *, uintptr_t tag, uintptr_t val);
+      |                               ^~~~~~~~~~~~~~~~~~
+cee-one.c:412:31: note: previous declaration of ‘cee_singleton_init’ was here
+  412 | extern struct cee_singleton * cee_singleton_init(void *, uintptr_t tag, uintptr_t val);
+      |                               ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:407:6: error: nested redefinition of ‘enum cee_boxed_primitive_type’
+  407 | enum cee_boxed_primitive_type {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~
+cee.h:407:6: error: redeclaration of ‘enum cee_boxed_primitive_type’
+cee-one.c:416:6: note: originally defined here
+  416 | enum cee_boxed_primitive_type {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:408:3: error: redeclaration of enumerator ‘primitive_f64’
+  408 |   primitive_f64 = 1,
+      |   ^~~~~~~~~~~~~
+cee-one.c:417:3: note: previous definition of ‘primitive_f64’ was here
+  417 |   primitive_f64 = 1,
+      |   ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:409:3: error: redeclaration of enumerator ‘primitive_f32’
+  409 |   primitive_f32,
+      |   ^~~~~~~~~~~~~
+cee-one.c:418:3: note: previous definition of ‘primitive_f32’ was here
+  418 |   primitive_f32,
+      |   ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:410:3: error: redeclaration of enumerator ‘primitive_u64’
+  410 |   primitive_u64,
+      |   ^~~~~~~~~~~~~
+cee-one.c:419:3: note: previous definition of ‘primitive_u64’ was here
+  419 |   primitive_u64,
+      |   ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:411:3: error: redeclaration of enumerator ‘primitive_u32’
+  411 |   primitive_u32,
+      |   ^~~~~~~~~~~~~
+cee-one.c:420:3: note: previous definition of ‘primitive_u32’ was here
+  420 |   primitive_u32,
+      |   ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:412:3: error: redeclaration of enumerator ‘primitive_u16’
+  412 |   primitive_u16,
+      |   ^~~~~~~~~~~~~
+cee-one.c:421:3: note: previous definition of ‘primitive_u16’ was here
+  421 |   primitive_u16,
+      |   ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:413:3: error: redeclaration of enumerator ‘primitive_u8’
+  413 |   primitive_u8,
+      |   ^~~~~~~~~~~~
+cee-one.c:422:3: note: previous definition of ‘primitive_u8’ was here
+  422 |   primitive_u8,
+      |   ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:414:3: error: redeclaration of enumerator ‘primitive_i64’
+  414 |   primitive_i64,
+      |   ^~~~~~~~~~~~~
+cee-one.c:423:3: note: previous definition of ‘primitive_i64’ was here
+  423 |   primitive_i64,
+      |   ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:415:3: error: redeclaration of enumerator ‘primitive_i32’
+  415 |   primitive_i32,
+      |   ^~~~~~~~~~~~~
+cee-one.c:424:3: note: previous definition of ‘primitive_i32’ was here
+  424 |   primitive_i32,
+      |   ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:416:3: error: redeclaration of enumerator ‘primitive_i16’
+  416 |   primitive_i16,
+      |   ^~~~~~~~~~~~~
+cee-one.c:425:3: note: previous definition of ‘primitive_i16’ was here
+  425 |   primitive_i16,
+      |   ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:417:3: error: redeclaration of enumerator ‘primitive_i8’
+  417 |   primitive_i8
+      |   ^~~~~~~~~~~~
+cee-one.c:426:3: note: previous definition of ‘primitive_i8’ was here
+  426 |   primitive_i8
+      |   ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:419:7: error: redefinition of ‘union cee_boxed_primitive_value’
+  419 | union cee_boxed_primitive_value {
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+cee-one.c:428:7: note: originally defined here
+  428 | union cee_boxed_primitive_value {
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:435:8: error: redefinition of ‘struct cee_boxed’
+  435 | struct cee_boxed {
+      |        ^~~~~~~~~
+cee-one.c:444:8: note: originally defined here
+  444 | struct cee_boxed {
+      |        ^~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:439:27: error: conflicting types for ‘cee_boxed_from_double’
+  439 | extern struct cee_boxed * cee_boxed_from_double(struct cee_state *, double);
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+cee-one.c:448:27: note: previous declaration of ‘cee_boxed_from_double’ was here
+  448 | extern struct cee_boxed * cee_boxed_from_double(struct cee_state *, double);
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:440:27: error: conflicting types for ‘cee_boxed_from_float’
+  440 | extern struct cee_boxed * cee_boxed_from_float(struct cee_state *, float);
+      |                           ^~~~~~~~~~~~~~~~~~~~
+cee-one.c:449:27: note: previous declaration of ‘cee_boxed_from_float’ was here
+  449 | extern struct cee_boxed * cee_boxed_from_float(struct cee_state *, float);
+      |                           ^~~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:442:27: error: conflicting types for ‘cee_boxed_from_u64’
+  442 | extern struct cee_boxed * cee_boxed_from_u64(struct cee_state *, uint64_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+cee-one.c:451:27: note: previous declaration of ‘cee_boxed_from_u64’ was here
+  451 | extern struct cee_boxed * cee_boxed_from_u64(struct cee_state *, uint64_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:443:27: error: conflicting types for ‘cee_boxed_from_u32’
+  443 | extern struct cee_boxed * cee_boxed_from_u32(struct cee_state *, uint32_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+cee-one.c:452:27: note: previous declaration of ‘cee_boxed_from_u32’ was here
+  452 | extern struct cee_boxed * cee_boxed_from_u32(struct cee_state *, uint32_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:444:27: error: conflicting types for ‘cee_boxed_from_u16’
+  444 | extern struct cee_boxed * cee_boxed_from_u16(struct cee_state *, uint16_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+cee-one.c:453:27: note: previous declaration of ‘cee_boxed_from_u16’ was here
+  453 | extern struct cee_boxed * cee_boxed_from_u16(struct cee_state *, uint16_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:445:27: error: conflicting types for ‘cee_boxed_from_u8’
+  445 | extern struct cee_boxed * cee_boxed_from_u8(struct cee_state *, uint8_t);
+      |                           ^~~~~~~~~~~~~~~~~
+cee-one.c:454:27: note: previous declaration of ‘cee_boxed_from_u8’ was here
+  454 | extern struct cee_boxed * cee_boxed_from_u8(struct cee_state *, uint8_t);
+      |                           ^~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:447:27: error: conflicting types for ‘cee_boxed_from_i64’
+  447 | extern struct cee_boxed * cee_boxed_from_i64(struct cee_state *, int64_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+cee-one.c:456:27: note: previous declaration of ‘cee_boxed_from_i64’ was here
+  456 | extern struct cee_boxed * cee_boxed_from_i64(struct cee_state *, int64_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:448:27: error: conflicting types for ‘cee_boxed_from_i32’
+  448 | extern struct cee_boxed * cee_boxed_from_i32(struct cee_state *, int32_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+cee-one.c:457:27: note: previous declaration of ‘cee_boxed_from_i32’ was here
+  457 | extern struct cee_boxed * cee_boxed_from_i32(struct cee_state *, int32_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:449:27: error: conflicting types for ‘cee_boxed_from_i16’
+  449 | extern struct cee_boxed * cee_boxed_from_i16(struct cee_state *, int16_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+cee-one.c:458:27: note: previous declaration of ‘cee_boxed_from_i16’ was here
+  458 | extern struct cee_boxed * cee_boxed_from_i16(struct cee_state *, int16_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:450:27: error: conflicting types for ‘cee_boxed_from_i8’
+  450 | extern struct cee_boxed * cee_boxed_from_i8(struct cee_state *, int8_t);
+      |                           ^~~~~~~~~~~~~~~~~
+cee-one.c:459:27: note: previous declaration of ‘cee_boxed_from_i8’ was here
+  459 | extern struct cee_boxed * cee_boxed_from_i8(struct cee_state *, int8_t);
+      |                           ^~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:452:15: error: conflicting types for ‘cee_boxed_to_double’
+  452 | extern double   cee_boxed_to_double(struct cee_boxed * x);
+      |               ^~~~~~~~~~~~~~~~~~~
+cee-one.c:461:17: note: previous declaration of ‘cee_boxed_to_double’ was here
+  461 | extern double   cee_boxed_to_double(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:453:14: error: conflicting types for ‘cee_boxed_to_float’
+  453 | extern float    cee_boxed_to_float(struct cee_boxed * x);
+      |              ^~~~~~~~~~~~~~~~~~
+cee-one.c:462:17: note: previous declaration of ‘cee_boxed_to_float’ was here
+  462 | extern float    cee_boxed_to_float(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:455:17: error: conflicting types for ‘cee_boxed_to_u64’
+  455 | extern uint64_t cee_boxed_to_u64(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+cee-one.c:464:17: note: previous declaration of ‘cee_boxed_to_u64’ was here
+  464 | extern uint64_t cee_boxed_to_u64(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:456:17: error: conflicting types for ‘cee_boxed_to_u32’
+  456 | extern uint32_t cee_boxed_to_u32(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+cee-one.c:465:17: note: previous declaration of ‘cee_boxed_to_u32’ was here
+  465 | extern uint32_t cee_boxed_to_u32(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:457:17: error: conflicting types for ‘cee_boxed_to_u16’
+  457 | extern uint16_t cee_boxed_to_u16(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+cee-one.c:466:17: note: previous declaration of ‘cee_boxed_to_u16’ was here
+  466 | extern uint16_t cee_boxed_to_u16(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:458:16: error: conflicting types for ‘cee_boxed_to_u8’
+  458 | extern uint8_t  cee_boxed_to_u8(struct cee_boxed * x);
+      |                ^~~~~~~~~~~~~~~
+cee-one.c:467:17: note: previous declaration of ‘cee_boxed_to_u8’ was here
+  467 | extern uint8_t  cee_boxed_to_u8(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:460:16: error: conflicting types for ‘cee_boxed_to_i64’
+  460 | extern int64_t  cee_boxed_to_i64(struct cee_boxed * x);
+      |                ^~~~~~~~~~~~~~~~
+cee-one.c:469:17: note: previous declaration of ‘cee_boxed_to_i64’ was here
+  469 | extern int64_t  cee_boxed_to_i64(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:461:16: error: conflicting types for ‘cee_boxed_to_i32’
+  461 | extern int32_t  cee_boxed_to_i32(struct cee_boxed * x);
+      |                ^~~~~~~~~~~~~~~~
+cee-one.c:470:17: note: previous declaration of ‘cee_boxed_to_i32’ was here
+  470 | extern int32_t  cee_boxed_to_i32(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:462:16: error: conflicting types for ‘cee_boxed_to_i16’
+  462 | extern int16_t  cee_boxed_to_i16(struct cee_boxed * x);
+      |                ^~~~~~~~~~~~~~~~
+cee-one.c:471:17: note: previous declaration of ‘cee_boxed_to_i16’ was here
+  471 | extern int16_t  cee_boxed_to_i16(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:463:15: error: conflicting types for ‘cee_boxed_to_i8’
+  463 | extern int8_t   cee_boxed_to_i8(struct cee_boxed * x);
+      |               ^~~~~~~~~~~~~~~
+cee-one.c:472:17: note: previous declaration of ‘cee_boxed_to_i8’ was here
+  472 | extern int8_t   cee_boxed_to_i8(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:468:15: error: conflicting types for ‘cee_boxed_snprint’
+  468 | extern size_t cee_boxed_snprint(char * buf, size_t size, struct cee_boxed *p);
+      |               ^~~~~~~~~~~~~~~~~
+cee-one.c:477:15: note: previous declaration of ‘cee_boxed_snprint’ was here
+  477 | extern size_t cee_boxed_snprint(char * buf, size_t size, struct cee_boxed *p);
+      |               ^~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:470:7: error: redefinition of ‘union cee_tagged_ptr’
+  470 | union cee_tagged_ptr {
+      |       ^~~~~~~~~~~~~~
+cee-one.c:479:7: note: originally defined here
+  479 | union cee_tagged_ptr {
+      |       ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:492:8: error: redefinition of ‘struct cee_tagged’
+  492 | struct cee_tagged {
+      |        ^~~~~~~~~~
+cee-one.c:501:8: note: originally defined here
+  501 | struct cee_tagged {
+      |        ^~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:501:28: error: conflicting types for ‘cee_tagged_mk’
+  501 | extern struct cee_tagged * cee_tagged_mk (struct cee_state *, uintptr_t tag, void * v);
+      |                            ^~~~~~~~~~~~~
+cee-one.c:510:28: note: previous declaration of ‘cee_tagged_mk’ was here
+  510 | extern struct cee_tagged * cee_tagged_mk (struct cee_state *, uintptr_t tag, void * v);
+      |                            ^~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:502:28: error: conflicting types for ‘cee_tagged_mk_e’
+  502 | extern struct cee_tagged * cee_tagged_mk_e (struct cee_state *, enum cee_del_policy o, uintptr_t tag, void *v);
+      |                            ^~~~~~~~~~~~~~~
+cee-one.c:511:28: note: previous declaration of ‘cee_tagged_mk_e’ was here
+  511 | extern struct cee_tagged * cee_tagged_mk_e (struct cee_state *, enum cee_del_policy o, uintptr_t tag, void *v);
+      |                            ^~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:504:8: error: redefinition of ‘struct cee_env’
+  504 | struct cee_env {
+      |        ^~~~~~~
+cee-one.c:513:8: note: originally defined here
+  513 | struct cee_env {
+      |        ^~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:508:25: error: conflicting types for ‘cee_env_mk’
+  508 | extern struct cee_env * cee_env_mk(struct cee_state *, struct cee_env * outer, struct cee_map vars);
+      |                         ^~~~~~~~~~
+cee-one.c:517:25: note: previous declaration of ‘cee_env_mk’ was here
+  517 | extern struct cee_env * cee_env_mk(struct cee_state *, struct cee_env * outer, struct cee_map vars);
+      |                         ^~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:509:25: error: conflicting types for ‘mk_e’
+  509 | extern struct cee_env * mk_e(struct cee_state *, enum cee_del_policy dp[2], struct cee_env * outer, struct cee_map * vars);
+      |                         ^~~~
+cee-one.c:518:25: note: previous declaration of ‘mk_e’ was here
+  518 | extern struct cee_env * mk_e(struct cee_state *, enum cee_del_policy dp[2], struct cee_env * outer, struct cee_map * vars);
+      |                         ^~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:511:8: error: redefinition of ‘struct cee_closure’
+  511 | struct cee_closure {
+      |        ^~~~~~~~~~~
+cee-one.c:520:8: note: originally defined here
+  520 | struct cee_closure {
+      |        ^~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:516:29: error: conflicting types for ‘cee_closure_mk’
+  516 | extern struct cee_closure * cee_closure_mk(struct cee_env * env, void * fun);
+      |                             ^~~~~~~~~~~~~~
+cee-one.c:525:29: note: previous declaration of ‘cee_closure_mk’ was here
+  525 | extern struct cee_closure * cee_closure_mk(struct cee_env * env, void * fun);
+      |                             ^~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:548:8: error: redefinition of ‘struct cee_state’
+  548 | struct cee_state {
+      |        ^~~~~~~~~
+cee-one.c:557:8: note: originally defined here
+  557 | struct cee_state {
+      |        ^~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:562:27: error: conflicting types for ‘cee_state_mk’
+  562 | extern struct cee_state * cee_state_mk(size_t n);
+      |                           ^~~~~~~~~~~~
+cee-one.c:571:27: note: previous declaration of ‘cee_state_mk’ was here
+  571 | extern struct cee_state * cee_state_mk(size_t n);
+      |                           ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:563:13: error: conflicting types for ‘cee_state_add_gc_root’
+  563 | extern void cee_state_add_gc_root(struct cee_state *, void *);
+      |             ^~~~~~~~~~~~~~~~~~~~~
+cee-one.c:572:13: note: previous declaration of ‘cee_state_add_gc_root’ was here
+  572 | extern void cee_state_add_gc_root(struct cee_state *, void *);
+      |             ^~~~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:564:13: error: conflicting types for ‘cee_state_remove_gc_root’
+  564 | extern void cee_state_remove_gc_root(struct cee_state *, void *);
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~
+cee-one.c:573:13: note: previous declaration of ‘cee_state_remove_gc_root’ was here
+  573 | extern void cee_state_remove_gc_root(struct cee_state *, void *);
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:565:13: error: conflicting types for ‘cee_state_gc’
+  565 | extern void cee_state_gc(struct cee_state *);
+      |             ^~~~~~~~~~~~
+cee-one.c:574:13: note: previous declaration of ‘cee_state_gc’ was here
+  574 | extern void cee_state_gc(struct cee_state *);
+      |             ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:566:13: error: conflicting types for ‘cee_state_add_context’
+  566 | extern void cee_state_add_context(struct cee_state *, char * key, void * val);
+      |             ^~~~~~~~~~~~~~~~~~~~~
+cee-one.c:575:13: note: previous declaration of ‘cee_state_add_context’ was here
+  575 | extern void cee_state_add_context(struct cee_state *, char * key, void * val);
+      |             ^~~~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:567:13: error: conflicting types for ‘cee_state_remove_context’
+  567 | extern void cee_state_remove_context(struct cee_state *, char * key);
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~
+cee-one.c:576:13: note: previous declaration of ‘cee_state_remove_context’ was here
+  576 | extern void cee_state_remove_context(struct cee_state *, char * key);
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:568:15: error: conflicting types for ‘cee_state_get_context’
+  568 | extern void * cee_state_get_context(struct cee_state *, char * key);
+      |               ^~~~~~~~~~~~~~~~~~~~~
+cee-one.c:577:15: note: previous declaration of ‘cee_state_get_context’ was here
+  577 | extern void * cee_state_get_context(struct cee_state *, char * key);
+      |               ^~~~~~~~~~~~~~~~~~~~~
+In file included from boxed.c:21,
+                 from tmp.c:8:
+cee-resize.h: In function ‘_cee_boxed_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_boxed_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_boxed_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:8:
+boxed.c: At top level:
+boxed.c:73:20: error: conflicting types for ‘cee_boxed_from_double’
+   73 | struct cee_boxed * cee_boxed_from_double (struct cee_state * s, double d) {
+      |                    ^~~~~~~~~~~~~~~~~~~~~
+cee-one.c:448:27: note: previous declaration of ‘cee_boxed_from_double’ was here
+  448 | extern struct cee_boxed * cee_boxed_from_double(struct cee_state *, double);
+      |                           ^~~~~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:90:20: error: conflicting types for ‘cee_boxed_from_float’
+   90 | struct cee_boxed * cee_boxed_from_float (struct cee_state * s, float d) {
+      |                    ^~~~~~~~~~~~~~~~~~~~
+cee-one.c:449:27: note: previous declaration of ‘cee_boxed_from_float’ was here
+  449 | extern struct cee_boxed * cee_boxed_from_float(struct cee_state *, float);
+      |                           ^~~~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:107:20: error: conflicting types for ‘cee_boxed_from_u64’
+  107 | struct cee_boxed * cee_boxed_from_u64 (struct cee_state * s, uint64_t d) {
+      |                    ^~~~~~~~~~~~~~~~~~
+cee-one.c:451:27: note: previous declaration of ‘cee_boxed_from_u64’ was here
+  451 | extern struct cee_boxed * cee_boxed_from_u64(struct cee_state *, uint64_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:123:20: error: conflicting types for ‘cee_boxed_from_u32’
+  123 | struct cee_boxed * cee_boxed_from_u32 (struct cee_state * s, uint32_t d) {
+      |                    ^~~~~~~~~~~~~~~~~~
+cee-one.c:452:27: note: previous declaration of ‘cee_boxed_from_u32’ was here
+  452 | extern struct cee_boxed * cee_boxed_from_u32(struct cee_state *, uint32_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:141:20: error: conflicting types for ‘cee_boxed_from_u16’
+  141 | struct cee_boxed * cee_boxed_from_u16 (struct cee_state * s, uint16_t d) {
+      |                    ^~~~~~~~~~~~~~~~~~
+cee-one.c:453:27: note: previous declaration of ‘cee_boxed_from_u16’ was here
+  453 | extern struct cee_boxed * cee_boxed_from_u16(struct cee_state *, uint16_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:159:20: error: conflicting types for ‘cee_boxed_from_u8’
+  159 | struct cee_boxed * cee_boxed_from_u8 (struct cee_state * s, uint8_t d) {
+      |                    ^~~~~~~~~~~~~~~~~
+cee-one.c:454:27: note: previous declaration of ‘cee_boxed_from_u8’ was here
+  454 | extern struct cee_boxed * cee_boxed_from_u8(struct cee_state *, uint8_t);
+      |                           ^~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:177:20: error: conflicting types for ‘cee_boxed_from_i64’
+  177 | struct cee_boxed * cee_boxed_from_i64 (struct cee_state *s, int64_t d) {
+      |                    ^~~~~~~~~~~~~~~~~~
+cee-one.c:456:27: note: previous declaration of ‘cee_boxed_from_i64’ was here
+  456 | extern struct cee_boxed * cee_boxed_from_i64(struct cee_state *, int64_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:194:20: error: conflicting types for ‘cee_boxed_from_i32’
+  194 | struct cee_boxed * cee_boxed_from_i32 (struct cee_state * s, int32_t d) {
+      |                    ^~~~~~~~~~~~~~~~~~
+cee-one.c:457:27: note: previous declaration of ‘cee_boxed_from_i32’ was here
+  457 | extern struct cee_boxed * cee_boxed_from_i32(struct cee_state *, int32_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:211:20: error: conflicting types for ‘cee_boxed_from_i16’
+  211 | struct cee_boxed * cee_boxed_from_i16 (struct cee_state * s, int16_t d) {
+      |                    ^~~~~~~~~~~~~~~~~~
+cee-one.c:458:27: note: previous declaration of ‘cee_boxed_from_i16’ was here
+  458 | extern struct cee_boxed * cee_boxed_from_i16(struct cee_state *, int16_t);
+      |                           ^~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:228:20: error: conflicting types for ‘cee_boxed_from_i8’
+  228 | struct cee_boxed * cee_boxed_from_i8 (struct cee_state *s, int8_t d) {
+      |                    ^~~~~~~~~~~~~~~~~
+cee-one.c:459:27: note: previous declaration of ‘cee_boxed_from_i8’ was here
+  459 | extern struct cee_boxed * cee_boxed_from_i8(struct cee_state *, int8_t);
+      |                           ^~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:236:8: error: conflicting types for ‘cee_boxed_snprint’
+  236 | size_t cee_boxed_snprint (char * buf, size_t size, struct cee_boxed * x) {
+      |        ^~~~~~~~~~~~~~~~~
+cee-one.c:477:15: note: previous declaration of ‘cee_boxed_snprint’ was here
+  477 | extern size_t cee_boxed_snprint(char * buf, size_t size, struct cee_boxed *p);
+      |               ^~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:273:8: error: conflicting types for ‘cee_boxed_to_double’
+  273 | double cee_boxed_to_double (struct cee_boxed * x) {
+      |        ^~~~~~~~~~~~~~~~~~~
+cee-one.c:461:17: note: previous declaration of ‘cee_boxed_to_double’ was here
+  461 | extern double   cee_boxed_to_double(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:281:7: error: conflicting types for ‘cee_boxed_to_float’
+  281 | float cee_boxed_to_float (struct cee_boxed * x) {
+      |       ^~~~~~~~~~~~~~~~~~
+cee-one.c:462:17: note: previous declaration of ‘cee_boxed_to_float’ was here
+  462 | extern float    cee_boxed_to_float(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:289:10: error: conflicting types for ‘cee_boxed_to_u64’
+  289 | uint64_t cee_boxed_to_u64 (struct cee_boxed * x) {
+      |          ^~~~~~~~~~~~~~~~
+cee-one.c:464:17: note: previous declaration of ‘cee_boxed_to_u64’ was here
+  464 | extern uint64_t cee_boxed_to_u64(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:297:10: error: conflicting types for ‘cee_boxed_to_u32’
+  297 | uint32_t cee_boxed_to_u32 (struct cee_boxed * x) {
+      |          ^~~~~~~~~~~~~~~~
+cee-one.c:465:17: note: previous declaration of ‘cee_boxed_to_u32’ was here
+  465 | extern uint32_t cee_boxed_to_u32(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:305:10: error: conflicting types for ‘cee_boxed_to_u16’
+  305 | uint16_t cee_boxed_to_u16 (struct cee_boxed * x) {
+      |          ^~~~~~~~~~~~~~~~
+cee-one.c:466:17: note: previous declaration of ‘cee_boxed_to_u16’ was here
+  466 | extern uint16_t cee_boxed_to_u16(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:313:9: error: conflicting types for ‘cee_boxed_to_u8’
+  313 | uint8_t cee_boxed_to_u8 (struct cee_boxed * x) {
+      |         ^~~~~~~~~~~~~~~
+cee-one.c:467:17: note: previous declaration of ‘cee_boxed_to_u8’ was here
+  467 | extern uint8_t  cee_boxed_to_u8(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:322:9: error: conflicting types for ‘cee_boxed_to_i64’
+  322 | int64_t cee_boxed_to_i64 (struct cee_boxed * x) {
+      |         ^~~~~~~~~~~~~~~~
+cee-one.c:469:17: note: previous declaration of ‘cee_boxed_to_i64’ was here
+  469 | extern int64_t  cee_boxed_to_i64(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:330:9: error: conflicting types for ‘cee_boxed_to_i32’
+  330 | int32_t cee_boxed_to_i32 (struct cee_boxed * x) {
+      |         ^~~~~~~~~~~~~~~~
+cee-one.c:470:17: note: previous declaration of ‘cee_boxed_to_i32’ was here
+  470 | extern int32_t  cee_boxed_to_i32(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:338:9: error: conflicting types for ‘cee_boxed_to_i16’
+  338 | int16_t cee_boxed_to_i16 (struct cee_boxed * x) {
+      |         ^~~~~~~~~~~~~~~~
+cee-one.c:471:17: note: previous declaration of ‘cee_boxed_to_i16’ was here
+  471 | extern int16_t  cee_boxed_to_i16(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~~
+In file included from tmp.c:8:
+boxed.c:346:8: error: conflicting types for ‘cee_boxed_to_i8’
+  346 | int8_t cee_boxed_to_i8 (struct cee_boxed * x) {
+      |        ^~~~~~~~~~~~~~~
+cee-one.c:472:17: note: previous declaration of ‘cee_boxed_to_i8’ was here
+  472 | extern int8_t   cee_boxed_to_i8(struct cee_boxed * x);
+      |                 ^~~~~~~~~~~~~~~
+In file included from str.c:25,
+                 from tmp.c:9:
+cee-resize.h: In function ‘_cee_str_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_str_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_str_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:9:
+str.c: At top level:
+str.c:41:18: error: conflicting types for ‘cee_str_mk’
+   41 | struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
+      |                  ^~~~~~~~~~
+cee-one.c:147:26: note: previous declaration of ‘cee_str_mk’ was here
+  147 | extern struct cee_str  * cee_str_mk (struct cee_state *s, const char * fmt, ...);
+      |                          ^~~~~~~~~~
+In file included from tmp.c:9:
+str.c:78:18: error: conflicting types for ‘cee_str_mk_e’
+   78 | struct cee_str * cee_str_mk_e (struct cee_state * st, size_t n, const char * fmt, ...) {
+      |                  ^~~~~~~~~~~~
+cee-one.c:168:26: note: previous declaration of ‘cee_str_mk_e’ was here
+  168 | extern struct cee_str  * cee_str_mk_e (struct cee_state * s, size_t n, const char * fmt, ...);
+      |                          ^~~~~~~~~~~~
+In file included from tmp.c:9:
+str.c:128:8: error: conflicting types for ‘cee_str_end’
+  128 | char * cee_str_end(struct cee_str * str) {
+      |        ^~~~~~~~~~~
+cee-one.c:175:15: note: previous declaration of ‘cee_str_end’ was here
+  175 | extern char * cee_str_end (struct cee_str *);
+      |               ^~~~~~~~~~~
+In file included from tmp.c:9:
+str.c:145:18: error: conflicting types for ‘cee_str_add’
+  145 | struct cee_str * cee_str_add(struct cee_str * str, char c) {
+      |                  ^~~~~~~~~~~
+cee-one.c:186:25: note: previous declaration of ‘cee_str_add’ was here
+  186 | extern struct cee_str * cee_str_add (struct cee_str * str, char);
+      |                         ^~~~~~~~~~~
+In file included from tmp.c:9:
+str.c:162:18: error: conflicting types for ‘cee_str_catf’
+  162 | struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
+      |                  ^~~~~~~~~~~~
+cee-one.c:192:25: note: previous declaration of ‘cee_str_catf’ was here
+  192 | extern struct cee_str * cee_str_catf (struct cee_str *, const char * fmt, ...);
+      |                         ^~~~~~~~~~~~
+In file included from tmp.c:9:
+str.c:186:18: error: conflicting types for ‘cee_str_ncat’
+  186 | struct cee_str * cee_str_ncat (struct cee_str * str, char * s, size_t slen) {
+      |                  ^~~~~~~~~~~~
+cee-one.c:193:25: note: previous declaration of ‘cee_str_ncat’ was here
+  193 | extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
+      |                         ^~~~~~~~~~~~
+In file included from dict.c:26,
+                 from tmp.c:10:
+cee-resize.h: In function ‘_cee_dict_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_dict_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_dict_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:10:
+dict.c: At top level:
+dict.c:52:19: error: conflicting types for ‘cee_dict_mk_e’
+   52 | struct cee_dict * cee_dict_mk_e (struct cee_state * s, enum cee_del_policy o, size_t size) {
+      |                   ^~~~~~~~~~~~~
+cee-one.c:360:26: note: previous declaration of ‘cee_dict_mk_e’ was here
+  360 | extern struct cee_dict * cee_dict_mk_e (struct cee_state * s, enum cee_del_policy o, size_t n);
+      |                          ^~~~~~~~~~~~~
+In file included from tmp.c:10:
+dict.c: In function ‘cee_dict_mk_e’:
+dict.c:56:25: warning: passing argument 1 of ‘cee_list_mk’ from incompatible pointer type [-Wincompatible-pointer-types]
+   56 |   m->keys = cee_list_mk(s, size);
+      |                         ^
+      |                         |
+      |                         struct cee_state *
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:196:26: note: expected ‘struct cee_state *’ but argument is of type ‘struct cee_state *’
+  196 | extern struct cee_list * cee_list_mk (struct cee_state * s, size_t capacity);
+      |                          ^~~~~~~~~~~
+In file included from tmp.c:10:
+dict.c:59:25: warning: passing argument 1 of ‘cee_list_mk’ from incompatible pointer type [-Wincompatible-pointer-types]
+   59 |   m->vals = cee_list_mk(s, size);
+      |                         ^
+      |                         |
+      |                         struct cee_state *
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:196:26: note: expected ‘struct cee_state *’ but argument is of type ‘struct cee_state *’
+  196 | extern struct cee_list * cee_list_mk (struct cee_state * s, size_t capacity);
+      |                          ^~~~~~~~~~~
+In file included from tmp.c:10:
+dict.c: At top level:
+dict.c:83:19: error: conflicting types for ‘cee_dict_mk’
+   83 | struct cee_dict * cee_dict_mk (struct cee_state *s, size_t size) {
+      |                   ^~~~~~~~~~~
+cee-one.c:359:26: note: previous declaration of ‘cee_dict_mk’ was here
+  359 | extern struct cee_dict * cee_dict_mk (struct cee_state * s, size_t n);
+      |                          ^~~~~~~~~~~
+In file included from tmp.c:10:
+dict.c:87:6: error: conflicting types for ‘cee_dict_add’
+   87 | void cee_dict_add (struct cee_dict * d, char * key, void * value) {
+      |      ^~~~~~~~~~~~
+cee-one.c:362:13: note: previous declaration of ‘cee_dict_add’ was here
+  362 | extern void cee_dict_add(struct cee_dict * d, char * key, void * value);
+      |             ^~~~~~~~~~~~
+In file included from tmp.c:10:
+dict.c:98:8: error: conflicting types for ‘cee_dict_find’
+   98 | void * cee_dict_find(struct cee_dict * d, char * key) {
+      |        ^~~~~~~~~~~~~
+cee-one.c:363:15: note: previous declaration of ‘cee_dict_find’ was here
+  363 | extern void * cee_dict_find(struct cee_dict * d, char * key);
+      |               ^~~~~~~~~~~~~
+In file included from map.c:25,
+                 from tmp.c:11:
+cee-resize.h: In function ‘_cee_map_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_map_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_map_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:11:
+map.c: At top level:
+map.c:74:18: error: conflicting types for ‘cee_map_mk_e’
+   74 | struct cee_map * cee_map_mk_e (struct cee_state * st, enum cee_del_policy o[2],
+      |                  ^~~~~~~~~~~~
+cee-one.c:334:25: note: previous declaration of ‘cee_map_mk_e’ was here
+  334 | extern struct cee_map * cee_map_mk_e(struct cee_state * s, enum cee_del_policy o[2], cee_cmp_fun cmp);
+      |                         ^~~~~~~~~~~~
+In file included from tmp.c:11:
+map.c:97:18: error: conflicting types for ‘cee_map_mk’
+   97 | struct cee_map * cee_map_mk(struct cee_state * st, int (*cmp) (const void *, const void *)) {
+      |                  ^~~~~~~~~~
+cee-one.c:333:25: note: previous declaration of ‘cee_map_mk’ was here
+  333 | extern struct cee_map * cee_map_mk(struct cee_state * s, cee_cmp_fun cmp);
+      |                         ^~~~~~~~~~
+In file included from tmp.c:11:
+map.c:102:11: error: conflicting types for ‘cee_map_size’
+  102 | uintptr_t cee_map_size(struct cee_map * m) {
+      |           ^~~~~~~~~~~~
+cee-one.c:336:18: note: previous declaration of ‘cee_map_size’ was here
+  336 | extern uintptr_t cee_map_size(struct cee_map *);
+      |                  ^~~~~~~~~~~~
+In file included from tmp.c:11:
+map.c:107:6: error: conflicting types for ‘cee_map_add’
+  107 | void cee_map_add(struct cee_map * m, void * key, void * value) {
+      |      ^~~~~~~~~~~
+cee-one.c:337:13: note: previous declaration of ‘cee_map_add’ was here
+  337 | extern void cee_map_add(struct cee_map * m, void * key, void * value);
+      |             ^~~~~~~~~~~
+In file included from tmp.c:11:
+map.c:125:8: error: conflicting types for ‘cee_map_find’
+  125 | void * cee_map_find(struct cee_map * m, void * key) {
+      |        ^~~~~~~~~~~~
+cee-one.c:338:15: note: previous declaration of ‘cee_map_find’ was here
+  338 | extern void * cee_map_find(struct cee_map * m, void * key);
+      |               ^~~~~~~~~~~~
+In file included from tmp.c:11:
+map.c:137:8: error: conflicting types for ‘cee_map_remove’
+  137 | void * cee_map_remove(struct cee_map * m, void * key) {
+      |        ^~~~~~~~~~~~~~
+cee-one.c:339:15: note: previous declaration of ‘cee_map_remove’ was here
+  339 | extern void * cee_map_remove(struct cee_map *m, void * key);
+      |               ^~~~~~~~~~~~~~
+In file included from tmp.c:11:
+map.c:166:19: error: conflicting types for ‘cee_map_keys’
+  166 | struct cee_list * cee_map_keys(struct cee_map * m) {
+      |                   ^~~~~~~~~~~~
+cee-one.c:340:26: note: previous declaration of ‘cee_map_keys’ was here
+  340 | extern struct cee_list * cee_map_keys(struct cee_map *m);
+      |                          ^~~~~~~~~~~~
+In file included from tmp.c:11:
+map.c:190:19: error: conflicting types for ‘cee_map_values’
+  190 | struct cee_list * cee_map_values(struct cee_map * m) {
+      |                   ^~~~~~~~~~~~~~
+cee-one.c:341:26: note: previous declaration of ‘cee_map_values’ was here
+  341 | extern struct cee_list * cee_map_values(struct cee_map *m);
+      |                          ^~~~~~~~~~~~~~
+In file included from set.c:24,
+                 from tmp.c:12:
+cee-resize.h: In function ‘_cee_set_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_set_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_set_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:12:
+set.c: At top level:
+set.c:77:18: error: conflicting types for ‘cee_set_mk_e’
+   77 | struct cee_set * cee_set_mk_e (struct cee_state * st, enum cee_del_policy o,
+      |                  ^~~~~~~~~~~~
+cee-one.c:313:25: note: previous declaration of ‘cee_set_mk_e’ was here
+  313 | extern struct cee_set * cee_set_mk_e (struct cee_state *s, enum cee_del_policy o,
+      |                         ^~~~~~~~~~~~
+In file included from tmp.c:12:
+set.c:95:18: error: conflicting types for ‘cee_set_mk’
+   95 | struct cee_set * cee_set_mk (struct cee_state * s, int (*cmp)(const void *, const void *)) {
+      |                  ^~~~~~~~~~
+cee-one.c:312:25: note: previous declaration of ‘cee_set_mk’ was here
+  312 | extern struct cee_set * cee_set_mk (struct cee_state * s, int (*cmp)(const void *, const void *));
+      |                         ^~~~~~~~~~
+In file included from tmp.c:12:
+set.c:99:8: error: conflicting types for ‘cee_set_size’
+   99 | size_t cee_set_size (struct cee_set * s) {
+      |        ^~~~~~~~~~~~
+cee-one.c:320:15: note: previous declaration of ‘cee_set_size’ was here
+  320 | extern size_t cee_set_size(struct cee_set * m);
+      |               ^~~~~~~~~~~~
+In file included from tmp.c:12:
+set.c:104:6: error: conflicting types for ‘cee_set_empty’
+  104 | bool cee_set_empty (struct cee_set * s) {
+      |      ^~~~~~~~~~~~~
+cee-one.c:321:13: note: previous declaration of ‘cee_set_empty’ was here
+  321 | extern bool cee_set_empty(struct cee_set * s);
+      |             ^~~~~~~~~~~~~
+In file included from tmp.c:12:
+set.c:113:6: error: conflicting types for ‘cee_set_add’
+  113 | void cee_set_add(struct cee_set *m, void * val) {
+      |      ^~~~~~~~~~~
+cee-one.c:316:13: note: previous declaration of ‘cee_set_add’ was here
+  316 | extern void cee_set_add(struct cee_set * m, void * key);
+      |             ^~~~~~~~~~~
+In file included from tmp.c:12:
+set.c:141:6: error: conflicting types for ‘cee_set_clear’
+  141 | void cee_set_clear (struct cee_set * s) {
+      |      ^~~~~~~~~~~~~
+cee-one.c:319:13: note: previous declaration of ‘cee_set_clear’ was here
+  319 | extern void cee_set_clear (struct cee_set * m);
+      |             ^~~~~~~~~~~~~
+In file included from tmp.c:12:
+set.c:148:8: error: conflicting types for ‘cee_set_find’
+  148 | void * cee_set_find(struct cee_set *m, void * key) {
+      |        ^~~~~~~~~~~~
+cee-one.c:317:15: note: previous declaration of ‘cee_set_find’ was here
+  317 | extern void * cee_set_find(struct cee_set * m, void * key);
+      |               ^~~~~~~~~~~~
+In file included from tmp.c:12:
+set.c:171:19: error: conflicting types for ‘cee_set_values’
+  171 | struct cee_list * cee_set_values(struct cee_set * m) {
+      |                   ^~~~~~~~~~~~~~
+cee-one.c:322:26: note: previous declaration of ‘cee_set_values’ was here
+  322 | extern struct cee_list * cee_set_values(struct cee_set * m);
+      |                          ^~~~~~~~~~~~~~
+In file included from tmp.c:12:
+set.c:180:8: error: conflicting types for ‘cee_set_remove’
+  180 | void * cee_set_remove(struct cee_set *m, void * key) {
+      |        ^~~~~~~~~~~~~~
+cee-one.c:318:15: note: previous declaration of ‘cee_set_remove’ was here
+  318 | extern void * cee_set_remove(struct cee_set * m, void * key);
+      |               ^~~~~~~~~~~~~~
+In file included from stack.c:24,
+                 from tmp.c:13:
+cee-resize.h: In function ‘_cee_stack_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_stack_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_stack_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:13:
+stack.c: At top level:
+stack.c:49:20: error: conflicting types for ‘cee_stack_mk_e’
+   49 | struct cee_stack * cee_stack_mk_e (struct cee_state * st, enum cee_del_policy o, size_t size) {
+      |                    ^~~~~~~~~~~~~~
+cee-one.c:377:27: note: previous declaration of ‘cee_stack_mk_e’ was here
+  377 | extern struct cee_stack * cee_stack_mk_e (struct cee_state *s, enum cee_del_policy o, size_t n);
+      |                           ^~~~~~~~~~~~~~
+In file included from tmp.c:13:
+stack.c:65:20: error: conflicting types for ‘cee_stack_mk’
+   65 | struct cee_stack * cee_stack_mk (struct cee_state * st, size_t size) {
+      |                    ^~~~~~~~~~~~
+cee-one.c:376:27: note: previous declaration of ‘cee_stack_mk’ was here
+  376 | extern struct cee_stack * cee_stack_mk(struct cee_state *s, size_t n);
+      |                           ^~~~~~~~~~~~
+In file included from tmp.c:13:
+stack.c:69:5: error: conflicting types for ‘cee_stack_push’
+   69 | int cee_stack_push (struct cee_stack * v, void *e) {
+      |     ^~~~~~~~~~~~~~
+cee-one.c:390:12: note: previous declaration of ‘cee_stack_push’ was here
+  390 | extern int cee_stack_push(struct cee_stack *, void *);
+      |            ^~~~~~~~~~~~~~
+In file included from tmp.c:13:
+stack.c:81:8: error: conflicting types for ‘cee_stack_pop’
+   81 | void * cee_stack_pop (struct cee_stack * v) {
+      |        ^~~~~~~~~~~~~
+cee-one.c:386:15: note: previous declaration of ‘cee_stack_pop’ was here
+  386 | extern void * cee_stack_pop(struct cee_stack *);
+      |               ^~~~~~~~~~~~~
+In file included from tmp.c:13:
+stack.c:99:8: error: conflicting types for ‘cee_stack_top’
+   99 | void * cee_stack_top (struct cee_stack * v, uintptr_t nth) {
+      |        ^~~~~~~~~~~~~
+cee-one.c:382:15: note: previous declaration of ‘cee_stack_top’ was here
+  382 | extern void * cee_stack_top(struct cee_stack *, size_t nth);
+      |               ^~~~~~~~~~~~~
+In file included from tmp.c:13:
+stack.c:107:11: error: conflicting types for ‘cee_stack_size’
+  107 | uintptr_t cee_stack_size (struct cee_stack *x) {
+      |           ^~~~~~~~~~~~~~
+cee-one.c:402:18: note: previous declaration of ‘cee_stack_size’ was here
+  402 | extern uintptr_t cee_stack_size (struct cee_stack *);
+      |                  ^~~~~~~~~~~~~~
+In file included from tmp.c:13:
+stack.c:119:6: error: conflicting types for ‘cee_stack_empty’
+  119 | bool cee_stack_empty (struct cee_stack *x) {
+      |      ^~~~~~~~~~~~~~~
+cee-one.c:394:13: note: previous declaration of ‘cee_stack_empty’ was here
+  394 | extern bool cee_stack_empty (struct cee_stack *);
+      |             ^~~~~~~~~~~~~~~
+In file included from tmp.c:13:
+stack.c:124:6: error: conflicting types for ‘cee_stack_full’
+  124 | bool cee_stack_full (struct cee_stack *x) {
+      |      ^~~~~~~~~~~~~~
+cee-one.c:398:13: note: previous declaration of ‘cee_stack_full’ was here
+  398 | extern bool cee_stack_full (struct cee_stack *);
+      |             ^~~~~~~~~~~~~~
+In file included from tuple.c:19,
+                 from tmp.c:14:
+cee-resize.h: In function ‘_cee_tuple_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_tuple_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_tuple_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:14:
+tuple.c: At top level:
+tuple.c:45:20: error: conflicting types for ‘cee_tuple_mk_e’
+   45 | struct cee_tuple * cee_tuple_mk_e (struct cee_state * st, enum cee_del_policy o[2], void * v1, void * v2) {
+      |                    ^~~~~~~~~~~~~~
+cee-one.c:252:27: note: previous declaration of ‘cee_tuple_mk_e’ was here
+  252 | extern struct cee_tuple * cee_tuple_mk_e (struct cee_state * s,
+      |                           ^~~~~~~~~~~~~~
+In file included from tmp.c:14:
+tuple.c: In function ‘cee_tuple_mk_e’:
+tuple.c:54:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   54 |   m->cs.state = st;
+      |               ^
+tuple.c: At top level:
+tuple.c:65:20: error: conflicting types for ‘cee_tuple_mk’
+   65 | struct cee_tuple * cee_tuple_mk (struct cee_state * st, void * v1, void * v2) {
+      |                    ^~~~~~~~~~~~
+cee-one.c:251:27: note: previous declaration of ‘cee_tuple_mk’ was here
+  251 | extern struct cee_tuple * cee_tuple_mk (struct cee_state * s, void * v1, void * v2);
+      |                           ^~~~~~~~~~~~
+In file included from triple.c:19,
+                 from tmp.c:15:
+cee-resize.h: In function ‘_cee_triple_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_triple_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_triple_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:15:
+triple.c: At top level:
+triple.c:44:21: error: conflicting types for ‘cee_triple_mk_e’
+   44 | struct cee_triple * cee_triple_mk_e (struct cee_state * st, enum cee_del_policy o[3], void * v1, void * v2, void * v3) {
+      |                     ^~~~~~~~~~~~~~~
+cee-one.c:267:28: note: previous declaration of ‘cee_triple_mk_e’ was here
+  267 | extern struct cee_triple * cee_triple_mk_e(struct cee_state * s,
+      |                            ^~~~~~~~~~~~~~~
+In file included from tmp.c:15:
+triple.c: In function ‘cee_triple_mk_e’:
+triple.c:53:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   53 |   m->cs.state = st;
+      |               ^
+triple.c: At top level:
+triple.c:65:21: error: conflicting types for ‘cee_triple_mk’
+   65 | struct cee_triple * cee_triple_mk (struct cee_state * st, void * v1, void * v2, void *v3) {
+      |                     ^~~~~~~~~~~~~
+cee-one.c:266:28: note: previous declaration of ‘cee_triple_mk’ was here
+  266 | extern struct cee_triple * cee_triple_mk(struct cee_state * s, void * v1, void * v2, void * v3);
+      |                            ^~~~~~~~~~~~~
+In file included from quadruple.c:19,
+                 from tmp.c:16:
+cee-resize.h: In function ‘_cee_quadruple_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_quadruple_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_quadruple_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:16:
+quadruple.c: At top level:
+quadruple.c:44:24: error: conflicting types for ‘cee_quadruple_mk_e’
+   44 | struct cee_quadruple * cee_quadruple_mk_e (struct cee_state * st, enum cee_del_policy o[4],
+      |                        ^~~~~~~~~~~~~~~~~~
+cee-one.c:286:31: note: previous declaration of ‘cee_quadruple_mk_e’ was here
+  286 | extern struct cee_quadruple * cee_quadruple_mk_e(struct cee_state * s,
+      |                               ^~~~~~~~~~~~~~~~~~
+In file included from tmp.c:16:
+quadruple.c: In function ‘cee_quadruple_mk_e’:
+quadruple.c:55:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   55 |   m->cs.state = st;
+      |               ^
+In file included from list.c:23,
+                 from tmp.c:17:
+cee-resize.h: In function ‘_cee_list_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_list_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_list_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:17:
+list.c: At top level:
+list.c:48:19: error: conflicting types for ‘cee_list_mk_e’
+   48 | struct cee_list * cee_list_mk_e (struct cee_state * st, enum cee_del_policy o, size_t cap) {
+      |                   ^~~~~~~~~~~~~
+cee-one.c:210:26: note: previous declaration of ‘cee_list_mk_e’ was here
+  210 | extern struct cee_list * cee_list_mk_e (struct cee_state * s, enum cee_del_policy o, size_t size);
+      |                          ^~~~~~~~~~~~~
+In file included from tmp.c:17:
+list.c:64:19: error: conflicting types for ‘cee_list_mk’
+   64 | struct cee_list * cee_list_mk (struct cee_state * s, size_t cap) {
+      |                   ^~~~~~~~~~~
+cee-one.c:205:26: note: previous declaration of ‘cee_list_mk’ was here
+  205 | extern struct cee_list * cee_list_mk (struct cee_state * s, size_t capacity);
+      |                          ^~~~~~~~~~~
+In file included from tmp.c:17:
+list.c:68:19: error: conflicting types for ‘cee_list_append’
+   68 | struct cee_list * cee_list_append (struct cee_list ** l, void *e) {
+      |                   ^~~~~~~~~~~~~~~
+cee-one.c:215:26: note: previous declaration of ‘cee_list_append’ was here
+  215 | extern struct cee_list * cee_list_append(struct cee_list ** v, void * e);
+      |                          ^~~~~~~~~~~~~~~
+In file included from tmp.c:17:
+list.c:87:19: error: conflicting types for ‘cee_list_insert’
+   87 | struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, size_t index, void *e) {
+      |                   ^~~~~~~~~~~~~~~
+cee-one.c:222:26: note: previous declaration of ‘cee_list_insert’ was here
+  222 | extern struct cee_list * cee_list_insert(struct cee_list ** v, size_t index, void * e);
+      |                          ^~~~~~~~~~~~~~~
+In file included from tmp.c:17:
+list.c:114:6: error: conflicting types for ‘cee_list_remove’
+  114 | bool cee_list_remove(struct cee_list * v, size_t index) {
+      |      ^~~~~~~~~~~~~~~
+cee-one.c:228:13: note: previous declaration of ‘cee_list_remove’ was here
+  228 | extern bool cee_list_remove(struct cee_list * v, size_t index);
+      |             ^~~~~~~~~~~~~~~
+In file included from tmp.c:17:
+list.c:130:8: error: conflicting types for ‘cee_list_size’
+  130 | size_t cee_list_size (struct cee_list *x) {
+      |        ^~~~~~~~~~~~~
+cee-one.c:233:15: note: previous declaration of ‘cee_list_size’ was here
+  233 | extern size_t cee_list_size(struct cee_list *);
+      |               ^~~~~~~~~~~~~
+In file included from tmp.c:17:
+list.c:135:8: error: conflicting types for ‘cee_list_capacity’
+  135 | size_t cee_list_capacity (struct cee_list * x) {
+      |        ^~~~~~~~~~~~~~~~~
+cee-one.c:238:15: note: previous declaration of ‘cee_list_capacity’ was here
+  238 | extern size_t cee_list_capacity (struct cee_list *);
+      |               ^~~~~~~~~~~~~~~~~
+In file included from tagged.c:19,
+                 from tmp.c:18:
+cee-resize.h: In function ‘_cee_tagged_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_tagged_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_tagged_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:18:
+tagged.c: At top level:
+tagged.c:40:21: error: conflicting types for ‘cee_tagged_mk_e’
+   40 | struct cee_tagged * cee_tagged_mk_e (struct cee_state * st, enum cee_del_policy o, uintptr_t tag, void *p) {
+      |                     ^~~~~~~~~~~~~~~
+cee-one.c:511:28: note: previous declaration of ‘cee_tagged_mk_e’ was here
+  511 | extern struct cee_tagged * cee_tagged_mk_e (struct cee_state *, enum cee_del_policy o, uintptr_t tag, void *v);
+      |                            ^~~~~~~~~~~~~~~
+In file included from tmp.c:18:
+tagged.c:57:21: error: conflicting types for ‘cee_tagged_mk’
+   57 | struct cee_tagged * cee_tagged_mk (struct cee_state * st, uintptr_t tag, void *p) {
+      |                     ^~~~~~~~~~~~~
+cee-one.c:510:28: note: previous declaration of ‘cee_tagged_mk’ was here
+  510 | extern struct cee_tagged * cee_tagged_mk (struct cee_state *, uintptr_t tag, void * v);
+      |                            ^~~~~~~~~~~~~
+In file included from tmp.c:19:
+singleton.c:27:24: error: conflicting types for ‘cee_singleton_init’
+   27 | struct cee_singleton * cee_singleton_init(void *s, uintptr_t tag, uintptr_t val) {
+      |                        ^~~~~~~~~~~~~~~~~~
+cee-one.c:412:31: note: previous declaration of ‘cee_singleton_init’ was here
+  412 | extern struct cee_singleton * cee_singleton_init(void *, uintptr_t tag, uintptr_t val);
+      |                               ^~~~~~~~~~~~~~~~~~
+In file included from closure.c:19,
+                 from tmp.c:20:
+cee-resize.h: In function ‘_cee_closure_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_closure_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_closure_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:20:
+closure.c: At top level:
+closure.c:34:22: error: conflicting types for ‘cee_closure_mk’
+   34 | struct cee_closure * cee_closure_mk (struct cee_state * s, struct cee_env * env, void * fun) {
+      |                      ^~~~~~~~~~~~~~
+cee-one.c:525:29: note: previous declaration of ‘cee_closure_mk’ was here
+  525 | extern struct cee_closure * cee_closure_mk(struct cee_env * env, void * fun);
+      |                             ^~~~~~~~~~~~~~
+In file included from block.c:26,
+                 from tmp.c:21:
+cee-resize.h: In function ‘_cee_block_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_block_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_block_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:21:
+block.c: At top level:
+block.c:45:8: error: conflicting types for ‘cee_block_mk’
+   45 | void * cee_block_mk (struct cee_state * s, size_t n) {
+      |        ^~~~~~~~~~~~
+In file included from cee-common.c:1,
+                 from tmp.c:7:
+cee.h:106:15: note: previous declaration of ‘cee_block_mk’ was here
+  106 | extern void * cee_block_mk (struct cee_state * s, size_t n);
+      |               ^~~~~~~~~~~~
+In file included from n_tuple.c:22,
+                 from tmp.c:22:
+cee-resize.h: In function ‘_cee_n_tuple_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_n_tuple_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_n_tuple_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:22:
+n_tuple.c: At top level:
+n_tuple.c:72:22: error: conflicting types for ‘cee_n_tuple_mk’
+   72 | struct cee_n_tuple * cee_n_tuple_mk (struct cee_state * st, size_t ntuple, ...) {
+      |                      ^~~~~~~~~~~~~~
+cee-one.c:293:29: note: previous declaration of ‘cee_n_tuple_mk’ was here
+  293 | extern struct cee_n_tuple * cee_n_tuple_mk (struct cee_state * s, size_t n, ...);
+      |                             ^~~~~~~~~~~~~~
+In file included from env.c:21,
+                 from tmp.c:23:
+cee-resize.h: In function ‘_cee_env_chain’:
+cee-resize.h:2:15: warning: assignment to ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+    2 |   h->cs.state = st;
+      |               ^
+cee-resize.h: In function ‘_cee_env_de_chain’:
+cee-resize.h:11:27: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   11 |   struct cee_state * st = h->cs.state;
+      |                           ^
+cee-resize.h: In function ‘_cee_env_resize’:
+cee-resize.h:29:30: warning: initialization of ‘struct cee_state *’ from incompatible pointer type ‘struct cee_state *’ [-Wincompatible-pointer-types]
+   29 |   struct cee_state * state = h->cs.state;
+      |                              ^
+In file included from tmp.c:23:
+env.c: At top level:
+env.c:65:18: error: conflicting types for ‘cee_env_mk’
+   65 | struct cee_env * cee_env_mk(struct cee_state * st, struct cee_env * outer, struct cee_map * vars) {
+      |                  ^~~~~~~~~~
+cee-one.c:517:25: note: previous declaration of ‘cee_env_mk’ was here
+  517 | extern struct cee_env * cee_env_mk(struct cee_state *, struct cee_env * outer, struct cee_map vars);
+      |                         ^~~~~~~~~~
+In file included from tmp.c:24:
+state.c:71:20: error: conflicting types for ‘cee_state_mk’
+   71 | struct cee_state * cee_state_mk(size_t n) {
+      |                    ^~~~~~~~~~~~
+cee-one.c:571:27: note: previous declaration of ‘cee_state_mk’ was here
+  571 | extern struct cee_state * cee_state_mk(size_t n);
+      |                           ^~~~~~~~~~~~
+In file included from tmp.c:24:
+state.c:86:6: error: conflicting types for ‘cee_state_add_gc_root’
+   86 | void cee_state_add_gc_root(struct cee_state * s, void * key) {
+      |      ^~~~~~~~~~~~~~~~~~~~~
+cee-one.c:572:13: note: previous declaration of ‘cee_state_add_gc_root’ was here
+  572 | extern void cee_state_add_gc_root(struct cee_state *, void *);
+      |             ^~~~~~~~~~~~~~~~~~~~~
+In file included from tmp.c:24:
+state.c:90:6: error: conflicting types for ‘cee_state_remove_gc_root’
+   90 | void cee_state_remove_gc_root(struct cee_state * s, void * key) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~
+cee-one.c:573:13: note: previous declaration of ‘cee_state_remove_gc_root’ was here
+  573 | extern void cee_state_remove_gc_root(struct cee_state *, void *);
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from tmp.c:24:
+state.c:94:6: error: conflicting types for ‘cee_state_add_context’
+   94 | void cee_state_add_context (struct cee_state * s, char * key, void * val) {
+      |      ^~~~~~~~~~~~~~~~~~~~~
+cee-one.c:575:13: note: previous declaration of ‘cee_state_add_context’ was here
+  575 | extern void cee_state_add_context(struct cee_state *, char * key, void * val);
+      |             ^~~~~~~~~~~~~~~~~~~~~
+In file included from tmp.c:24:
+state.c:98:6: error: conflicting types for ‘cee_state_remove_context’
+   98 | void cee_state_remove_context (struct cee_state * s, char * key) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~
+cee-one.c:576:13: note: previous declaration of ‘cee_state_remove_context’ was here
+  576 | extern void cee_state_remove_context(struct cee_state *, char * key);
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from tmp.c:24:
+state.c:102:8: error: conflicting types for ‘cee_state_get_context’
+  102 | void * cee_state_get_context (struct cee_state * s, char * key) {
+      |        ^~~~~~~~~~~~~~~~~~~~~
+cee-one.c:577:15: note: previous declaration of ‘cee_state_get_context’ was here
+  577 | extern void * cee_state_get_context(struct cee_state *, char * key);
+      |               ^~~~~~~~~~~~~~~~~~~~~
+In file included from tmp.c:24:
+state.c:106:6: error: conflicting types for ‘cee_state_gc’
+  106 | void cee_state_gc (struct cee_state * s) {
+      |      ^~~~~~~~~~~~
+cee-one.c:574:13: note: previous declaration of ‘cee_state_gc’ was here
+  574 | extern void cee_state_gc(struct cee_state *);
+      |             ^~~~~~~~~~~~
+make: *** [Makefile:30: cee-one.o] Error 1

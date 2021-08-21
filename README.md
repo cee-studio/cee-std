@@ -26,7 +26,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 
 **string**
 
-```
+```c
   #include "cee.h"
 
   struct cee_str * s, * s1, * s2;
@@ -47,7 +47,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 ```
 
 **list**
-```
+```c
   #include "cee.h"
   struct cee_list *v;
   
@@ -67,7 +67,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 ```
 
 **set**
-```
+```c
   #include "cee.h"
 
   struct cee_set * st = cee_set((cee_cmp_fun)strcmp);
@@ -82,7 +82,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 ```
 
 **map**
-```
+```c
   #include "cee.h"
 
   struct cee_map * mp = cee_map((cee_cmp_fun)strcmp);  
@@ -103,7 +103,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 ```
 
 **stack**
-```
+```c
   #include "cee.h"
 
   struct cee_stack * sp = cee_stack_o(cee_non_owner, 100);
@@ -119,7 +119,7 @@ achieve interoperability with idiomatic C code without requiring any wrappers.
 **free any memory blocks of `struct cee_*`**
 
 any memory blocks pointed by a `cee struct` can be freed with `cee_del` like the following:
-```
+```c
    #include "cee.h"
 
    struct cee_str * s = ..;

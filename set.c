@@ -10,55 +10,81 @@
 #include "cee-internal.h"
 #endif
 #include "cee-header.h"
+#include "musl-search.h"
 
 struct S(header) {
   void * context;
   int (*cmp)(const void *l, const void *r);
   uintptr_t size;
   enum cee_del_policy del_policy;
+  enum cee_trace_action ta;
   struct cee_sect cs;
   void * _[1];
 };
 
-struct S(pair) {
-  void * value;
+#include "cee-resize.h"
+
+static void S(free_pair_follow) (void * cxt, void * c) {
+  enum cee_del_policy dp = * (enum cee_del_policy *) cxt;
+  cee_del_e(dp, c);
+}
+    
+static void S(trace_pair) (void * cxt, const void *nodep, const VISIT which, const int depth) {
+  void * p;
   struct S(header) * h;
-};
-
-static void S(free_pair) (void * c) {
-  struct S(header) * h = ((struct S(pair) *)c)->h;
-  cee_del_e(h->del_policy, ((struct S(pair) *)c)->value);
-  free(c);
+  switch (which) 
+  {
+    case preorder:
+    case leaf:
+      p = *(void **)nodep;
+      cee_trace(p, *((enum cee_trace_action *)cxt));
+      break;
+    default:
+      break;
+  }
 }
 
-static void S(del)(void * p) {
+static void S(trace)(void * p, enum cee_trace_action ta) {
   struct S(header) * h = FIND_HEADER (p);
-  tdestroy(h->_[0], S(free_pair));
-  free(h);
+  switch (ta) {
+    case trace_del_no_follow:
+      musl_tdestroy(NULL, h->_[0], NULL);
+      S(de_chain)(h);
+      free(h);
+      break;
+    case trace_del_follow:
+      musl_tdestroy(NULL, h->_[0], S(free_pair_follow));
+      S(de_chain)(h);
+      free(h);
+      break;
+    default:
+      h->cs.gc_mark = ta - trace_mark;
+      h->ta = ta;
+      musl_twalk(&ta, h->_[0], S(trace_pair));
+      break;
+  }
 }
 
-
-static int S(cmp) (const void * v1, const void * v2) {
-  struct S(pair) * t1 = (struct S(pair) *) v1;
-  struct S(pair) * t2 = (struct S(pair) *) v2;
-  if (t1->h == t2->h)
-  	return t1->h->cmp(t1->value, t2->value);
-  else
-    cee_segfault();
+int S(cmp) (void * cxt, const void * v1, const void *v2) {
+  struct S(header) * h = (struct S(header) *) cxt;
+  return h->cmp(v1, v2);
 }
-
 
 /*
  * create a new set and the equality of 
  * its two elements are decided by cmp
  * dt: specify how its elements should be handled if the set is deleted.
  */
-struct cee_set * cee_set_e (enum cee_del_policy o, int (*cmp)(const void *, const void *)) {
-  struct S(header) * m = malloc(sizeof(struct S(header)));
+struct cee_set * cee_set_mk_e (struct cee_state * st, enum cee_del_policy o, 
+                  int (*cmp)(const void *, const void *)) 
+{
+  struct S(header) * m = (struct S(header) *)malloc(sizeof(struct S(header)));
   m->cmp = cmp;
   m->size = 0;
   ZERO_CEE_SECT(&m->cs);
-  m->cs.del = S(del);
+  S(chain)(m, st);
+  
+  m->cs.trace = S(trace);
   m->cs.resize_method = resize_with_identity;
   m->cs.n_product = 1;
   m->context = NULL;
@@ -67,8 +93,8 @@ struct cee_set * cee_set_e (enum cee_del_policy o, int (*cmp)(const void *, cons
   return (struct cee_set *)m->_;
 }
 
-struct cee_set * cee_set (int (*cmp)(const void *, const void *)) {
-  return cee_set_e(CEE_DEFAULT_DEL_POLICY, cmp);
+struct cee_set * cee_set_mk (struct cee_state * s, int (*cmp)(const void *, const void *)) {
+  return cee_set_mk_e(s, CEE_DEFAULT_DEL_POLICY, cmp);
 }
 
 size_t cee_set_size (struct cee_set * s) {
@@ -81,69 +107,62 @@ bool cee_set_empty (struct cee_set * s) {
   return h->size == 0;
 }
 
-
 /*
  * add an element key to the set m
  * 
  */
 void cee_set_add(struct cee_set *m, void * val) {
   struct S(header) * h = FIND_HEADER(m);
-  void ** c = malloc(sizeof(void *) * 2);
-  c[0] = val;
-  c[1] = h;
-  void *** oldp = tsearch(c, h->_, S(cmp));
+  void ** oldp = (void **) musl_tsearch(h, val, h->_, S(cmp));
   
   if (oldp == NULL)
     cee_segfault();
-  else if (*oldp != c)
-    free(c);
+  else if (*oldp != (void *)val)
+    return;
   else {
     h->size ++;
     cee_incr_indegree(h->del_policy, val);
   }
   return;
 }
-
-static void S(noop)(void *p) {}
-void cee_set_clear (struct cee_set * s) {
-  struct S(header) * h = FIND_HEADER (s);
-  switch(h->del_policy) {
-    case cee_dp_del_rc:
-      tdestroy(h->_[0], cee_del_ref);
+    
+static void S(del)(void * cxt, void * p) {
+  enum cee_del_policy dp = *((enum cee_del_policy *)cxt);
+  switch(dp) {
+    case dp_del_rc:
+      cee_del_ref(p);
       break;  
-    case cee_dp_del:
-      tdestroy(h->_[0], cee_del);
+    case dp_del:
+      cee_del(p);
       break;
-    case cee_dp_noop:
-      tdestroy(h->_[0], S(noop));
+    case dp_noop:
       break;
   }
+}    
+void cee_set_clear (struct cee_set * s) {
+  struct S(header) * h = FIND_HEADER (s);
+  musl_tdestroy(&h->del_policy, h->_[0], S(del));
   h->_[0] = NULL;
   h->size = 0;
 }
 
-void * cee_set_find(struct cee_set *m, void * value) {
+void * cee_set_find(struct cee_set *m, void * key) {
   struct S(header) * h = FIND_HEADER(m);
-  struct S(pair) p = { value, h };
-  void ***oldp = tfind(&p, h->_, S(cmp));
+  void **oldp = (void **) musl_tfind(h, key, h->_, S(cmp));
   if (oldp == NULL)
     return NULL;
-  else {
-    void ** t = (void **)*oldp;
-    return t[0];
-  }
+  else
+    return *oldp;
 }
 
-static void S(get_value) (const void *nodep, const VISIT which, const int depth) {
-  struct S(pair) * p;
-  struct S(header) * h;
+static void S(get_value) (void * cxt, const void *nodep, const VISIT which, const int depth) {
+  void * p;
   switch (which) 
   {
     case preorder:
     case leaf:
       p = *(void **)nodep;
-      h = p->h;
-      cee_list_append((struct cee_list **) &h->context, p->value);
+      cee_list_append((struct cee_list **)cxt, p);
       break;
     default:
       break;
@@ -153,31 +172,30 @@ static void S(get_value) (const void *nodep, const VISIT which, const int depth)
 struct cee_list * cee_set_values(struct cee_set * m) {
   uintptr_t s = cee_set_size(m);
   struct S(header) * h = FIND_HEADER(m);
-  h->context = cee_list(s);
+  h->context = cee_list_mk(h->cs.state, s);
   cee_use_realloc(h->context);
-  twalk(h->_[0], S(get_value));
-  return h->context;
+  musl_twalk(&h->context, h->_[0], S(get_value));
+  return (struct cee_list *)h->context;
 }
 
 void * cee_set_remove(struct cee_set *m, void * key) {
   struct S(header) * h = FIND_HEADER(m);
-  void ** old = tdelete(key, h->_, h->cmp);
+  void ** old = (void **)musl_tfind(h, key, h->_, S(cmp));
   if (old == NULL)
     return NULL;
   else {
     h->size --;
-    struct S(pair) * p = *old;
-    void * k = p->value;
-    free(p);
+    void * k = *old;
+    musl_tdelete(h, key, h->_, S(cmp));
     return k;
   }
 }
 
-struct cee_set * cee_set_union (struct cee_set * s1, struct cee_set * s2) {
+struct cee_set * cee_set_union_set (struct cee_state * s, struct cee_set * s1, struct cee_set * s2) {
   struct S(header) * h1 = FIND_HEADER(s1);
   struct S(header) * h2 = FIND_HEADER(s2);
   if (h1->cmp == h2->cmp) {
-    struct cee_set * s0 = cee_set(h1->cmp);
+    struct cee_set * s0 = cee_set_mk(s, h1->cmp);
     struct cee_list * v1 = cee_set_values(s1);
     struct cee_list * v2 = cee_set_values(s2);
     int i;

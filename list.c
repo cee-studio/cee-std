@@ -22,39 +22,52 @@ struct S(header) {
 
 #include "cee-resize.h"
 
-static void S(del) (void * v) {
+static void S(trace) (void * v, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(v);
   int i;
-  for (i = 0; i < m->size; i++)
-    cee_del_e(m->del_policy, m->_[i]);
-  free(m);
+  
+  switch(ta) {
+    case trace_del_no_follow:
+      S(de_chain)(m);
+      free(m);
+      break;
+    case trace_del_follow:
+      for (i = 0; i < m->size; i++)
+        cee_del_e(m->del_policy, m->_[i]);
+      S(de_chain)(m);
+      free(m);
+      break;
+    default:
+      m->cs.gc_mark = ta - trace_mark;
+      for (i = 0; i < m->size; i++)
+        cee_trace(m->_[i], ta);
+      break;
+  }
 }
 
-struct cee_list * cee_list_e (enum cee_del_policy o, size_t cap) {
+struct cee_list * cee_list_mk_e (struct cee_state * st, enum cee_del_policy o, size_t cap) {
   size_t mem_block_size = sizeof(struct S(header)) + cap * sizeof(void *);
   struct S(header) * m = malloc(mem_block_size);
   m->capacity = cap;
   m->size = 0;
   m->del_policy = o;
   ZERO_CEE_SECT(&m->cs);
-  m->cs.del = S(del);
+  S(chain)(m, st);
+  
+  m->cs.trace = S(trace);
   m->cs.resize_method = resize_with_malloc;
   m->cs.mem_block_size = mem_block_size;
+  
   return (struct cee_list *)(m->_);
 }
 
-struct cee_list * cee_list (size_t cap) {
-  return cee_list_e(cee_dp_del_rc, cap);
+struct cee_list * cee_list_mk (struct cee_state * s, size_t cap) {
+  return cee_list_mk_e(s, CEE_DEFAULT_DEL_POLICY, cap);
 }
 
 struct cee_list * cee_list_append (struct cee_list ** l, void *e) {
   struct cee_list * v = *l;
-  
-  if (v == NULL) {
-    v = cee_list(10);
-    cee_use_realloc(v);
-  }
- 
+    
   struct S(header) * m = FIND_HEADER(v);
   size_t capacity = m->capacity;
   size_t extra_cap = capacity ? capacity : 1;
@@ -62,20 +75,19 @@ struct cee_list * cee_list_append (struct cee_list ** l, void *e) {
     size_t new_mem_block_size = m->cs.mem_block_size + extra_cap * sizeof(void *);
     struct S(header) * m1 = S(resize)(m, new_mem_block_size);
     m1->capacity = capacity + extra_cap;
+    *l = (struct cee_list *)m1->_;
     m = m1;
   }
   m->_[m->size] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  *l = (struct cee_list *)m->_;
   return *l;
 }
 
-struct cee_list * cee_list_insert(struct cee_list ** l, size_t index, void *e) {
+struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, size_t index, void *e) {
   struct cee_list * v = *l;
-  
   if (v == NULL) {
-    v = cee_list(10);
+    v = cee_list_mk(s, 10);
     cee_use_realloc(v);
   }
   
@@ -86,6 +98,7 @@ struct cee_list * cee_list_insert(struct cee_list ** l, size_t index, void *e) {
     size_t new_mem_block_size = m->cs.mem_block_size + extra_cap * sizeof(void *);
     struct S(header) * m1 = S(resize)(m, new_mem_block_size);
     m1->capacity = capacity + extra_cap;
+    *l = (struct cee_list *)m1->_;
     m = m1;
   }
   int i;
@@ -95,7 +108,6 @@ struct cee_list * cee_list_insert(struct cee_list ** l, size_t index, void *e) {
   m->_[index] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  *l = (struct cee_list *)m->_;
   return *l;
 }
 
@@ -113,6 +125,7 @@ bool cee_list_remove(struct cee_list * v, size_t index) {
   cee_decr_indegree(m->del_policy, e);
   return true;
 }
+
 
 size_t cee_list_size (struct cee_list *x) {
   struct S(header) * m = FIND_HEADER(x);

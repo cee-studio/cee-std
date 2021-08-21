@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include "cee-internal.h"
 #endif
 #include "cee-header.h"
@@ -15,21 +16,44 @@ struct S(header) {
   struct cee_sect cs;
   struct cee_closure _;
 };
+    
+#include "cee-resize.h"    
 
-static void S(del) (void * v) {
+static void S(trace) (void * v, enum cee_trace_action sa) {
   struct S(header) * m = FIND_HEADER(v);
-  free(m);
+  switch (sa) {
+    case trace_del_no_follow:
+    case trace_del_follow:
+      S(de_chain)(m);
+      free(m);
+      break;
+    default:
+      break;
+  }
 }
 
-struct cee_closure * cee_closure (void * context, void * data, void * fun) {
+struct cee_closure * cee_closure_mk (struct cee_state * s, struct cee_env * env, void * fun) {
   size_t mem_block_size = sizeof(struct S(header));
   struct S(header) * b = malloc(mem_block_size);
   ZERO_CEE_SECT(&b->cs);
-  b->cs.del = S(del);
+  S(chain)(b, s);
+  
+  b->cs.trace = S(trace);
   b->cs.resize_method = resize_with_identity;
   b->cs.mem_block_size = mem_block_size;
-  b->_.context = context;
-  b->_.data = data;
-  b->_.fun = fun;
+  
+  b->_.env = env;
+  b->_.vfun = fun;
   return &(b->_);
+}
+
+void * cee_closure_call (struct cee_state * s, struct cee_closure * c, size_t n, ...) {
+  va_list ap;
+  va_start(ap, n);
+
+  void *ret = c->vfun(s, c->env, n, ap);
+
+  va_end(ap);
+
+  return ret;
 }

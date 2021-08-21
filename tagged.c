@@ -15,28 +15,45 @@ struct S(header) {
   struct cee_sect cs;
   struct cee_tagged _;
 };
+    
+#include "cee-resize.h"    
 
-static void S(del) (void * v) {
+static void S(trace) (void * v, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(v);
-  cee_del_e(m->del_policy, m->_.ptr._);
-  free(m);
+  switch (ta) {
+    case trace_del_no_follow:
+      S(de_chain)(m);
+      free(m);
+      break;
+    case trace_del_follow:
+      cee_del_e(m->del_policy, m->_.ptr._);
+      S(de_chain)(m);
+      free(m);
+      break;
+    default:
+      m->cs.gc_mark = ta - trace_mark;
+      cee_trace(m->_.ptr._, ta);
+      break;
+  }
 }
 
-struct cee_tagged * cee_tagged_e (enum cee_del_policy o, 
-                                  uintptr_t tag, void *p) {
+struct cee_tagged * cee_tagged_mk_e (struct cee_state * st, enum cee_del_policy o, uintptr_t tag, void *p) {
   size_t mem_block_size = sizeof(struct S(header));
   struct S(header) * b = malloc(mem_block_size);
   ZERO_CEE_SECT(&b->cs);
-  b->cs.del = S(del);
+  S(chain)(b, st);
+  
+  b->cs.trace = S(trace);
   b->cs.resize_method = resize_with_identity;
   b->cs.mem_block_size = mem_block_size;
+  
   b->_.tag = tag;
-  b->_.ptr = (union cee_ptr)p;
+  b->_.ptr._ = p;
   b->del_policy = o;
   cee_incr_indegree(o, p);
   return &b->_;
 }
 
-struct cee_tagged * cee_tagged (uintptr_t tag, void *p){
-  return cee_tagged_e (CEE_DEFAULT_DEL_POLICY, tag, p);
+struct cee_tagged * cee_tagged_mk (struct cee_state * st, uintptr_t tag, void *p) {
+  return cee_tagged_mk_e(st, CEE_DEFAULT_DEL_POLICY, tag, p);
 }

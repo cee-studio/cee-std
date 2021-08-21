@@ -20,30 +20,50 @@ struct S(header) {
   struct cee_sect cs;
   void * _[];
 };
+    
+#include "cee-resize.h"    
 
-static void S(del) (void * v) {
+static void S(trace) (void * v, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(v);
   int i;
-  for (i = 0; i < m->used; i++)
-    cee_del_e(m->del_policy, m->_[i]);
-  free(m);
+  
+  switch (ta) {
+    case trace_del_no_follow:
+      S(de_chain)(m);
+      free(m);
+      break;
+    case trace_del_follow:
+      for (i = 0; i < m->used; i++)
+        cee_del_e(m->del_policy, m->_[i]);
+      S(de_chain)(m);
+      free(m);
+      break;
+    default:
+      m->cs.gc_mark = ta - trace_mark;
+      for (i = 0; i < m->used; i++)
+        cee_trace(m->_[i], ta);
+      break;
+  }
 }
 
-struct cee_stack * cee_stack_e (enum cee_del_policy o, size_t size) {
+struct cee_stack * cee_stack_mk_e (struct cee_state * st, enum cee_del_policy o, size_t size) {
   uintptr_t mem_block_size = sizeof(struct S(header)) + size * sizeof(void *);
   struct S(header) * m = malloc(mem_block_size);
   m->capacity = size;
   m->used = 0;
   m->top = (0-1);
   m->del_policy = o;
+  
   ZERO_CEE_SECT(&m->cs);
-  m->cs.del = S(del);
+  S(chain)(m, st);
+  
+  m->cs.trace = S(trace);
   m->cs.mem_block_size = mem_block_size;
   return (struct cee_stack *)(m->_);
 }
 
-struct cee_stack * cee_stack (size_t size) {
-  return cee_stack_e(CEE_DEFAULT_DEL_POLICY, size);
+struct cee_stack * cee_stack_mk (struct cee_state * st, size_t size) {
+  return cee_stack_mk_e(st, CEE_DEFAULT_DEL_POLICY, size);
 }
 
 int cee_stack_push (struct cee_stack * v, void *e) {
@@ -89,10 +109,12 @@ uintptr_t cee_stack_size (struct cee_stack *x) {
   return m->used;
 }
 
+#if 0
 uintptr_t cee_stack_capacity (struct cee_stack *s) {
   struct S(header) * m = FIND_HEADER(s);
   return m->capacity;
 }
+#endif
 
 bool cee_stack_empty (struct cee_stack *x) {
   struct S(header) * b = FIND_HEADER(x);
