@@ -1,4 +1,5 @@
 #ifdef CEE_AMALGAMATION
+#undef S
 #define  S(f)  _cee_lsearch##f
 #else
 #define  S(f)  _##f
