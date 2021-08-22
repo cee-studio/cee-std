@@ -10,6 +10,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <stdio.h>
+#include <errno.h>
 #include "musl-search.h"
 #endif
 #include "cee-header.h"
