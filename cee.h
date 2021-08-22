@@ -69,19 +69,19 @@ enum cee_del_policy {
  *
  */
 struct cee_sect {
-  uint8_t  cmp_stop_at_null:1;    // 0: compare all bytes, otherwise stop at '\0'
-  uint8_t  resize_method:2;       // three values: identity, malloc, realloc
-  uint8_t  retained:1;            // if it is retained, in_degree is ignored
-  uint8_t  gc_mark:2;             // used for mark & sweep gc
-  uint8_t  n_product;             // n-ary (no more than 256) product type
-  uint16_t in_degree;             // the number of cee objects points to this object
+  uint8_t  cmp_stop_at_null:1;  // 0: compare all bytes, otherwise stop at '\0'
+  uint8_t  resize_method:2;     // three values: identity, malloc, realloc
+  uint8_t  retained:1;          // if it is retained, in_degree is ignored
+  uint8_t  gc_mark:2;           // used for mark & sweep gc
+  uint8_t  n_product;           // n-ary (no more than 256) product type
+  uint16_t in_degree;           // the number of cee objects points to this object
   // begin of gc fields
-  struct cee_state * state;            // the gc state under which this block is allocated
-  struct cee_sect * trace_next;       // used for chaining cee::_::data to be traced
-  struct cee_sect * trace_prev;       // used for chaining cee::_::data to be traced
+  struct cee_state * state;     // the gc state under which this block is allocated
+  struct cee_sect * trace_next; // used for chaining cee::_::data to be traced
+  struct cee_sect * trace_prev; // used for chaining cee::_::data to be traced
   // end of gc fields
-  uintptr_t mem_block_size;       // the size of a memory block enclosing this struct
-  void *cmp;                      // compare two memory blocks
+  uintptr_t mem_block_size;     // the size of a memory block enclosing this struct
+  void *cmp;                    // compare two memory blocks
   
   // the object specific generic scan function
   // it does memory deallocation, reference count decreasing, or liveness marking
@@ -131,10 +131,10 @@ struct cee_str {
  * e.g.
  *
  *      allocate an empty string
- *      cee_str (""); 
+ *      cee_str_mk (state, ""); 
  * 
  *      allocate a string for int 10
- *      cee_str ("%d", 10);
+ *      cee_str_mk (state, "%d", 10);
  *
  */
 extern struct cee_str  * cee_str_mk (struct cee_state *s, const char * fmt, ...);
@@ -151,11 +151,11 @@ extern struct cee_str  * cee_str_mk (struct cee_state *s, const char * fmt, ...)
  * e.g.
  *      allocate a string buffer of 100 bytes, and initialize it with 
  *      an empty string.
- *      cee_str_n(100, "");
+ *      cee_str_mk_e (state, 100, "");
  * 
  *      allocate a string buffer of 100 bytes and initialize it with
  *      an integer
- *      cee_str_n(100, "%d", 10);
+ *      cee_str_mk_e (state, 100, "%d", 10);
  *
  */
 extern struct cee_str  * cee_str_mk_e (struct cee_state * s, size_t n, const char * fmt, ...);
