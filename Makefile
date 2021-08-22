@@ -10,8 +10,30 @@ CFLAGS= -fno-exceptions -g -I./
 
 all: tester
 
-tester:
-	$(CC) $(CFLAGS) tester.c $(CEE_SRC)
+tester: cee.c
+	$(CC) $(CFLAGS) $@.c -o $@.out $<
+
+echo:
+	@ echo "$(CEE_SRC)"
+
+cee.c: $(CEE_SRC)
+	@ cat $(CEE_SRC) | awk \
+	'BEGIN {\
+		print "#ifndef CEE_ONE_H";\
+		print "#define CEE_ONE_H";\
+		print "#define CEE_AMALGAMATION";\
+		print "#include \"cee.h\"";\
+		print "#include <stdlib.h>";\
+		print "#include <string.h>";\
+		print "#include <stdio.h>";\
+		print "#include <errno.h>";\
+		print "#include \"cee-internal.h\"";\
+		print "#include \"musl-search.h\"";\
+	}\
+	{print $$0}\
+	END {\
+		print "#endif // CEE_ONE_H";\
+	}' > $@
 
 clean:
-	rm -f cee.c tmp.c cee-one.* a.out
+	rm -f cee.c tmp.c one.* a.out
