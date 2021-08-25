@@ -44,10 +44,10 @@ static bool read_4_digits(struct tokenizer * t, uint16_t *x)
   return true;
 }
 
-static bool parse_string(struct tokenizer * t) {
+static bool parse_string(struct cee_state * st, struct tokenizer * t) {
   char c;
   // we should use a more efficient stretchy buffer here
-  t->str = cee_str_mk_e(128, "");
+  t->str = cee_str_mk_e(st, 128, "");
   
   if (t->buf == t->buf_end)
     return false;
@@ -116,7 +116,7 @@ static bool parse_number(struct tokenizer *t) {
   return x == 1;
 }
 
-enum token cee_json_next_token(struct tokenizer * t) {
+enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
   for (;;t->buf++) {
     if (t->buf == t->buf_end)
       return tock_eof;
@@ -139,7 +139,7 @@ enum token cee_json_next_token(struct tokenizer * t) {
         break;
       case '"':
         t->buf --;
-        if(parse_string(t))
+        if(parse_string(st, t))
           return tock_str;
         return tock_err;
       case 't':

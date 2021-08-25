@@ -14,18 +14,18 @@ struct counter {
   char more_siblings;
 };
 
-static struct counter * push(uintptr_t tabs, bool more_siblings,
+static struct counter * push(struct cee_state * st, uintptr_t tabs, bool more_siblings,
                              struct cee_stack * sp, struct cee_json * j) {
   struct counter * p = NULL;
   if (j == NULL) {
-    p = cee_block_mk(sizeof(struct counter));
+    p = cee_block_mk(st, sizeof(struct counter));
     p->tabs = 0;
   }
   else {
     switch(j->t) {
-      case is_object:
+      case CEE_JSON_OBJECT:
         {
-          p = cee_block_mk(sizeof(struct counter));
+          p = cee_block_mk(st, sizeof(struct counter));
           struct cee_map * mp = cee_json_to_object(j);
           p->array = cee_map_keys(mp);
           p->object = cee_json_to_object(j);
@@ -34,9 +34,9 @@ static struct counter * push(uintptr_t tabs, bool more_siblings,
           p->more_siblings = 0;
         }
         break;
-      case is_array:
+      case CEE_JSON_ARRAY:
         {
-          p = cee_block_mk(sizeof(struct counter));
+          p = cee_block_mk(st, sizeof(struct counter));
           p->array = cee_json_to_array(j);
           p->tabs = tabs;
           p->next = 0;
@@ -45,7 +45,7 @@ static struct counter * push(uintptr_t tabs, bool more_siblings,
         break;
       default:  
         {
-          p = cee_block_mk(sizeof(struct counter));
+          p = cee_block_mk(st, sizeof(struct counter));
           p->array = NULL;
           p->tabs = tabs;
           p->next = 0;
@@ -56,7 +56,7 @@ static struct counter * push(uintptr_t tabs, bool more_siblings,
     p->more_siblings = more_siblings;
   }
   enum cee_del_policy o[2] = { CEE_DP_DEL, CEE_DP_NOOP };
-  cee_stack_push(sp, cee_tuple_mk_e(o, p, j));
+  cee_stack_push(sp, cee_tuple_mk_e(st, o, p, j));
   return p;
 }
 
@@ -178,15 +178,15 @@ static void str_append(char * out, uintptr_t *offp, char *begin, unsigned len) {
 /*
  * compute how many bytes are needed to serialize cee_json as a string
  */
-size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j, 
+size_t cee_json_snprint (struct cee_state * st, char * buf, size_t size, struct cee_json * j, 
                          enum cee_json_format f) {
   struct cee_tuple * cur;
   struct cee_json * cur_json;
   struct counter * ccnt;
   uintptr_t incr = 0;
   
-  struct cee_stack * sp = cee_stack_e(CEE_DP_NOOP, 500);
-  push (0, false, sp, j);
+  struct cee_stack * sp = cee_stack_mk_e(st, CEE_DP_NOOP, 500);
+  push (st, 0, false, sp, j);
   
   uintptr_t offset = 0;
   while (!cee_stack_empty(sp) && !cee_stack_full(sp)) {
@@ -195,7 +195,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
     ccnt = (struct counter *)(cur->_[0]);
     
     switch(cur_json->t) {
-      case is_null: 
+      case CEE_JSON_NULL: 
         {
           pad(&offset, buf, ccnt, f);
           if (buf)
@@ -206,11 +206,11 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_boolean: 
+      case CEE_JSON_BOOLEAN: 
         {
           pad(&offset, buf, ccnt, f);
           char * s = "false";			
-          if (cee_json_to_bool(cur_json))
+          if (cee_json_to_bool(st, cur_json))
             s = "true";
           if (buf) 
             memcpy(buf + offset, s, strlen(s));
@@ -220,7 +220,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_undefined:
+      case CEE_JSON_UNDEFINED:
         {
           pad(&offset, buf, ccnt, f);
           if (buf)
@@ -231,7 +231,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_string:
+      case CEE_JSON_STRING:
         {
           char * str = (char *)cee_json_to_string(cur_json);
           pad(&offset, buf, ccnt, f);
@@ -241,7 +241,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_number:
+      case CEE_JSON_NUMBER:
         {
           pad(&offset, buf, ccnt, f);
           incr = cee_boxed_snprint (NULL, 0, cee_json_to_number(cur_json));
@@ -254,7 +254,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_array: 
+      case CEE_JSON_ARRAY: 
         { 
           uintptr_t i = ccnt->next;
           if (i == 0) 
@@ -266,7 +266,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
             if (1 < n && i+1 < n)
               more_siblings = true;
             ccnt->next++;
-            push (ccnt->tabs + 1, more_siblings, sp, 
+            push (st, ccnt->tabs + 1, more_siblings, sp, 
                   (struct cee_json *)(ccnt->array->_[i]));
           } 
           else {
@@ -277,7 +277,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           }
         }
         break;
-      case is_object:
+      case CEE_JSON_OBJECT:
         {
           uintptr_t i = ccnt->next;
           if (i == 0)
@@ -296,7 +296,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
             pad(&offset, buf, ccnt, f);
             str_append(buf, &offset, key, klen);
             delimiter(&offset, buf, f, ccnt, ':');
-            push(ccnt->tabs + 1, more_siblings, sp, j1);
+            push(st, ccnt->tabs + 1, more_siblings, sp, j1);
           }
           else {
             delimiter(&offset, buf, f, ccnt, '}');

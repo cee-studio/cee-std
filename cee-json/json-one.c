@@ -25,13 +25,13 @@ struct cee_json_null {};
 struct cee_json_undefined {};
 
 enum cee_json_type {
-  is_undefined,	///< Undefined value
-  is_null,	///< null value
-  is_boolean,	///< boolean value
-  is_number,	///< numeric value
-  is_string,	///< string value
-  is_object,	///< object value 
-  is_array	///< array value
+  CEE_JSON_UNDEFINED,	///< Undefined value
+  CEE_JSON_NULL,	///< null value
+  CEE_JSON_BOOLEAN,	///< boolean value
+  CEE_JSON_NUMBER,	///< numeric value
+  CEE_JSON_STRING,	///< string value
+  CEE_JSON_OBJECT,	///< object value 
+  CEE_JSON_ARRAY	///< array value
 };
 
 struct cee_json {
@@ -55,14 +55,15 @@ enum cee_json_format {
 extern enum cee_json_type cee_json_type  (struct cee_json *);
 extern bool cee_json_is_undefined (struct cee_json *);
 extern bool cee_json_is_null (struct cee_json *);
-extern bool cee_json_to_bool (struct cee_json *);
+extern bool cee_json_to_bool (struct cee_state *, struct cee_json *);
 
 extern struct json * cee_json_find (struct cee_json *, char *);
 extern struct json * cee_json_get(struct cee_json *, char *, 
                                   struct cee_json * def);
 
-extern bool cee_json_save (struct cee_json *, FILE *, int how);
-extern struct cee_json * cee_json_load_from_file (FILE *, bool force_eof, 
+extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int how);
+extern struct cee_json * cee_json_load_from_file (struct cee_state *,
+                                                  FILE *, bool force_eof, 
                                                   int * error_at_line);
 extern struct cee_json * cee_json_load_from_buffer (int size, char *, int line);
 extern int cee_json_cmp (struct cee_json *, struct cee_json *);
@@ -72,32 +73,35 @@ extern struct cee_map * cee_json_to_object (struct cee_json *);
 extern struct cee_boxed * cee_json_to_number (struct cee_json *);
 extern struct cee_str * cee_json_to_string (struct cee_json *);
 
-extern struct cee_json * cee_json_true();
-extern struct cee_json * cee_json_false();
-extern struct cee_json * cee_json_undefined ();
-extern struct cee_json * cee_json_null ();
-extern struct cee_json * cee_json_object();
-extern struct cee_json * cee_json_number (double d);
-extern struct cee_json * cee_json_string(struct cee_str * s);
-extern struct cee_json * cee_json_array(int s);
+extern struct cee_json * cee_json_true (struct cee_state *);
+extern struct cee_json * cee_json_false (struct cee_state *);
+extern struct cee_json * cee_json_bool (struct cee_state *, bool b);
+extern struct cee_json * cee_json_undefined (struct cee_state *);
+extern struct cee_json * cee_json_null (struct cee_state *);
+extern struct cee_json * cee_json_object_mk (struct cee_state *);
+extern struct cee_json * cee_json_number_mk (struct cee_state *, double d);
+extern struct cee_json * cee_json_string_mk (struct cee_state *, struct cee_str * s);
+extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
 
-extern void cee_json_object_set (struct cee_json *, char *, struct cee_json *);
-extern void cee_json_object_set_bool (struct cee_json *, char *, bool);
-extern void cee_json_object_set_string (struct cee_json *, char *, char *);
-extern void cee_json_object_set_number (struct cee_json *, char *, double);
+extern void cee_json_object_set (struct cee_state *, struct cee_json *, char *, struct cee_json *);
+extern void cee_json_object_set_bool (struct cee_state *, struct cee_json *, char *, bool);
+extern void cee_json_object_set_string (struct cee_state *, struct cee_json *, char *, char *);
+extern void cee_json_object_set_number (struct cee_state *, struct cee_json *, char *, double);
 
-extern void cee_json_array_append (struct cee_json *, struct cee_json *);
-extern void cee_json_array_append_bool (struct cee_json *, bool);
-extern void cee_json_array_append_string (struct cee_json *, char *);
-extern void cee_json_array_append_number (struct cee_json *, double);
+extern void cee_json_array_append (struct cee_state *, struct cee_json *, struct cee_json *);
+extern void cee_json_array_append_bool (struct cee_state *, struct cee_json *, bool);
+extern void cee_json_array_append_string (struct cee_state *, struct cee_json *, char *);
+extern void cee_json_array_append_number (struct cee_state *, struct cee_json *, double);
 
-extern size_t cee_json_snprint (char * buf, size_t size, struct cee_json *, 
+extern size_t cee_json_snprint (struct cee_state *, char * buf,
+                                size_t size, struct cee_json *, 
                                 enum cee_json_format);
 
-extern bool cee_json_parse(char * buf, uintptr_t len, struct cee_json **out, 
+extern bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);
 
-#endif // ORCA_JSON_H 
+#endif // ORCA_JSON_H
+ 
 #ifndef CEE_JSON_TOKENIZER_H
 #define CEE_JSON_TOKENIZER_H
 enum token {
@@ -118,8 +122,8 @@ struct tokenizer {
   double real;
 };
 
-extern enum token cee_json_next_token(struct tokenizer * t);
-#endif // ORCA_JSON_TOK_H
+extern enum token cee_json_next_token(struct cee_state *, struct tokenizer * t);
+#endif // CEE_JSON_TOKENIZER_H
  
 /* convert to C */
 ///////////////////////////////////////////////////////////////////////////////
@@ -316,146 +320,127 @@ static void utf8_encode(uint32_t value, struct utf8_seq *out) {
 
 # 1 "value.c" 1
 # 12 "value.c"
-struct cee_json * cee_json_true () {
+struct cee_json * cee_json_true (struct cee_state * st) {
   static char b[CEE_SINGLETON_SIZE];
-  return (struct cee_json *) cee_singleton_init ((uintptr_t)is_boolean, b);
+  return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_BOOLEAN, 1);
 }
 
-struct cee_json * cee_json_false () {
+struct cee_json * cee_json_false (struct cee_state * st) {
   static char b[CEE_SINGLETON_SIZE];
-  return (struct cee_json *) cee_singleton_init ((uintptr_t)is_boolean, b);
+  return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_BOOLEAN, 0);
 }
 
-struct cee_json * cee_json_bool(bool b) {
-  if (b)
-    return cee_json_true();
-  else
-    return cee_json_false();
+struct cee_json * cee_json_bool (struct cee_state * st, bool b) {
+  return b ? cee_json_true(st) : cee_json_false(st);
 }
 
 
-struct cee_json * cee_json_undefined () {
+struct cee_json * cee_json_undefined (struct cee_state * st) {
   static char b[CEE_SINGLETON_SIZE];
-  return (struct cee_json *)cee_singleton_init ((uintptr_t)is_undefined, b);
+  return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_UNDEFINED, 0);
 }
 
-struct cee_json * cee_json_null () {
+struct cee_json * cee_json_null (struct cee_state * st) {
   static char b[CEE_SINGLETON_SIZE];
-  return (struct cee_json *)cee_singleton_init ((uintptr_t)is_null, b);
+  return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_UNDEFINED, 0);
 }
 
 struct cee_map * cee_json_to_object (struct cee_json * p) {
-  if (p->t == is_object)
-    return p->value.object;
-  else
-    return NULL;
+  return (p->t == CEE_JSON_OBJECT) ? p->value.object : NULL;
 }
 struct cee_list * cee_json_to_array (struct cee_json * p) {
-  if (p->t == is_array)
-    return p->value.array;
-  else
-    return NULL;
+  return (p->t == CEE_JSON_ARRAY) ? p->value.array : NULL;
 }
-
 struct cee_str * cee_json_to_string (struct cee_json * p) {
-  if (p->t == is_string)
-    return p->value.string;
-  else
-    return NULL;
+  return (p->t == CEE_JSON_STRING) ? p->value.string : NULL;
 }
-
 struct cee_boxed * cee_json_to_number (struct cee_json * p) {
-  if (p->t == is_number)
-    return p->value.number;
-  else
-    return NULL;
+  return (p->t == CEE_JSON_NUMBER) ? p->value.number : NULL;
 }
 
-bool cee_json_to_bool (struct cee_json * p) {
-  if (p == cee_json_true())
+bool cee_json_to_bool (struct cee_state * st, struct cee_json * p) {
+  if (p == cee_json_true(st))
     return true;
-  else if (p == cee_json_false())
+  else if (p == cee_json_false(st))
     return false;
-
   cee_segfault();
 }
 
-struct cee_json * cee_json_number (double d) {
-  struct cee_boxed * p = cee_boxed_from_double (d);
-  struct cee_tagged * t = cee_tagged_mk (is_number, p);
+struct cee_json * cee_json_number_mk (struct cee_state * st, double d) {
+  struct cee_boxed * p = cee_boxed_from_double (st, d);
+  return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_NUMBER, p);
+}
+
+struct cee_json * cee_json_string_mk(struct cee_state * st, struct cee_str *s) {
+  return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_STRING, s);
+}
+
+struct cee_json * cee_json_array_mk(struct cee_state * st, int s) {
+  struct cee_list * v = cee_list_mk (st, s);
+  return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_ARRAY, v);
+}
+
+struct cee_json * cee_json_object_mk(struct cee_state * st) {
+  struct cee_map * m = cee_map_mk (st, (cee_cmp_fun)strcmp);
+  struct cee_tagged * t = cee_tagged_mk (st, CEE_JSON_OBJECT, m);
   return (struct cee_json *)t;
 }
 
-struct cee_json * cee_json_string(struct cee_str *s) {
-  struct cee_tagged * t = cee_tagged_mk (is_string, s);
-  return (struct cee_json *)t;
-}
-
-struct cee_json * cee_json_array(int s) {
-  struct cee_list * v = cee_list_mk (s);
-  struct cee_tagged * t = cee_tagged_mk (is_array, v);
-  return (struct cee_json *)t;
-}
-
-struct cee_json * cee_json_object() {
-  struct cee_map * m = cee_map_mk ((cee_cmp_fun)strcmp);
-  struct cee_tagged * t = cee_tagged_mk (is_object, m);
-  return (struct cee_json *)t;
-}
-
-void cee_json_object_set(struct cee_json * j, char * key, struct cee_json * v) {
+void cee_json_object_set(struct cee_state * st, struct cee_json * j, char * key, struct cee_json * v) {
   struct cee_map * o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
-  cee_map_add(o, cee_str_mk("%s", key), v);
+  cee_map_add(o, cee_str_mk(st, "%s", key), v);
 }
 
-void cee_json_object_set_bool(struct cee_json * j, char * key, bool b) {
+void cee_json_object_set_bool(struct cee_state * st, struct cee_json * j, char * key, bool b) {
   struct cee_map * o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
-  cee_map_add(o, cee_str_mk("%s", key), cee_json_bool(b));
+  cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_bool(st, b));
 }
 
-void cee_json_object_set_string (struct cee_json * j, char * key, char * str) {
+void cee_json_object_set_string (struct cee_state * st, struct cee_json * j, char * key, char * str) {
   struct cee_map * o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
-  cee_map_add(o, cee_str_mk("%s", key), cee_json_string(cee_str("%s", str)));
+  cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_string_mk(st, cee_str_mk(st, "%s", str)));
 }
 
-void cee_json_object_set_number (struct cee_json * j, char * key, double real) {
+void cee_json_object_set_number (struct cee_state * st, struct cee_json * j, char * key, double real) {
   struct cee_map * o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
-  cee_map_add(o, cee_str_mk("%s", key), cee_json_number(real));
+  cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_number_mk(st, real));
 }
 
-void cee_json_array_append (struct cee_json * j, struct cee_json *v) {
+void cee_json_array_append (struct cee_state * st, struct cee_json * j, struct cee_json *v) {
+  (void)st;
   struct cee_list * o = cee_json_to_array(j);
   if (!o)
     cee_segfault();
   cee_list_append(&o, v);
 }
 
-void cee_json_array_append_bool (struct cee_json * j, bool b) {
+void cee_json_array_append_bool (struct cee_state * st, struct cee_json * j, bool b) {
   struct cee_list * o = cee_json_to_array(j);
   if (!o)
     cee_segfault();
-  cee_list_append(&o, cee_json_bool(b));
+  cee_list_append(&o, cee_json_bool(st, b));
 }
 
-void cee_json_array_append_string (struct cee_json * j, char * x) {
+void cee_json_array_append_string (struct cee_state * st, struct cee_json * j, char * x) {
   struct cee_list * o = cee_json_to_array(j);
   if (!o)
     cee_segfault();
-  cee_list_append(&o, cee_json_string(cee_str_mk("%s", x)));
+  cee_list_append(&o, cee_json_string_mk(st, cee_str_mk(st, "%s", x)));
 }
 
 
 
 
-struct cee_json * cee_json_load_from_file (FILE * f, bool force_eof,
+struct cee_json * cee_json_load_from_file (struct cee_state * st,
+                                           FILE * f, bool force_eof,
                                            int * error_at_line) {
   int fd = fileno(f);
   struct stat buf;
@@ -467,16 +452,16 @@ struct cee_json * cee_json_load_from_file (FILE * f, bool force_eof,
 
   int line = 0;
   struct cee_json * j;
-  if (!cee_json_parse(b, size, &j, true, &line)) {
+  if (!cee_json_parse(st, b, size, &j, true, &line)) {
 
   }
   return j;
 }
 
-bool cee_json_save(struct cee_json * j, FILE *f, int how) {
-  size_t s = cee_json_snprint (NULL, 0, j, how);
+bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how) {
+  size_t s = cee_json_snprint (st, NULL, 0, j, how);
   char * p = malloc(s+1);
-  cee_json_snprint (p, s+1, j, how);
+  cee_json_snprint (st, p, s+1, j, how);
   if (fwrite(p, s+1, 1, f) != 1) {
     fprintf(stderr, "%s", strerror(errno));
     return false;
@@ -504,7 +489,7 @@ static const uintptr_t cee_json_max_depth = 512;
 
 
 
-bool cee_json_parse(char * buf, uintptr_t len, struct cee_json **out, bool force_eof,
+bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee_json **out, bool force_eof,
                     int *error_at_line)
 {
   struct tokenizer tock = {0};
@@ -515,14 +500,14 @@ bool cee_json_parse(char * buf, uintptr_t len, struct cee_json **out, bool force
   enum state_type state = st_init;
   struct cee_str * key = NULL;
 
-  struct cee_stack * sp = cee_stack_mk_e(CEE_DP_NOOP, cee_json_max_depth);
+  struct cee_stack * sp = cee_stack_mk_e(st, CEE_DP_NOOP, cee_json_max_depth);
   struct cee_tuple * top = NULL;
   struct cee_tuple * result = NULL;
 
 
 
 
-  cee_stack_push(sp, cee_tuple_mk_e((enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_done, NULL));
+  cee_stack_push(sp, cee_tuple_mk_e(st, (enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_done, NULL));
 
   while(!cee_stack_empty(sp) && !cee_stack_full(sp) &&
         state != st_error && state != st_done) {
@@ -532,7 +517,7 @@ bool cee_json_parse(char * buf, uintptr_t len, struct cee_json **out, bool force
       result = NULL;
     }
 
-    int c = cee_json_next_token(&tock);
+    int c = cee_json_next_token(st, &tock);
 
 
 
@@ -541,36 +526,36 @@ bool cee_json_parse(char * buf, uintptr_t len, struct cee_json **out, bool force
     switch(state) {
     case st_object_or_array_or_value_expected:
       if(c=='[') {
-        top->_[1]=cee_json_array(10);
+        top->_[1]=cee_json_array_mk(st, 10);
         state=st_array_value_or_close_expected;
       }
       else if(c=='{') {
-        top->_[1]=cee_json_object();
+        top->_[1]=cee_json_object_mk(st);
         state=st_object_key_or_close_expected;
       }
       else if(c==tock_str) {
-        top->_[1]=cee_json_string(tock.str);
+        top->_[1]=cee_json_string_mk(st, tock.str);
         tock.str = NULL;
         state=(enum state_type)(top->_[0]);
         { result = (struct cee_tuple *)cee_stack_pop(sp); };
       }
       else if(c==tock_true) {
-        top->_[1]=cee_json_true();
+        top->_[1]=cee_json_true(st);
         state=(enum state_type)(top->_[0]);
         { result = (struct cee_tuple *)cee_stack_pop(sp); };
       }
       else if(c==tock_false) {
-        top->_[1]=cee_json_false();
+        top->_[1]=cee_json_false(st);
         state=(enum state_type)(top->_[0]);
         { result = (struct cee_tuple *)cee_stack_pop(sp); };
       }
       else if(c==tock_null) {
-        top->_[1]=cee_json_null();
+        top->_[1]=cee_json_null(st);
         state=(enum state_type)(top->_[0]);
         { result = (struct cee_tuple *)cee_stack_pop(sp); };
       }
       else if(c==tock_number) {
-        top->_[1] = cee_json_number (tock.real);
+        top->_[1] = cee_json_number_mk (st, tock.real);
         state=(enum state_type)(top->_[0]);
         { result = (struct cee_tuple *)cee_stack_pop(sp); };
       }
@@ -601,37 +586,37 @@ bool cee_json_parse(char * buf, uintptr_t len, struct cee_json **out, bool force
       {
         struct cee_map * obj = cee_json_to_object(top->_[1]);
         if(c==tock_str) {
-          cee_map_add(obj, key, cee_json_string(tock.str));
+          cee_map_add(obj, key, cee_json_string_mk(st, tock.str));
           tock.str = NULL;
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_true) {
-          cee_map_add(obj, key, cee_json_true());
+          cee_map_add(obj, key, cee_json_true(st));
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_false) {
-          cee_map_add(obj, key, cee_json_false());
+          cee_map_add(obj, key, cee_json_false(st));
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_null) {
-          cee_map_add(obj, key, cee_json_null());
+          cee_map_add(obj, key, cee_json_null(st));
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_number) {
-          cee_map_add(obj, key, cee_json_number(tock.real));
+          cee_map_add(obj, key, cee_json_number_mk(st, tock.real));
           state=st_object_close_or_comma_expected;
         }
         else if(c=='[') {
-          struct cee_json * a = cee_json_array(10);
+          struct cee_json * a = cee_json_array_mk(st, 10);
           cee_map_add(obj, key, a);
           state=st_array_value_or_close_expected;
-          cee_stack_push(sp, cee_tuple_mk_e((enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_object_close_or_comma_expected, a));
+          cee_stack_push(sp, cee_tuple_mk_e(st, (enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_object_close_or_comma_expected, a));
         }
         else if(c=='{') {
-          struct cee_json * o = cee_json_object();
+          struct cee_json * o = cee_json_object_mk(st);
           cee_map_add(obj, key, o);
           state=st_object_key_or_close_expected;
-          cee_stack_push(sp, cee_tuple_mk_e((enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_object_close_or_comma_expected, o));
+          cee_stack_push(sp, cee_tuple_mk_e(st, (enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_object_close_or_comma_expected, o));
         }
         else
           state=st_error;
@@ -657,34 +642,34 @@ bool cee_json_parse(char * buf, uintptr_t len, struct cee_json **out, bool force
         struct cee_list * ar = cee_json_to_array(top->_[1]);
 
         if(c==tock_str) {
-          cee_list_append(&ar, cee_json_string(tock.str));
+          cee_list_append(&ar, cee_json_string_mk(st, tock.str));
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_true) {
-          cee_list_append(&ar, cee_json_true());
+          cee_list_append(&ar, cee_json_true(st));
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_false) {
-          cee_list_append(&ar, cee_json_false());
+          cee_list_append(&ar, cee_json_false(st));
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_null) {
-          cee_list_append(&ar, cee_json_null());
+          cee_list_append(&ar, cee_json_null(st));
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_number) {
-          cee_list_append(&ar, cee_json_number(tock.real));
+          cee_list_append(&ar, cee_json_number_mk(st, tock.real));
           state=st_array_close_or_comma_expected;
         }
         else if(c=='[') {
-          struct cee_json * a = cee_json_array(10);
+          struct cee_json * a = cee_json_array_mk(st, 10);
           state=st_array_value_or_close_expected;
-          cee_stack_push(sp, cee_tuple_mk_e((enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_array_close_or_comma_expected, a));
+          cee_stack_push(sp, cee_tuple_mk_e(st, (enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_array_close_or_comma_expected, a));
         }
         else if(c=='{') {
-          struct cee_json * o = cee_json_object();
+          struct cee_json * o = cee_json_object_mk(st);
           state=st_object_key_or_close_expected;
-          cee_stack_push(sp, cee_tuple_mk_e((enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_array_close_or_comma_expected, o));
+          cee_stack_push(sp, cee_tuple_mk_e(st, (enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_array_close_or_comma_expected, o));
         }
         else
           state=st_error;
@@ -709,7 +694,7 @@ bool cee_json_parse(char * buf, uintptr_t len, struct cee_json **out, bool force
   cee_del(sp);
   if(state==st_done) {
     if(force_eof) {
-      if(cee_json_next_token(&tock)!=tock_eof) {
+      if(cee_json_next_token(st, &tock)!=tock_eof) {
         *error_at_line=tock.line;
         return false;
       }
@@ -732,18 +717,18 @@ struct counter {
   char more_siblings;
 };
 
-static struct counter * push(uintptr_t tabs, bool more_siblings,
+static struct counter * push(struct cee_state * st, uintptr_t tabs, bool more_siblings,
                              struct cee_stack * sp, struct cee_json * j) {
   struct counter * p = NULL;
   if (j == NULL) {
-    p = cee_block_mk(sizeof(struct counter));
+    p = cee_block_mk(st, sizeof(struct counter));
     p->tabs = 0;
   }
   else {
     switch(j->t) {
-      case is_object:
+      case CEE_JSON_OBJECT:
         {
-          p = cee_block_mk(sizeof(struct counter));
+          p = cee_block_mk(st, sizeof(struct counter));
           struct cee_map * mp = cee_json_to_object(j);
           p->array = cee_map_keys(mp);
           p->object = cee_json_to_object(j);
@@ -752,9 +737,9 @@ static struct counter * push(uintptr_t tabs, bool more_siblings,
           p->more_siblings = 0;
         }
         break;
-      case is_array:
+      case CEE_JSON_ARRAY:
         {
-          p = cee_block_mk(sizeof(struct counter));
+          p = cee_block_mk(st, sizeof(struct counter));
           p->array = cee_json_to_array(j);
           p->tabs = tabs;
           p->next = 0;
@@ -763,7 +748,7 @@ static struct counter * push(uintptr_t tabs, bool more_siblings,
         break;
       default:
         {
-          p = cee_block_mk(sizeof(struct counter));
+          p = cee_block_mk(st, sizeof(struct counter));
           p->array = NULL;
           p->tabs = tabs;
           p->next = 0;
@@ -774,7 +759,7 @@ static struct counter * push(uintptr_t tabs, bool more_siblings,
     p->more_siblings = more_siblings;
   }
   enum cee_del_policy o[2] = { CEE_DP_DEL, CEE_DP_NOOP };
-  cee_stack_push(sp, cee_tuple_mk_e(o, p, j));
+  cee_stack_push(sp, cee_tuple_mk_e(st, o, p, j));
   return p;
 }
 
@@ -896,15 +881,15 @@ static void str_append(char * out, uintptr_t *offp, char *begin, unsigned len) {
 
 
 
-size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
+size_t cee_json_snprint (struct cee_state * st, char * buf, size_t size, struct cee_json * j,
                          enum cee_json_format f) {
   struct cee_tuple * cur;
   struct cee_json * cur_json;
   struct counter * ccnt;
   uintptr_t incr = 0;
 
-  struct cee_stack * sp = cee_stack_e(CEE_DP_NOOP, 500);
-  push (0, false, sp, j);
+  struct cee_stack * sp = cee_stack_mk_e(st, CEE_DP_NOOP, 500);
+  push (st, 0, false, sp, j);
 
   uintptr_t offset = 0;
   while (!cee_stack_empty(sp) && !cee_stack_full(sp)) {
@@ -913,7 +898,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
     ccnt = (struct counter *)(cur->_[0]);
 
     switch(cur_json->t) {
-      case is_null:
+      case CEE_JSON_NULL:
         {
           pad(&offset, buf, ccnt, f);
           if (buf)
@@ -924,11 +909,11 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_boolean:
+      case CEE_JSON_BOOLEAN:
         {
           pad(&offset, buf, ccnt, f);
           char * s = "false";
-          if (cee_json_to_bool(cur_json))
+          if (cee_json_to_bool(st, cur_json))
             s = "true";
           if (buf)
             memcpy(buf + offset, s, strlen(s));
@@ -938,7 +923,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_undefined:
+      case CEE_JSON_UNDEFINED:
         {
           pad(&offset, buf, ccnt, f);
           if (buf)
@@ -949,7 +934,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_string:
+      case CEE_JSON_STRING:
         {
           char * str = (char *)cee_json_to_string(cur_json);
           pad(&offset, buf, ccnt, f);
@@ -959,7 +944,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_number:
+      case CEE_JSON_NUMBER:
         {
           pad(&offset, buf, ccnt, f);
           incr = cee_boxed_snprint (NULL, 0, cee_json_to_number(cur_json));
@@ -972,7 +957,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case is_array:
+      case CEE_JSON_ARRAY:
         {
           uintptr_t i = ccnt->next;
           if (i == 0)
@@ -984,7 +969,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
             if (1 < n && i+1 < n)
               more_siblings = true;
             ccnt->next++;
-            push (ccnt->tabs + 1, more_siblings, sp,
+            push (st, ccnt->tabs + 1, more_siblings, sp,
                   (struct cee_json *)(ccnt->array->_[i]));
           }
           else {
@@ -995,7 +980,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
           }
         }
         break;
-      case is_object:
+      case CEE_JSON_OBJECT:
         {
           uintptr_t i = ccnt->next;
           if (i == 0)
@@ -1014,7 +999,7 @@ size_t cee_json_snprint (char * buf, size_t size, struct cee_json * j,
             pad(&offset, buf, ccnt, f);
             str_append(buf, &offset, key, klen);
             delimiter(&offset, buf, f, ccnt, ':');
-            push(ccnt->tabs + 1, more_siblings, sp, j1);
+            push(st, ccnt->tabs + 1, more_siblings, sp, j1);
           }
           else {
             delimiter(&offset, buf, f, ccnt, '}');
@@ -1073,10 +1058,10 @@ static bool read_4_digits(struct tokenizer * t, uint16_t *x)
   return true;
 }
 
-static bool parse_string(struct tokenizer * t) {
+static bool parse_string(struct cee_state * st, struct tokenizer * t) {
   char c;
 
-  t->str = cee_str_mk_e(128, "");
+  t->str = cee_str_mk_e(st, 128, "");
 
   if (t->buf == t->buf_end)
     return false;
@@ -1145,7 +1130,7 @@ static bool parse_number(struct tokenizer *t) {
   return x == 1;
 }
 
-enum token cee_json_next_token(struct tokenizer * t) {
+enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
   for (;;t->buf++) {
     if (t->buf == t->buf_end)
       return tock_eof;
@@ -1168,7 +1153,7 @@ enum token cee_json_next_token(struct tokenizer * t) {
         break;
       case '"':
         t->buf --;
-        if(parse_string(t))
+        if(parse_string(st, t))
           return tock_str;
         return tock_err;
       case 't':

@@ -18,5 +18,5 @@ struct tokenizer {
   double real;
 };
 
-extern enum token cee_json_next_token(struct tokenizer * t);
-#endif // ORCA_JSON_TOK_H
+extern enum token cee_json_next_token(struct cee_state *, struct tokenizer * t);
+#endif // CEE_JSON_TOKENIZER_H

@@ -42,7 +42,7 @@ release: $(JSON_SRC)
 	@cp json.h release
 
 tester: json-one.o cee.o
-	$(CC) -std=c11 -static -g tester.c json-one.o cee.o
+	$(CC) $(CFLAGS) -std=c11 -g $@.c -o $@.out $^
 
 clean:
 	rm -f a.c cee.o json-one.c json-one.o
