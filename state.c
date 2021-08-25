@@ -59,6 +59,7 @@ static void S(sweep) (void * v, enum cee_trace_action ta) {
 }
 
 static int S(cmp) (const void * v1, const void * v2) {
+  printf("%p %p\n", v1, v2);
   if (v1 < v2)
     return -1;
   else if (v1 == v2)
@@ -66,7 +67,6 @@ static int S(cmp) (const void * v1, const void * v2) {
   else
     return 1;
 }
-
 
 struct cee_state * cee_state_mk(size_t n) {
   size_t memblock_size = sizeof(struct S(header));

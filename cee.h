@@ -402,7 +402,7 @@ struct cee_singleton {
   cee_tag_t  tag;
   uintptr_t val;
 };
-extern struct cee_singleton * cee_singleton_init(void *, uintptr_t tag, uintptr_t val);
+extern struct cee_singleton * cee_singleton_init(void * s, cee_tag_t tag, uintptr_t val);
 #define CEE_SINGLETON_SIZE (sizeof(struct cee_singleton) + sizeof(struct cee_sect))
   
   
