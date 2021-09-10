@@ -53,20 +53,26 @@ TEST expect_encoding_json_correctly(void)
   SKIPm("TODO");
 }
 
-SUITE(cee_json) 
+SUITE(cee_json_decode)
 {
   char*  jsonstr;
   size_t jsonlen;
-
   for (int i=0; i < g_n_files; ++i) {
     jsonstr = load_whole_file(g_files[i], &jsonlen);
-
     greatest_set_test_suffix(g_files[i]);
     RUN_TESTp(expect_decoding_json_correctly, jsonstr, jsonlen);
+    free(jsonstr);
+  }
+}
 
+SUITE(cee_json_encode)
+{
+  char*  jsonstr;
+  size_t jsonlen;
+  for (int i=0; i < g_n_files; ++i) {
+    jsonstr = load_whole_file(g_files[i], &jsonlen);
     greatest_set_test_suffix(g_files[i]);
     RUN_TEST(expect_encoding_json_correctly);
-
     free(jsonstr);
   }
 }
@@ -85,7 +91,8 @@ int main(int argc, char *argv[])
   }
   assert(g_n_files != 0 && "Couldn't locate files");
 
-  RUN_SUITE(cee_json);
+  RUN_SUITE(cee_json_decode);
+  RUN_SUITE(cee_json_encode);
 
   GREATEST_MAIN_END();
 }
