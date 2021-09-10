@@ -15,8 +15,8 @@ CFLAGS= -fno-exceptions -g -I../ -I$(TOP)/ -I$(TOP)/cee-utils
 	$(CC) $(CFLAGS) -std=c11 -g -o $@ $^
 
 all: $(EXES) $(SUITE_DECODE_DIR) $(SUITE_ENCODE_DIR)
-	- ./$(SUITE_EXE) -v -e -s cee_json_decode -- $(SUITE_DECODE_DIR)/*
-	- ./$(SUITE_EXE) -v -e -s cee_json_encode -- $(SUITE_ENCODE_DIR)/*
+	- ./$(SUITE_EXE) -v -e -s json_decode -- $(SUITE_DECODE_DIR)/*
+	- ./$(SUITE_EXE) -v -e -s json_encode -- $(SUITE_ENCODE_DIR)/*
 
 clean:
 	rm -f *.out

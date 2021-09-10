@@ -1,15 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
 #include "cee-json.h"
 #include "greatest.h"
 
+
 static char** g_files;
+static char** g_suffixes;
 static int    g_n_files;
 char          g_errbuf[1024];
 
@@ -34,7 +33,7 @@ GREATEST_MAIN_DEFS();
 
 SUITE(cee_json);
 
-TEST expect_decoding_json_correctly(char str[], size_t len)
+TEST expect_decode(char str[], size_t len)
 {
   struct cee_state * st = cee_state_mk(10);
   struct cee_json *json = NULL;
@@ -48,31 +47,31 @@ TEST expect_decoding_json_correctly(char str[], size_t len)
   PASS();
 }
 
-TEST expect_encoding_json_correctly(void)
+TEST expect_encode(void)
 {
   SKIPm("TODO");
 }
 
-SUITE(cee_json_decode)
+SUITE(json_decode)
 {
   char*  jsonstr;
   size_t jsonlen;
   for (int i=0; i < g_n_files; ++i) {
     jsonstr = load_whole_file(g_files[i], &jsonlen);
-    greatest_set_test_suffix(g_files[i]);
-    RUN_TESTp(expect_decoding_json_correctly, jsonstr, jsonlen);
+    greatest_set_test_suffix(g_suffixes[i]);
+    RUN_TESTp(expect_decode, jsonstr, jsonlen);
     free(jsonstr);
   }
 }
 
-SUITE(cee_json_encode)
+SUITE(json_encode)
 {
   char*  jsonstr;
   size_t jsonlen;
   for (int i=0; i < g_n_files; ++i) {
     jsonstr = load_whole_file(g_files[i], &jsonlen);
-    greatest_set_test_suffix(g_files[i]);
-    RUN_TEST(expect_encoding_json_correctly);
+    greatest_set_test_suffix(g_suffixes[i]);
+    RUN_TEST(expect_encode);
     free(jsonstr);
   }
 }
@@ -91,8 +90,23 @@ int main(int argc, char *argv[])
   }
   assert(g_n_files != 0 && "Couldn't locate files");
 
-  RUN_SUITE(cee_json_decode);
-  RUN_SUITE(cee_json_encode);
+  // create test suffixes for easy identification
+  g_suffixes = malloc(g_n_files * sizeof(char *));
+  char *start, *end;
+  for (int i=0; i < g_n_files; ++i) {
+    if ( (start = strchr(g_files[i], '/')) )
+      ++start;
+    else 
+      start = g_files[i];
+    end = strrchr(start, '.');
+
+    size_t size = end ? (end - start) : strlen(start) + 1;
+    g_suffixes[i] = malloc(size);
+    memcpy(g_suffixes[i], start, size);
+  }
+
+  RUN_SUITE(json_decode);
+  RUN_SUITE(json_encode);
 
   GREATEST_MAIN_END();
 }
