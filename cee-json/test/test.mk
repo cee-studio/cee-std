@@ -8,15 +8,6 @@ SUITE_EXE        = test-cee-json.out
 SUITE_DECODE_DIR = test_decode
 SUITE_ENCODE_DIR = test_encode
 
-
-# for inserting newlines at the end of each foreach
-# see https://stackoverflow.com/questions/29651388/insert-a-new-line-in-a-makefile-foreach-loop
-blank :=
-define \n
-
-$(blank)
-endef
-
 CFLAGS= -fno-exceptions -g -I../ -I$(TOP)/ -I$(TOP)/cee-utils
 
 # generic compilation
