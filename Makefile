@@ -4,11 +4,15 @@ CEE_SRC = musl-hsearch.c musl-insque.c musl-lsearch.c musl-tsearch.c \
           tuple.c triple.c quadruple.c list.c tagged.c singleton.c   \
           closure.c block.c n_tuple.c env.c state.c 
 
-CFLAGS= -fno-exceptions -g -I./
+CEE_UTILS_DIR  := cee-utils
+
+CFLAGS= -fno-exceptions -g -I./ -I./cee-utils
 
 .PHONY: release clean distclean
 
-all: tester
+all: cee_utils tester
+
+cee_utils: $(CEE_UTILS_DIR)
 
 tester: cee.c
 	$(CC) $(CFLAGS) $@.c -o $@.out $<
@@ -34,6 +38,11 @@ cee.c: $(CEE_SRC)
 	END {\
 		print "#endif // CEE_ONE_H";\
 	}' > $@
+
+$(CEE_UTILS_DIR):
+	if [[ ! -d $@ ]]; then                \
+	  ./scripts/get-cee-utils.sh || exit; \
+	fi
 
 clean:
 	rm -f cee.c tmp.c one.* a.out
