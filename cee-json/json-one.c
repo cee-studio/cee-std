@@ -100,7 +100,7 @@ extern size_t cee_json_snprint (struct cee_state *, char * buf,
 extern bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);
 
-#endif // ORCA_JSON_H
+#endif // CEE_JSON_H
  
 #ifndef CEE_JSON_TOKENIZER_H
 #define CEE_JSON_TOKENIZER_H

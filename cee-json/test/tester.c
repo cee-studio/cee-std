@@ -1,7 +1,8 @@
-#include "json.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include "cee-json.h"
 
 int main () {
   struct cee_state * st = cee_state_mk(10);
@@ -33,7 +34,7 @@ int main () {
   printf ("%s\n", buf);
   struct cee_json * result = NULL;
   int line;
-  printf ("pasing\n");
+  printf ("parsing\n");
   cee_json_parse(st, buf, jlen, &result, true, &line);
   printf ("end of parsing\n");
   

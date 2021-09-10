@@ -1,8 +1,10 @@
 TOP = ..
 CC ?= gcc
 
+TEST_DIR = test
+
 JSON_SRC = value.c parser.c snprint.c tokenizer.c
-JSON_HDR = json.h tokenizer.h utf8.h
+JSON_HDR = cee-json.h tokenizer.h utf8.h
 
 HEADERS = stdlib.h string.h errno.h sys/types.h sys/stat.h unistd.h stdio.h
 
@@ -20,29 +22,34 @@ define json_amalgamation
 	@echo "#endif" >> $(1)
 endef
 
-CFLAGS= -fno-exceptions -g -I../
+CFLAGS= -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
 
-.PHONY: release clean
+.PHONY: release clean test
 
-all: tester
+# generic compilation
+%.out: %.c json-one.o cee.o
+	$(CC) $(CFLAGS) -std=c11 -g -o $@ $^
+
+all: cee.o json-one.o
+
+cee.o: $(TOP)/cee.c
+	$(MAKE) -C $(TOP)
+	$(CC) $(CFLAGS) -c -g $<
 
 json-one.c: $(JSON_SRC) $(TOP)/cee.h
 	$(call json_amalgamation, json-one.c)
-
 json-one.o: json-one.c $(TOP)/cee.h
 	$(CC) $(CFLAGS) -c json-one.c
-
-cee.o: $(TOP)/cee.c $(TOP)/cee.h
-	$(CC) $(CFLAGS) -c -g $<
 
 release: $(JSON_SRC)
 	@mkdir -p release
 	$(call json_amalgamation, json.c, -P)
-	@mv json.c release
-	@cp json.h release
+	@mv cee-json.c release
+	@cp cee-json.h release
 
-tester: json-one.o cee.o
-	$(CC) $(CFLAGS) -std=c11 -g $@.c -o $@.out $^
+test: all
+	$(MAKE) -C $(TEST_DIR) -f test.mk
 
 clean:
 	rm -f a.c cee.o json-one.c json-one.o
+	$(MAKE) -C $(TEST_DIR) -f test.mk clean
