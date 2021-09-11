@@ -2,7 +2,7 @@
    C reimplementation of cppcms's json.cpp
 */
 #ifndef CEE_JSON_AMALGAMATION
-#include "json.h"
+#include "cee-json.h"
 #include <string.h>
 #endif
 

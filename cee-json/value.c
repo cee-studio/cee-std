@@ -1,5 +1,5 @@
 #ifndef CEE_JSON_AMALGAMATION
-#include "json.h"
+#include "cee-json.h"
 #include <stdlib.h>
 #include "cee.h"
 #include <string.h>

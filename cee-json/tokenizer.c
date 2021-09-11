@@ -1,6 +1,6 @@
 #ifndef CEE_JSON_AMALGAMATION
 #include "cee.h"
-#include "json.h"
+#include "cee-json.h"
 #include "utf8.h"
 #include <stdlib.h>
 #include "tokenizer.h"
