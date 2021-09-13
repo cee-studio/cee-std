@@ -27,23 +27,23 @@ CFLAGS= -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
 .PHONY: release clean test
 
 # generic compilation
-%.out: %.c json-one.o cee.o
+%.out: %.c cee-json-one.o cee.o
 	$(CC) $(CFLAGS) -std=c11 -g -o $@ $^
 
-all: cee.o json-one.o
+all: cee.o cee-json-one.o
 
 cee.o: $(TOP)/cee.c
 	$(MAKE) -C $(TOP)
 	$(CC) $(CFLAGS) -c -g $<
 
-json-one.c: $(JSON_SRC) $(TOP)/cee.h
-	$(call json_amalgamation, json-one.c)
-json-one.o: json-one.c $(TOP)/cee.h
-	$(CC) $(CFLAGS) -c json-one.c
+cee-json-one.c: $(JSON_SRC) $(TOP)/cee.h
+	$(call json_amalgamation, cee-json-one.c)
+cee-json-one.o: cee-json-one.c $(TOP)/cee.h
+	$(CC) $(CFLAGS) -c cee-json-one.c
 
 release: $(JSON_SRC)
 	@mkdir -p release
-	$(call json_amalgamation, json.c, -P)
+	$(call json_amalgamation, cee-json.c, -P)
 	@mv cee-json.c release
 	@cp cee-json.h release
 
@@ -51,5 +51,5 @@ test: all
 	$(MAKE) -C $(TEST_DIR) -f test.mk
 
 clean:
-	rm -f a.c cee.o json-one.c json-one.o
+	rm -f a.c cee.o cee-json-one.c cee-json-one.o
 	$(MAKE) -C $(TEST_DIR) -f test.mk clean

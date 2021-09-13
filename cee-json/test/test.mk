@@ -11,7 +11,7 @@ SUITE_ENCODE_DIR = test_encode
 CFLAGS= -fno-exceptions -g -I../ -I$(TOP)/ -I$(TOP)/cee-utils
 
 # generic compilation
-%.out: %.c ../json-one.o ../cee.o
+%.out: %.c ../cee-json-one.o ../cee.o
 	$(CC) $(CFLAGS) -std=c11 -g -o $@ $^
 
 all: $(EXES) $(SUITE_DECODE_DIR) $(SUITE_ENCODE_DIR)
