@@ -12,28 +12,28 @@ static char** g_suffixes;
 static int    g_n_files;
 char          g_errbuf[1024];
 
-char* load_whole_file(char *filename, size_t *filesize) 
+char* load_whole_file(char *filename, long *p_fsize) 
 {
   FILE *f = fopen(filename,"rb");
   assert(NULL != f && "Couldn't open file");
 
   fseek(f, 0, SEEK_END);
-  *filesize = ftell(f);
+  long fsize = ftell(f);
   fseek(f, 0, SEEK_SET);
 
-  char *str = malloc(*filesize);
-  fread(str, 1, *filesize, f);
+  char *str = malloc(fsize + 1);
+
+  str[fsize] = '\0';
+  fread(str, 1, fsize, f);
+
   fclose(f);
+
+  if (p_fsize) *p_fsize = fsize;
 
   return str;
 }
 
-
-GREATEST_MAIN_DEFS();
-
-SUITE(cee_json);
-
-TEST expect_decode(char str[], size_t len)
+TEST expect_decode(char str[], long len)
 {
   struct cee_state * st = cee_state_mk(10);
   struct cee_json *json = NULL;
@@ -55,11 +55,11 @@ TEST expect_encode(void)
 SUITE(json_decode)
 {
   char*  jsonstr;
-  size_t jsonlen;
+  long fsize;
   for (int i=0; i < g_n_files; ++i) {
-    jsonstr = load_whole_file(g_files[i], &jsonlen);
+    jsonstr = load_whole_file(g_files[i], &fsize);
     greatest_set_test_suffix(g_suffixes[i]);
-    RUN_TESTp(expect_decode, jsonstr, jsonlen);
+    RUN_TESTp(expect_decode, jsonstr, fsize-1);
     free(jsonstr);
   }
 }
@@ -67,17 +67,17 @@ SUITE(json_decode)
 SUITE(json_encode)
 {
   char*  jsonstr;
-  size_t jsonlen;
   for (int i=0; i < g_n_files; ++i) {
-    jsonstr = load_whole_file(g_files[i], &jsonlen);
+    jsonstr = load_whole_file(g_files[i], NULL);
     greatest_set_test_suffix(g_suffixes[i]);
     RUN_TEST(expect_encode);
     free(jsonstr);
   }
 }
 
-int main(int argc, char *argv[]) 
-{
+GREATEST_MAIN_DEFS();
+
+int main(int argc, char *argv[]) {
   GREATEST_MAIN_BEGIN();
 
   for (int i=0; i < argc; ++i) {
@@ -100,9 +100,10 @@ int main(int argc, char *argv[])
       start = g_files[i];
     end = strrchr(start, '.');
 
-    size_t size = end ? (end - start) : strlen(start) + 1;
-    g_suffixes[i] = malloc(size);
+    size_t size = end ? (end - start) : strlen(start);
+    g_suffixes[i] = malloc(size + 1);
     memcpy(g_suffixes[i], start, size);
+    g_suffixes[i][size] = '\0';
   }
 
   RUN_SUITE(json_decode);
