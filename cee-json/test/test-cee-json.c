@@ -10,7 +10,7 @@
 static char** g_files;
 static char** g_suffixes;
 static int    g_n_files;
-char          g_errbuf[1024];
+char          g_errbuf[2048];
 
 char* load_whole_file(char *filename, long *p_fsize) 
 {
@@ -41,7 +41,9 @@ TEST expect_decode(char str[], long len)
   int errline=-1;
   cee_json_parse(st, str, len, &json, false, &errline);
   if (errline != -1) {
-    snprintf(g_errbuf, sizeof(g_errbuf), "Failed parsing at line: %d", errline);
+    snprintf(g_errbuf, sizeof(g_errbuf), 
+        "Failed parsing at line: %d\n"
+        "JSON (%ld bytes): %.*s\n", errline, len, (int)len, str);
     FAILm(g_errbuf);
   }
   PASS();
@@ -59,7 +61,7 @@ SUITE(json_decode)
   for (int i=0; i < g_n_files; ++i) {
     jsonstr = load_whole_file(g_files[i], &fsize);
     greatest_set_test_suffix(g_suffixes[i]);
-    RUN_TESTp(expect_decode, jsonstr, fsize-1);
+    RUN_TESTp(expect_decode, jsonstr, fsize);
     free(jsonstr);
   }
 }
