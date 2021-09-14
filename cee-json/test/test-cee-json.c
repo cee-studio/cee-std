@@ -13,7 +13,13 @@
 static char** g_files;
 static char** g_suffixes;
 static int    g_n_files;
-char          g_errbuf[2048];
+
+enum action { 
+  ACTION_NONE   = 0,
+  ACTION_ACCEPT = 1 << 0, 
+  ACTION_REJECT = 1 << 2
+};
+
 
 char* load_whole_file(char *filename, long *p_fsize) 
 {
@@ -36,64 +42,90 @@ char* load_whole_file(char *filename, long *p_fsize)
   return str;
 }
 
-TEST expect_decode(char str[], long len)
+TEST check_parser(char str[], long len, enum action expected)
 {
-  pid_t pid = fork();
+  static char errbuf[2048];
+  pid_t pid;
+
+  pid = fork();
   if (pid < 0) {
-    snprintf(g_errbuf, sizeof(g_errbuf), "%s", strerror(errno));
-    SKIPm(g_errbuf);
+    snprintf(errbuf, sizeof(errbuf), "%s", strerror(errno));
+    SKIPm(errbuf);
   }
 
-  if (pid == 0) { // child process
+  if (0 == pid) { // child process
     struct cee_state * st = cee_state_mk(10);
     struct cee_json *json = NULL;
     int errline=-1;
 
     cee_json_parse(st, str, len, &json, false, &errline);
-    _exit( (errline != -1) ? EXIT_FAILURE : EXIT_SUCCESS );
+    _exit( (-1 == errline) ? EXIT_SUCCESS : EXIT_FAILURE );
   }
 
   int status;
   wait(&status);
-  if (!WIFEXITED(status) || WEXITSTATUS(status) == EXIT_FAILURE) {
-    snprintf(g_errbuf, sizeof(g_errbuf), "JSON: %.*s", (int)len, str);
-    FAILm(g_errbuf);
+  if (!WIFEXITED(status)) { // child process crashed
+    snprintf(errbuf, sizeof(errbuf), "Process crashed, JSON: %.*s", (int)len, str);
+    FAILm(errbuf);
   }
 
-  PASS();
+  enum action action;
+  if (EXIT_SUCCESS == WEXITSTATUS(status))
+    action = ACTION_ACCEPT;
+  else
+    action = ACTION_REJECT;
+
+  if (!expected || action & expected)
+    PASS();
+
+  snprintf(errbuf, sizeof(errbuf), "JSON: %.*s", (int)len, str);
+  FAILm(errbuf);
 }
 
-TEST expect_encode(void)
+SUITE(json_parsing)
 {
-  SKIPm("TODO");
-}
+  char* jsonstr;
+  long  fsize;
 
-SUITE(json_decode)
-{
-  char*  jsonstr;
-  long fsize;
   for (int i=0; i < g_n_files; ++i) {
     jsonstr = load_whole_file(g_files[i], &fsize);
+
+    enum action expected;
+    switch (g_suffixes[i][0]) {
+    case 'y': expected = ACTION_ACCEPT; break;
+    case 'n': expected = ACTION_REJECT; break;
+    case 'i': expected = ACTION_ACCEPT | ACTION_REJECT; break;
+    default:
+        fprintf(stderr, "Error: File '%s' not conforming to github.com/nst/JSONTestSuite", g_files[i]);
+        exit(EXIT_FAILURE);
+    }
+
     greatest_set_test_suffix(g_suffixes[i]);
-    RUN_TESTp(expect_decode, jsonstr, fsize);
+    RUN_TESTp(check_parser, jsonstr, fsize, expected);
+
     free(jsonstr);
   }
 }
 
-SUITE(json_encode)
+SUITE(json_transform)
 {
-  char*  jsonstr;
+  char* jsonstr;
+  long  fsize;
+
   for (int i=0; i < g_n_files; ++i) {
-    jsonstr = load_whole_file(g_files[i], NULL);
+    jsonstr = load_whole_file(g_files[i], &fsize);
+
     greatest_set_test_suffix(g_suffixes[i]);
-    RUN_TEST(expect_encode);
+    RUN_TESTp(check_parser, jsonstr, fsize, ACTION_NONE);
+
     free(jsonstr);
   }
 }
 
 GREATEST_MAIN_DEFS();
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) 
+{
   GREATEST_MAIN_BEGIN();
 
   for (int i=0; i < argc; ++i) {
@@ -122,8 +154,8 @@ int main(int argc, char *argv[]) {
     g_suffixes[i][size] = '\0';
   }
 
-  RUN_SUITE(json_decode);
-  RUN_SUITE(json_encode);
+  RUN_SUITE(json_parsing);
+  RUN_SUITE(json_transform);
 
   GREATEST_MAIN_END();
 }
