@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,14 +38,14 @@ char* load_whole_file(char *filename, long *p_fsize)
 
 TEST expect_decode(char str[], long len)
 {
-  struct cee_state * st = cee_state_mk(10);
-  struct cee_json *json = NULL;
-
   pid_t pid = fork();
   if (pid < 0) goto _skip;
 
   if (pid == 0) { // child process
+    struct cee_state * st = cee_state_mk(10);
+    struct cee_json *json = NULL;
     int errline=-1;
+
     cee_json_parse(st, str, len, &json, false, &errline);
     _exit( (errline != -1) ? EXIT_FAILURE : EXIT_SUCCESS );
   }
