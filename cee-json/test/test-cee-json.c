@@ -39,7 +39,10 @@ char* load_whole_file(char *filename, long *p_fsize)
 TEST expect_decode(char str[], long len)
 {
   pid_t pid = fork();
-  if (pid < 0) goto _skip;
+  if (pid < 0) {
+    snprintf(g_errbuf, sizeof(g_errbuf), "%s", strerror(errno));
+    SKIPm(g_errbuf);
+  }
 
   if (pid == 0) { // child process
     struct cee_state * st = cee_state_mk(10);
@@ -53,17 +56,11 @@ TEST expect_decode(char str[], long len)
   int status;
   wait(&status);
   if (!WIFEXITED(status) || WEXITSTATUS(status) == EXIT_FAILURE) {
-    goto _fail;
+    snprintf(g_errbuf, sizeof(g_errbuf), "JSON: %.*s", (int)len, str);
+    FAILm(g_errbuf);
   }
 
   PASS();
-
-_skip:
-  snprintf(g_errbuf, sizeof(g_errbuf), "%s", strerror(errno));
-  SKIPm(g_errbuf);
-_fail:
-  snprintf(g_errbuf, sizeof(g_errbuf), "JSON: %.*s", (int)len, str);
-  FAILm(g_errbuf);
 }
 
 TEST expect_encode(void)
