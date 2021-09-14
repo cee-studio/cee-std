@@ -118,7 +118,7 @@ static bool parse_number(struct tokenizer *t) {
 
 enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
   for (;;t->buf++) {
-    if (t->buf == t->buf_end)
+    if (t->buf >= t->buf_end)
       return tock_eof;
     char c = t->buf[0];
     t->buf ++;
