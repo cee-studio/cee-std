@@ -314,12 +314,15 @@ static void utf8_encode(uint32_t value, struct utf8_seq *out) {
 }
 #endif 
 # 1 "tmp.c"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "tmp.c"
+# 1 "<built-in>" 1
+# 1 "<built-in>" 3
+# 304 "<built-in>" 3
+# 1 "<command line>" 1
+# 1 "<built-in>" 2
+# 1 "tmp.c" 2
 
-# 1 "value.c" 1
-# 12 "value.c"
+# 1 "./value.c" 1
+# 12 "./value.c"
 struct cee_json * cee_json_true (struct cee_state * st) {
   static char b[CEE_SINGLETON_SIZE];
   return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_BOOLEAN, 1);
@@ -469,8 +472,8 @@ bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how)
   return true;
 }
 # 3 "tmp.c" 2
-# 1 "parser.c" 1
-# 12 "parser.c"
+# 1 "./parser.c" 1
+# 12 "./parser.c"
 enum state_type {
   st_init = 0,
   st_object_or_array_or_value_expected = 0 ,
@@ -707,8 +710,15 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
   return false;
 }
 # 4 "tmp.c" 2
-# 1 "snprint.c" 1
-# 9 "snprint.c"
+# 1 "./snprint.c" 1
+
+
+
+
+
+
+
+
 struct counter {
   uintptr_t next;
   struct cee_list * array;
@@ -1018,8 +1028,15 @@ size_t cee_json_snprint (struct cee_state * st, char * buf, size_t size, struct 
   return offset;
 }
 # 5 "tmp.c" 2
-# 1 "tokenizer.c" 1
-# 9 "tokenizer.c"
+# 1 "./tokenizer.c" 1
+
+
+
+
+
+
+
+
 static bool check(char * buf, char * s, char **ret)
 {
   char * next = buf;
@@ -1197,5 +1214,6 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
     }
   }
 }
-# 5 "tmp.c" 2
+# 6 "tmp.c" 2
+
 #endif

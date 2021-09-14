@@ -1,7 +1,11 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
 #include "cee-json.h"
 #include "greatest.h"
@@ -38,15 +42,29 @@ TEST expect_decode(char str[], long len)
   struct cee_state * st = cee_state_mk(10);
   struct cee_json *json = NULL;
 
-  int errline=-1;
-  cee_json_parse(st, str, len, &json, false, &errline);
-  if (errline != -1) {
-    snprintf(g_errbuf, sizeof(g_errbuf), 
-        "Failed parsing at line: %d\n"
-        "JSON (%ld bytes): %.*s\n", errline, len, (int)len, str);
-    FAILm(g_errbuf);
+  pid_t pid = fork();
+  if (pid < 0) goto _skip;
+
+  if (pid == 0) { // child process
+    int errline=-1;
+    cee_json_parse(st, str, len, &json, false, &errline);
+    _exit( (errline != -1) ? EXIT_FAILURE : EXIT_SUCCESS );
   }
+
+  int status;
+  wait(&status);
+  if (!WIFEXITED(status) || WEXITSTATUS(status) == EXIT_FAILURE) {
+    goto _fail;
+  }
+
   PASS();
+
+_skip:
+  snprintf(g_errbuf, sizeof(g_errbuf), "%s", strerror(errno));
+  SKIPm(g_errbuf);
+_fail:
+  snprintf(g_errbuf, sizeof(g_errbuf), "JSON: %.*s", (int)len, str);
+  FAILm(g_errbuf);
 }
 
 TEST expect_encode(void)
