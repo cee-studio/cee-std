@@ -166,6 +166,7 @@ make
 [DESIGN](./DESIGN.md)
 
 
-## Contribution is welcome
+## Contributions are welcome
+We follow [the orca coding guide line](https://github.com/cee-studio/orca/blob/master/docs/CODING_GUIDELINES.md) for this project.
 
 Please join our discord [https://discord.gg/nBUqrWf](https://discord.gg/nBUqrWf)
