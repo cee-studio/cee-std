@@ -55,8 +55,8 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
   t->buf++;
   
   if (c != '"') return false;
-  bool second_surragate_expected=false;
-  uint16_t first_surragate = 0;
+  bool second_surrogate_expected=false;
+  uint16_t first_surrogate = 0;
   
   for(;;) {
     if(t->buf == t->buf_end)
@@ -64,7 +64,7 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
     c = t->buf[0];
     t->buf ++;
     
-    if(second_surragate_expected && c!='\\')
+    if(second_surrogate_expected && c!='\\')
       return false;
     if(0<= c && c <= 0x1F)
       return false;
@@ -73,7 +73,7 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
     if(c=='\\') {
       if(t->buf == t->buf_end)
         return false;
-      if(second_surragate_expected && c!='u')
+      if(second_surrogate_expected && c!='u')
         return false;
       switch(c) {
       case	'"':
@@ -121,7 +121,6 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
     if (t->buf >= t->buf_end)
       return tock_eof;
     char c = t->buf[0];
-    t->buf ++;
     switch (c) {
       case '[':
       case '{':
@@ -129,28 +128,31 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
       case ',':
       case '}':
       case ']':
+        t->buf++;
         return c;
+      case '\n':
+      case '\r':
+        t->line++;
+      /* fallthrough */
       case ' ':
       case '\t':
-      case '\r':
-        break;
-      case '\n':
-        t->line++;
         break;
       case '"':
-        t->buf --;
         if(parse_string(st, t))
           return tock_str;
         return tock_err;
       case 't':
+        t->buf++;
         if(check(t->buf, "rue", &t->buf))
           return tock_true;
         return tock_err;
       case 'n':
+        t->buf++;
         if(check(t->buf, "ull", &t->buf))
           return tock_null;
         return tock_err;
       case 'f':
+        t->buf++;
         if(check(t->buf, "alse", &t->buf))
           return tock_false;
         return tock_err;
@@ -165,11 +167,11 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
       case '7':
       case '8':
       case '9':
-        t->buf --;
         if(parse_number(t))
           return tock_number;
         return tock_err;
       case '/':
+        t->buf++;
         if(check(t->buf + 1, "/", &t->buf)) {
           for (;t->buf < t->buf_end && (c = t->buf[0]) && c != '\n'; t->buf++);
 
@@ -179,6 +181,7 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
         }
         return tock_err;
       default:
+        t->buf++;
         return tock_err;
     }
   }

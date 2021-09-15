@@ -57,7 +57,7 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
 
     int c = cee_json_next_token(st, &tock);
 #ifdef DEBUG_PARSER
-    printf ("token %c\n", c);
+    fprintf(stderr, "token %c\n", c);
 #endif
     
     top = (struct cee_tuple *)cee_stack_top(sp, 0);
