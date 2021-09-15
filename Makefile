@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 CC ?= gcc
 CEE_SRC = musl-hsearch.c musl-insque.c musl-lsearch.c musl-tsearch.c \
           cee-common.c boxed.c str.c dict.c map.c set.c stack.c      \
