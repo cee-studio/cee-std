@@ -174,7 +174,7 @@ second_iter:
       state = UNESCAPING;
       goto second_iter;
     case TESTING:
-      *output_p = strdup(input_start);
+      *output_p = input_start;
       *output_len_p = input_len;
       return 1;
     default:
@@ -203,7 +203,7 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
   size_t unscp_len = 0;
   if (json_string_unescape(&unscp_str,  &unscp_len, start, end-start)) {
     /// @todo? create a cee_str that takes ownership of a string ptr
-    if (unscp_str) {
+    if (unscp_str && unscp_str != start) {
       t->str = cee_str_mk_e(st, unscp_len, "%s", unscp_str);
       free(unscp_str);
     }
