@@ -1,10 +1,12 @@
 #ifndef CEE_JSON_AMALGAMATION
+#include <stdlib.h>
 #include "cee.h"
 #include "cee-json.h"
 #include "utf8.h"
-#include <stdlib.h>
 #include "tokenizer.h"
 #endif
+
+#include <ctype.h>
 
 static bool check(char * buf, char * s, char **ret)
 {
@@ -112,8 +114,45 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
 
 
 static bool parse_number(struct tokenizer *t) {
-  int x = sscanf(t->buf, "%lf", &t->real);
-  return x == 1;
+  char *start = t->buf;
+  char *end = start;
+
+  /* 1st STEP: check for a minus sign and skip it */
+  if ('-' == *end) 
+    ++end;
+  if (!isdigit(*end)) 
+    return false;
+
+  /* 2nd STEP: skips until a non digit char found */
+  while (isdigit(*++end)) 
+    continue;
+
+  /* 3rd STEP: if non-digit char is not a comma then it must be
+      an integer*/
+  if ('.' == *end) {
+    while (isdigit(*++end)) 
+      continue;
+  }
+
+  /* 4th STEP: if exponent found skips its tokens */
+  if ('e' == *end || 'E' == *end) {
+    ++end;
+    if ('+' == *end || '-' == *end) { 
+      ++end;
+    }
+    if (!isdigit(*end)) 
+      return false;
+    while (isdigit(*++end))
+      continue;
+  }
+
+  /* 5th STEP: convert string to double and return its value */
+  char numstr[32];
+  snprintf(numstr, sizeof(numstr), "%.*s", (int)(end - start), start);
+
+  t->buf = end; /* skips entire length of number */
+
+  return 1 == sscanf(numstr, "%lf", &t->real);
 }
 
 enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
