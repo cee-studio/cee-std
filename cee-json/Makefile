@@ -13,7 +13,7 @@ CFLAGS= -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
 %.out: %.c cee-json-one.o cee-one.o
 	$(CC) $(CFLAGS) -std=c11 -g -o $@ $^
 
-all: cee.o cee-json-one.o
+all: cee-one.o cee-json-one.o
 
 cee-one.o: $(TOP)/cee-one.c
 	$(MAKE) -C $(TOP)

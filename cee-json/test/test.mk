@@ -11,7 +11,7 @@ SUITE_TRANSFORM_DIR = test_transform
 CFLAGS= -fno-exceptions -g -I../ -I$(TOP)/ -I$(TOP)/cee-utils
 
 # generic compilation
-%.out: %.c ../cee-json-one.o ../cee.o
+%.out: %.c ../cee-json-one.o ../cee-one.o
 	$(CC) $(CFLAGS) -std=c11 -g -o $@ $^
 
 all: $(EXES) $(SUITE_PARSING_DIR) $(SUITE_TRANSFORM_DIR)
