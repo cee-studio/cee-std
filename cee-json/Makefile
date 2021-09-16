@@ -4,23 +4,6 @@ CC ?= gcc
 TEST_DIR = test
 
 JSON_SRC = value.c parser.c snprint.c tokenizer.c
-JSON_HDR = cee-json.h tokenizer.h utf8.h
-
-HEADERS = stdlib.h string.h errno.h sys/types.h sys/stat.h unistd.h stdio.h
-
-define json_amalgamation
-	@echo "#ifndef CEE_JSON_ONE" > $(1)
-	@echo "#define CEE_JSON_ONE" >> $(1)
-	@echo "#define _GNU_SOURCE" >> $(1)
-	@for ii in $(HEADERS); do echo '#include <'$$ii'>' >> $(1); done
-	@echo "#include \"$(TOP)/cee.h\"" >> $(1)
-	@echo " " >> $(1)
-	@for ii in $(JSON_HDR); do cat $$ii >> $(1); echo " " >> $(1); done
-	@echo "#define CEE_JSON_AMALGAMATION" > tmp.c
-	@for ii in $(JSON_SRC); do echo '#include "'$$ii'"' >> tmp.c; done  
-	$(CC) -E $(2) -nostdinc tmp.c >> $(1)
-	@echo "#endif" >> $(1)
-endef
 
 CFLAGS= -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
 
@@ -37,7 +20,29 @@ cee.o: $(TOP)/cee.c
 	$(CC) $(CFLAGS) -c -g $<
 
 cee-json-one.c: $(JSON_SRC) $(TOP)/cee.h
-	$(call json_amalgamation, cee-json-one.c)
+	@ cat $(JSON_SRC) | awk \
+	'BEGIN {\
+		print "#ifndef CEE_JSON_ONE_H";\
+		print "#define CEE_JSON_ONE_H";\
+		print "#define CEE_JSON_AMALGAMATION";\
+		print "#define _GNU_SOURCE";\
+		print "#include \"cee.h\"";\
+		print "#include <stdlib.h>";\
+		print "#include <string.h>";\
+		print "#include <stdio.h>";\
+		print "#include <errno.h>";\
+		print "#include <sys/types.h>";\
+		print "#include <sys/stat.h>";\
+		print "#include <unistd.h>";\
+		print "#include \"utf8.h\"";\
+		print "#include \"tokenizer.h\"";\
+		print "#include \"cee-json.h\"";\
+	}\
+	{print $$0}\
+	END {\
+		print "#endif // CEE_JSON_ONE_H";\
+	}' > $@
+
 cee-json-one.o: cee-json-one.c $(TOP)/cee.h
 	$(CC) $(CFLAGS) -c cee-json-one.c
 
