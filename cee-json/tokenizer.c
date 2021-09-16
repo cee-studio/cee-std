@@ -193,7 +193,7 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
 
   // reach the end of the string
   while (*end != '\0' && *end != '\"') {
-    if ('\\' == *end++) { // check for escaped characters
+    if ('\\' == *end++ && *end != '\0') { // check for escaped characters
       ++end; // eat-up escaped character
     }
   }
