@@ -24,92 +24,196 @@ static bool check(char * buf, char * s, char **ret)
   return false;
 }
 
-static bool read_4_digits(struct tokenizer * t, uint16_t *x)
+static bool read_4_digits(char ** str_p, char * const buf_end, uint16_t *x)
 {
-  char *buf;
-  if (t->buf_end - t->buf >= 5) {
-    buf = t->buf;
-  } 
-  else
+  char * str = * str_p;
+  if (buf_end - str < 4)
     return false;
+
+  char buf[5] = { 0 };
   int i;
   for(i=0; i<4; i++) {
-    char c=buf[i];
-    if(	('0'<= c && c<='9') || ('A'<= c && c<='F') || ('a'<= c && c<='f') ) {
+    char c=str[i];
+    buf[i] = c;
+    if( ('0'<= c && c<='9') || ('A'<= c && c<='F') || ('a'<= c && c<='f') )
       continue;
-    }
+
     return false;
   }
   unsigned v;
   sscanf(buf,"%x",&v);
   *x=v;
+  *str_p = str + 4;
   return true;
 }
 
-static bool parse_string(struct cee_state * st, struct tokenizer * t) {
-  char c;
-  // we should use a more efficient stretchy buffer here
-  t->str = cee_str_mk_e(st, 128, "");
-  
-  if (t->buf == t->buf_end)
-    return false;
-  c=t->buf[0];
-  t->buf++;
-  
-  if (c != '"') return false;
-  bool second_surrogate_expected=false;
-  uint16_t first_surrogate = 0;
-  
-  for(;;) {
-    if(t->buf == t->buf_end)
-      return false;
-    c = t->buf[0];
-    t->buf ++;
-    
-    if(second_surrogate_expected && c!='\\')
-      return false;
-    if(0<= c && c <= 0x1F)
-      return false;
-    if(c=='"')
-      break;
-    if(c=='\\') {
-      if(t->buf == t->buf_end)
-        return false;
-      if(second_surrogate_expected && c!='u')
-        return false;
+static int utf16_is_first_surrogate(uint16_t x)
+{
+  return 0xD800 <=x && x<= 0xDBFF;
+}
+
+static int utf16_is_second_surrogate(uint16_t x)
+{
+  return 0xDC00 <=x && x<= 0xDFFF;
+}
+
+static uint32_t utf16_combine_surrogate(uint16_t w1,uint16_t w2)
+{
+  return ((((uint32_t)w1 & 0x3FF) << 10) | (w2 & 0x3FF)) + 0x10000;
+}
+
+static void * append (uint32_t x, char *d)
+{
+  struct utf8_seq seq = { {0}, 0 };
+  utf8_encode(x, &seq);
+  for (unsigned i = 0; i < seq.len; ++i, d++)
+    *d = seq.c[i];
+  return d;
+}
+
+int
+json_string_unescape(char **output_p, size_t *output_len_p,
+                     char *input, size_t input_len)
+{
+  unsigned char c;
+  char * const input_start = input, * const input_end = input + input_len;
+  char * out_start = NULL, * d = NULL, * s = NULL;
+  uint16_t first_surrogate;
+  int second_surrogate_expected;
+
+
+  enum state {
+    TESTING = 1,
+    ALLOCATING,
+    UNESCAPING,
+  } state = TESTING;
+
+second_iter:
+  first_surrogate = 0;
+  second_surrogate_expected = 0;
+  for (s = input_start; s < input_end;) {
+    c = * s;
+    s ++;
+
+    if (second_surrogate_expected && c != '\\')
+      goto return_err;
+
+    if (0<= c && c <= 0x1F)
+      goto return_err;
+
+    if('\\' == c) {
+      if (TESTING == state) {
+        state = ALLOCATING;
+        break; // break the while loop
+      }
+
+      if (s == input_end) {
+        //input is not a well-formed json string
+        goto return_err;
+      }
+
+      c = * s;
+      s ++;
+
+      if (second_surrogate_expected && c != 'u')
+        goto return_err;
+
       switch(c) {
-      case	'"':
-      case	'\\':
-      case	'/':
-        t->str = cee_str_add(t->str, c);
-        break;
-      case	'b': t->str = cee_str_add(t->str, '\b'); break;
-      case	'f': t->str = cee_str_add(t->str, '\f'); break;
-      case	'n': t->str = cee_str_add(t->str, '\n'); break;
-      case	'r': t->str = cee_str_add(t->str, '\r'); break; 
-      case	't': t->str = cee_str_add(t->str, '\t'); break;
-      case	'u': 
+        case	'"':
+        case	'\\':
+        case	'/':
+          *d = c; d++; break;
+        case	'b': *d = '\b'; d ++;  break;
+        case	'f': *d = '\f'; d ++;  break;
+        case	'n': *d = '\n'; d ++;  break;
+        case	'r': *d = '\r'; d ++;  break;
+        case	't': *d = '\t'; d ++;  break;
+        case	'u':
         {
-          // don't support utf16
           uint16_t x;
-          if (!read_4_digits(t, &x)) 
-            return false;
-        	struct utf8_seq s = { 0 };
-          utf8_encode(x, &s);
-          t->str = cee_str_ncat(t->str, s.c, s.len);
+          if (!read_4_digits(&s, input_end, &x))
+            goto return_err;
+          if (second_surrogate_expected) {
+            if (!utf16_is_second_surrogate(x))
+              goto return_err;
+            d = append(utf16_combine_surrogate(first_surrogate, x), d);
+            second_surrogate_expected = 0;
+          } else if (utf16_is_first_surrogate(x)) {
+            second_surrogate_expected = 1;
+            first_surrogate = x;
+          } else {
+            d = append(x, d);
+          }
+          break;
         }
-        break;
-      default:
-        return false;
+        default:
+          if(0<= c && c <= 0x1F) /* report errors */
+            goto return_err;
       }
     }
-    else {
-      t->str = cee_str_add(t->str, c);
+    else if (UNESCAPING == state) {
+      *d = c;
+      d++;
     }
   }
-  if(!utf8_validate(t->str->_, cee_str_end(t->str)))
-    return false;
-  return true;
+
+  switch (state)
+  {
+    case UNESCAPING:
+      if (!utf8_validate(out_start, d))
+        goto return_err;
+      else
+      {
+        *output_p = out_start;
+        *output_len_p = d - out_start;
+        return 1;
+      }
+    case ALLOCATING:
+      out_start = calloc(1, input_len);
+      d = out_start;
+      state = UNESCAPING;
+      goto second_iter;
+    case TESTING:
+      *output_p = strdup(input_start);
+      *output_len_p = input_len;
+      return 1;
+    default:
+      break;
+  }
+
+return_err:
+  if (UNESCAPING == state)
+    free(out_start);
+  return 0;
+}
+
+static bool parse_string(struct cee_state * st, struct tokenizer * t) {
+  char *start = t->buf + 1; // start after initial '"'
+  char *end = start;
+
+  // reach the end of the string
+  while (*end != '\0' && *end != '\"') {
+    if ('\\' == *end++) { // check for escaped characters
+      ++end; // eat-up escaped character
+    }
+  }
+  if (*end != '\"') return false; // make sure reach end of string
+
+  char * unscp_str = NULL;
+  size_t unscp_len = 0;
+  if (json_string_unescape(&unscp_str,  &unscp_len, start, end-start)) {
+    /// @todo? create a cee_str that takes ownership of a string ptr
+    if (unscp_str) {
+      t->str = cee_str_mk_e(st, unscp_len, "%s", unscp_str);
+      free(unscp_str);
+    }
+    else {
+      t->str = cee_str_mk_e(st, end-start, "%s", start);
+    }
+    t->buf = end + 1; // '"' + 1
+    return true;
+  }
+  return false; // ill formed string
 }
 
 
@@ -176,7 +280,7 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
       case ' ':
       case '\t':
         break;
-      case '"':
+      case '\"':
         if(parse_string(st, t))
           return tock_str;
         return tock_err;
