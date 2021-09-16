@@ -15,13 +15,13 @@ all: cee_utils tester
 
 cee_utils: $(CEE_UTILS_DIR)
 
-tester: cee.c
+tester: cee-one.c
 	$(CC) $(CFLAGS) $@.c -o $@.out $<
 
 echo:
 	@ echo "$(CEE_SRC)"
 
-cee.c: $(CEE_SRC)
+cee-one.c: $(CEE_SRC)
 	@ cat $(CEE_SRC) | awk \
 	'BEGIN {\
 		print "#ifndef CEE_ONE_H";\
@@ -46,4 +46,4 @@ $(CEE_UTILS_DIR):
 	fi
 
 clean:
-	rm -f cee.c tmp.c one.* a.out
+	rm -f cee-one.c tmp.c one.* a.out
