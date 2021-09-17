@@ -202,13 +202,13 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
   char * unscp_str = NULL;
   size_t unscp_len = 0;
   if (json_string_unescape(&unscp_str,  &unscp_len, start, end-start)) {
-    /// @todo? create a cee_str that takes ownership of a string ptr
-    if (unscp_str && unscp_str != start) {
-      t->str = cee_str_mk_e(st, unscp_len, "%s", unscp_str);
-      free(unscp_str);
+    if (unscp_str == start) {
+      t->str = cee_str_mk_e(st, end-start, "%s", start);
     }
     else {
-      t->str = cee_str_mk_e(st, end-start, "%s", start);
+      /// @todo? create a cee_str func that takes ownership of string
+      t->str = cee_str_mk_e(st, unscp_len, "%s", unscp_str);
+      free(unscp_str);
     }
     t->buf = end + 1; // '"' + 1
     return true;
