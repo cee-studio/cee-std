@@ -119,16 +119,16 @@ second_iter:
         goto return_err;
 
       switch(c) {
-        case	'"':
-        case	'\\':
-        case	'/':
+      case	'"':
+      case	'\\':
+      case	'/':
           *d = c; d++; break;
-        case	'b': *d = '\b'; d ++;  break;
-        case	'f': *d = '\f'; d ++;  break;
-        case	'n': *d = '\n'; d ++;  break;
-        case	'r': *d = '\r'; d ++;  break;
-        case	't': *d = '\t'; d ++;  break;
-        case	'u':
+      case	'b': *d = '\b'; d ++;  break;
+      case	'f': *d = '\f'; d ++;  break;
+      case	'n': *d = '\n'; d ++;  break;
+      case	'r': *d = '\r'; d ++;  break;
+      case	't': *d = '\t'; d ++;  break;
+      case	'u':
         {
           uint16_t x;
           if (!read_4_digits(&s, input_end, &x))
@@ -146,7 +146,7 @@ second_iter:
           }
           break;
         }
-        default:
+      default:
           if(0<= c && c <= 0x1F) /* report errors */
             goto return_err;
       }
@@ -157,9 +157,8 @@ second_iter:
     }
   }
 
-  switch (state)
-  {
-    case UNESCAPING:
+  switch (state) {
+  case UNESCAPING:
       if (!utf8_validate(out_start, d))
         goto return_err;
       else
@@ -168,16 +167,16 @@ second_iter:
         *output_len_p = d - out_start;
         return 1;
       }
-    case ALLOCATING:
+  case ALLOCATING:
       out_start = calloc(1, input_len);
       d = out_start;
       state = UNESCAPING;
       goto second_iter;
-    case TESTING:
+  case TESTING:
       *output_p = input_start;
       *output_len_p = input_len;
       return 1;
-    default:
+  default:
       break;
   }
 
@@ -265,55 +264,55 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
       return tock_eof;
     char c = t->buf[0];
     switch (c) {
-      case '[':
-      case '{':
-      case ':':
-      case ',':
-      case '}':
-      case ']':
+    case '[':
+    case '{':
+    case ':':
+    case ',':
+    case '}':
+    case ']':
         t->buf++;
         return c;
-      case '\n':
-      case '\r':
+    case '\n':
+    case '\r':
         t->line++;
-      /* fallthrough */
-      case ' ':
-      case '\t':
+    /* fallthrough */
+    case ' ':
+    case '\t':
         break;
-      case '\"':
+    case '\"':
         if(parse_string(st, t))
           return tock_str;
         return tock_err;
-      case 't':
+    case 't':
         t->buf++;
         if(check(t->buf, "rue", &t->buf))
           return tock_true;
         return tock_err;
-      case 'n':
+    case 'n':
         t->buf++;
         if(check(t->buf, "ull", &t->buf))
           return tock_null;
         return tock_err;
-      case 'f':
+    case 'f':
         t->buf++;
         if(check(t->buf, "alse", &t->buf))
           return tock_false;
         return tock_err;
-      case '-':
-      case '0':
-      case '1':
-      case '2':
-      case '3':
-      case '4':
-      case '5':
-      case '6':
-      case '7':
-      case '8':
-      case '9':
+    case '-':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
         if(parse_number(t))
           return tock_number;
         return tock_err;
-      case '/':
+    case '/':
         t->buf++;
         if(check(t->buf + 1, "/", &t->buf)) {
           for (;t->buf < t->buf_end && (c = t->buf[0]) && c != '\n'; t->buf++);
@@ -323,7 +322,7 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
           return tock_eof;
         }
         return tock_err;
-      default:
+    default:
         t->buf++;
         return tock_err;
     }
