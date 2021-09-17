@@ -42,86 +42,85 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
   struct cee_tuple * top = NULL;
   struct cee_tuple * result = NULL;
 
-#define TOPS         (enum state_type)(top->_[0])
-#define POP(sp)      { result = (struct cee_tuple *)cee_stack_pop(sp); }
+#define TOPS (enum state_type)(top->_[0])
+#define POP(sp) \
+  do { result = (struct cee_tuple *)cee_stack_pop(sp); } while(0)
   
   cee_stack_push(sp, SPI(st, st_done, NULL));
 
-  while(!cee_stack_empty(sp) && !cee_stack_full(sp) &&
-        state != st_error && state != st_done) {
-
+  while(!cee_stack_empty(sp) && !cee_stack_full(sp)
+          && state != st_error && state != st_done) 
+  {
     if (result) {
       cee_del(result);
       result = NULL;
     }
 
     int c = cee_json_next_token(st, &tock);
-#ifdef DEBUG_PARSER
+#if 0
     fprintf(stderr, "token %c\n", c);
 #endif
     
     top = (struct cee_tuple *)cee_stack_top(sp, 0);
     switch(state) {
     case st_object_or_array_or_value_expected:
-      if(c=='[')  {
-        top->_[1]=cee_json_array_mk(st, 10);
-        state=st_array_value_or_close_expected;
-      }
-      else if(c=='{') {
-        top->_[1]=cee_json_object_mk(st);
-        state=st_object_key_or_close_expected;
-      }
-      else if(c==tock_str)  {
-        top->_[1]=cee_json_string_mk(st, tock.str);
-        tock.str = NULL;
-        state=TOPS;
-        POP(sp);
-      }
-      else if(c==tock_true) {
-        top->_[1]=cee_json_true(st);
-        state=TOPS;
-        POP(sp);
-      }
-      else if(c==tock_false) {
-        top->_[1]=cee_json_false(st);
-        state=TOPS;
-        POP(sp);
-      }
-      else if(c==tock_null) {
-        top->_[1]=cee_json_null(st);
-        state=TOPS;
-        POP(sp);
-      }
-      else if(c==tock_number) {
-        top->_[1] = cee_json_number_mk (st, tock.real);
-        state=TOPS;
-        POP(sp);
-      }
-      else
-        state = st_error;
-      break;
-
+        if(c=='[')  {
+          top->_[1]=cee_json_array_mk(st, 10);
+          state=st_array_value_or_close_expected;
+        }
+        else if(c=='{') {
+          top->_[1]=cee_json_object_mk(st);
+          state=st_object_key_or_close_expected;
+        }
+        else if(c==tock_str)  {
+          top->_[1]=cee_json_string_mk(st, tock.str);
+          tock.str = NULL;
+          state=TOPS;
+          POP(sp);
+        }
+        else if(c==tock_true) {
+          top->_[1]=cee_json_true(st);
+          state=TOPS;
+          POP(sp);
+        }
+        else if(c==tock_false) {
+          top->_[1]=cee_json_false(st);
+          state=TOPS;
+          POP(sp);
+        }
+        else if(c==tock_null) {
+          top->_[1]=cee_json_null(st);
+          state=TOPS;
+          POP(sp);
+        }
+        else if(c==tock_number) {
+          top->_[1] = cee_json_number_mk (st, tock.real);
+          state=TOPS;
+          POP(sp);
+        }
+        else
+          state = st_error;
+        break;
     case st_object_key_or_close_expected:
-      if(c=='}') {
-        state=TOPS;
-        POP(sp);
-      } 
-      else if (c==tock_str) {
-        key = tock.str;
-        tock.str = NULL;
-        state = st_object_colon_expected;
-      }
-      else
-        state = st_error;
-      break;
+        if(c=='}') {
+          state=TOPS;
+          POP(sp);
+        } 
+        else if (c==tock_str) {
+          key = tock.str;
+          tock.str = NULL;
+          state = st_object_colon_expected;
+        }
+        else
+          state = st_error;
+        break;
     case st_object_colon_expected:
-      if(c!=':')
-        state=st_error;
-      else
-        state=st_object_value_expected;
-      break;
-    case st_object_value_expected:
-      {
+        if(c!=':')
+          state=st_error;
+        else
+          state=st_object_value_expected;
+        break;
+    case st_object_value_expected: {
         struct cee_map * obj = cee_json_to_object(top->_[1]);
         if(c==tock_str) {         
           cee_map_add(obj, key, cee_json_string_mk(st, tock.str));
@@ -158,20 +157,18 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         }
         else 
           state=st_error;
-      }
-      break;
+        break; }
     case st_object_close_or_comma_expected:
-      if(c==',')
-        state=st_object_key_or_close_expected;
-      else if(c=='}') {
-        state=TOPS;
-        POP(sp);
-      }
-      else
-        state=st_error;
-      break;
-    case st_array_value_or_close_expected:
-      {
+        if(c==',')
+          state=st_object_key_or_close_expected;
+        else if(c=='}') {
+          state=TOPS;
+          POP(sp);
+        }
+        else
+          state=st_error;
+        break;
+    case st_array_value_or_close_expected: {
         if(c==']') {
           state=TOPS;
           POP(sp);
@@ -211,21 +208,20 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         }
         else 
           state=st_error;
-        break;
-      }
+        break; }
     case st_array_close_or_comma_expected:
-      if(c==']') {
-        state=TOPS;
-        POP(sp);
-      }
-      else if(c==',')
-        state=st_array_value_or_close_expected;
-      else
-        state=st_error;
-      break;
+        if(c==']') {
+          state=TOPS;
+          POP(sp);
+        }
+        else if(c==',')
+          state=st_array_value_or_close_expected;
+        else
+          state=st_error;
+        break;
     case st_done:
     case st_error:
-      break;
+        break;
     };
   }
   
