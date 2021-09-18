@@ -314,16 +314,16 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
         return tock_err;
     case '/':
         t->buf++;
-        if(check(t->buf + 1, "/", &t->buf)) {
-          for (;t->buf < t->buf_end && (c = t->buf[0]) && c != '\n'; t->buf++);
-
-          if(c=='\n')
-            break;
-          return tock_eof;
+        if(check(t->buf, "/", &t->buf)) {
+          while(t->buf < t->buf_end) {
+            c = t->buf[0];
+            if(c=='\0') return tock_eof;
+            if(c=='\n') return tock_err; 
+            ++t->buf;
+          }
         }
         return tock_err;
     default:
-        t->buf++;
         return tock_err;
     }
   }
