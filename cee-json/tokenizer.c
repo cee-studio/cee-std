@@ -128,8 +128,7 @@ second_iter:
       case	'n': *d = '\n'; d ++;  break;
       case	'r': *d = '\r'; d ++;  break;
       case	't': *d = '\t'; d ++;  break;
-      case	'u':
-        {
+      case	'u': {
           uint16_t x;
           if (!read_4_digits(&s, input_end, &x))
             goto return_err;
@@ -144,11 +143,9 @@ second_iter:
           } else {
             d = append(x, d);
           }
-          break;
-        }
+          break; }
       default:
-          if(0<= c && c <= 0x1F) /* report errors */
-            goto return_err;
+          goto return_err;
       }
     }
     else if (UNESCAPING == state) {
