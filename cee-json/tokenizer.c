@@ -220,9 +220,14 @@ static bool parse_number(struct tokenizer *t) {
   char *start = t->buf;
   char *end = start;
 
+  bool is_integer = true;
+  int offset_sign = 0;
+
   /* 1st STEP: check for a minus sign and skip it */
-  if ('-' == *end) 
+  if ('-' == *end) {
     ++end;
+    offset_sign = 1;
+  }
   if (!isdigit(*end)) 
     return false;
 
@@ -230,28 +235,32 @@ static bool parse_number(struct tokenizer *t) {
   while (isdigit(*++end)) 
     continue;
 
-  /* 3rd STEP: if non-digit char is not a comma then it must be
-      an integer*/
+  /* 3rd STEP: if non-digit char is not a comma then it must be an integer */
   if ('.' == *end) {
+    if (!isdigit(*++end))
+      return false;
     while (isdigit(*++end)) 
       continue;
+    is_integer = false;
   }
 
-  /* 4th STEP: if exponent found skips its tokens */
+  /* 4th STEP: check for exponent and skip its tokens */
   if ('e' == *end || 'E' == *end) {
     ++end;
-    if ('+' == *end || '-' == *end) { 
+    if ('+' == *end || '-' == *end)
       ++end;
-    }
     if (!isdigit(*end)) 
       return false;
     while (isdigit(*++end))
       continue;
+  } // can't be a integer that starts with zero followed n numbers (ex: 012, -023)
+  else if (is_integer && (end-1) != (start+offset_sign) && '0' == start[offset_sign]) {
+    return false;
   }
 
-  /* 5th STEP: convert string to double and return its value */
+  /* 5th STEP: convert string to double */
   char numstr[32];
-  snprintf(numstr, sizeof(numstr), "%.*s", (int)(end - start), start);
+  snprintf(numstr, sizeof(numstr), "%.*s", (int)(end-start), start);
 
   t->buf = end; /* skips entire length of number */
 
