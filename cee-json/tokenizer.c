@@ -319,7 +319,7 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
             c = t->buf[0];
             if(c=='\0') return tock_eof;
             if(c=='\n') return tock_err; 
-            ++t->buf;
+            t->buf++;
           }
         }
         return tock_err;
