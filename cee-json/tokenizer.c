@@ -35,7 +35,7 @@ static bool read_4_digits(char ** str_p, char * const buf_end, uint16_t *x)
   for(i=0; i<4; i++) {
     char c=str[i];
     buf[i] = c;
-    if( ('0'<= c && c<='9') || ('A'<= c && c<='F') || ('a'<= c && c<='f') )
+    if(isxdigit(c))
       continue;
 
     return false;
