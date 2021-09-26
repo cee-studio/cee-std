@@ -49,7 +49,7 @@ cee-json-one.o: cee-json-one.c $(TOP)/cee.h
 release: $(JSON_SRC)
 	@ mkdir -p release
 	@ $(MAKE) cee-json-one.c
-	@ mv cee-json.c release
+	@ mv cee-json-one.c release
 	@ cp cee-json.h release
 
 test: all
