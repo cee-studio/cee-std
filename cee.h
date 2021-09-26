@@ -561,7 +561,8 @@ struct cee_state {
   int                next_mark;
 };
 /*
- * the size of stack
+ * @param n:the size of stack, which is used for parsing
+ * json and js
  */
 extern struct cee_state * cee_state_mk(size_t n);
 extern void cee_state_add_gc_root(struct cee_state *, void *);
