@@ -241,12 +241,12 @@ size_t cee_json_snprint (struct cee_state * st, char * buf, size_t size, struct 
           cee_del(cee_stack_pop(sp));
         }
         break;
-      case CEE_JSON_NUMBER:
+      case CEE_JSON_DOUBLE:
         {
           pad(&offset, buf, ccnt, f);
-          incr = cee_boxed_snprint (NULL, 0, cee_json_to_number(cur_json));
+          incr = cee_boxed_snprint (NULL, 0, cee_json_to_double(cur_json));
           if (buf) {
-            cee_boxed_snprint (buf+offset, incr, cee_json_to_number(cur_json));
+            cee_boxed_snprint (buf+offset, incr, cee_json_to_double(cur_json));
           }
           offset+=incr;
           if (ccnt->more_siblings)

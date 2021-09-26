@@ -94,7 +94,8 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           POP(sp);
         }
         else if(c==tock_number) {
-          top->_[1] = cee_json_number_mk (st, tock.real);
+          // TODO: need to handle different number types
+          top->_[1] = cee_json_double_mk (st, tock.real);
           state=TOPS;
           POP(sp);
         }
@@ -140,7 +141,8 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_number) {
-          cee_map_add(obj, key, cee_json_number_mk(st, tock.real));
+	  // TODO: need to handle different number types
+          cee_map_add(obj, key, cee_json_double_mk(st, tock.real));
           state=st_object_close_or_comma_expected;
         }
         else if(c=='[') {
@@ -193,7 +195,8 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_number) {
-          cee_list_append(&ar, cee_json_number_mk(st, tock.real));
+	  // TODO: need to handle different number types
+          cee_list_append(&ar, cee_json_double_mk(st, tock.real));
           state=st_array_close_or_comma_expected;
         }
         else if(c=='[') {
