@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "cee.h"
 #include "cee-json.h"
-#include "utf8.h"
+#include "cee-json-utf8.h"
 #include "tokenizer.h"
 #endif
 

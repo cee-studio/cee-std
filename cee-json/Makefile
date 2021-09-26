@@ -34,7 +34,7 @@ cee-json-one.c: $(JSON_SRC)
 		print "#include <sys/stat.h>";\
 		print "#include <unistd.h>";\
 		print "#include \"cee.h\"";\
-		print "#include \"utf8.h\"";\
+		print "#include \"cee-json-utf8.h\"";\
 		print "#include \"tokenizer.h\"";\
 		print "#include \"cee-json.h\"";\
 	}\
