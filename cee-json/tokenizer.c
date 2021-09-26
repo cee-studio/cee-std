@@ -243,7 +243,7 @@ static void * append (uint32_t x, char *d)
   return d;
 }
 
-int
+static int
 json_string_unescape(char **output_p, size_t *output_len_p,
                      char *input, size_t input_len)
 {
