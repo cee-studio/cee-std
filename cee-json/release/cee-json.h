@@ -36,8 +36,8 @@ struct cee_json {
 };
 
 enum cee_json_format {
-  compact = 0,
-  readable = 1
+  cee_json_format_compact = 0,
+  cee_json_format_readable = 1
 };
 
 extern enum cee_json_type cee_json_type  (struct cee_json *);

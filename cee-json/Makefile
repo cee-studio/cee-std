@@ -56,4 +56,5 @@ test: all
 
 clean:
 	rm -f a.c cee-one.o cee-json-one.c cee-json-one.o
+	rm -f release/*
 	$(MAKE) -C $(TEST_DIR) -f test.mk clean
