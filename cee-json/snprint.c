@@ -79,7 +79,7 @@ static void delimiter (uintptr_t * offp, char * buf, enum cee_json_format f,
                        struct counter * cnt, char c) 
 {
   uintptr_t offset = *offp;
-	if (!f) {
+  if (!f) {
     if (buf) buf[offset] = c;
     offset ++; // only count one
     *offp = offset;
@@ -91,7 +91,7 @@ static void delimiter (uintptr_t * offp, char * buf, enum cee_json_format f,
     case '{':
       pad(offp, buf, cnt, f);
       if (buf) {
-      	buf[offset] = c;
+        buf[offset] = c;
         buf[offset+1] = '\n';
       }
       offset +=2;
@@ -279,7 +279,7 @@ size_t cee_json_snprint (struct cee_state * st, char * buf, size_t size, struct 
             delimiter(&offset, buf, f, ccnt, ',');
           cee_del(cee_stack_pop(sp));
         }
-        break;	
+        break;
       case CEE_JSON_ARRAY: 
         { 
           uintptr_t i = ccnt->next;
@@ -298,7 +298,7 @@ size_t cee_json_snprint (struct cee_state * st, char * buf, size_t size, struct 
           else {
             delimiter(&offset, buf, f, ccnt, ']');
             if (ccnt->more_siblings)
-          		delimiter(&offset, buf, f, ccnt, ',');
+              delimiter(&offset, buf, f, ccnt, ',');
             cee_del(cee_stack_pop(sp));
           }
         }
@@ -327,7 +327,7 @@ size_t cee_json_snprint (struct cee_state * st, char * buf, size_t size, struct 
           else {
             delimiter(&offset, buf, f, ccnt, '}');
             if (ccnt->more_siblings)
-          		delimiter(&offset, buf, f, ccnt, ',');
+              delimiter(&offset, buf, f, ccnt, ',');
             cee_del(ccnt->array);
             cee_del(cee_stack_pop(sp));
           }
