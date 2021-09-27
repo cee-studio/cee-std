@@ -4,6 +4,7 @@
 #ifndef CEE_JSON_AMALGAMATION
 #include "cee-json.h"
 #include <string.h>
+#include <sys/types.h>
 #endif
 
 struct counter {
@@ -178,14 +179,14 @@ static void str_append(char * out, uintptr_t *offp, char *begin, unsigned len) {
 /*
  * compute how many bytes are needed to serialize cee_json as a string
  */
-size_t cee_json_snprint (struct cee_state * st, char * buf, size_t size, struct cee_json * j, 
-                         enum cee_json_format f) {
+ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct cee_json *j,
+			  enum cee_json_format f) {
   struct cee_tuple * cur;
   struct cee_json * cur_json;
   struct counter * ccnt;
   uintptr_t incr = 0;
   
-  struct cee_stack * sp = cee_stack_mk_e(st, CEE_DP_NOOP, 500);
+  struct cee_stack *sp = cee_stack_mk_e(st, CEE_DP_NOOP, 500);
   push (st, 0, false, sp, j);
   
   uintptr_t offset = 0;
@@ -336,4 +337,15 @@ size_t cee_json_snprint (struct cee_state * st, char * buf, size_t size, struct 
   if (buf)
     buf[offset] = '\0';
   return offset;
+}
+
+
+ssize_t
+cee_json_asprint(struct cee_state *st, char **buf_p, struct cee_json *j, 
+		 enum cee_json_format f)
+{
+  size_t buf_size = cee_json_snprint(st, NULL, 0, j, f) + 1/*\0*/;
+  char *buf = malloc(buf_size);
+  *buf_p = buf;
+  return cee_json_snprint(st, buf, buf_size, j, f);
 }

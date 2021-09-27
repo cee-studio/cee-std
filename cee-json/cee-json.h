@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <sys/types.h> // ssize_t
 #endif
 
 #define MAX_JSON_DEPTH 500
@@ -91,11 +92,14 @@ extern void cee_json_array_append_double (struct cee_state *, struct cee_json *,
 extern void cee_json_array_append_i64 (struct cee_state *, struct cee_json *, int64_t);
 extern void cee_json_array_append_u64 (struct cee_state *, struct cee_json *, uint64_t);
 
-extern size_t cee_json_snprint (struct cee_state *, char * buf,
-                                size_t size, struct cee_json *, 
-                                enum cee_json_format);
+extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
+				 size_t size, struct cee_json *json,
+				 enum cee_json_format);
 
-extern bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee_json **out, 
+extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p,
+				 struct cee_json *json, enum cee_json_format);
+
+extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);
 
 #endif // CEE_JSON_H
