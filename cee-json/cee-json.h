@@ -46,7 +46,8 @@ enum cee_json_format {
 extern enum cee_json_type cee_json_type  (struct cee_json *);
 extern bool cee_json_is_undefined (struct cee_json *);
 extern bool cee_json_is_null (struct cee_json *);
-extern bool cee_json_to_bool (struct cee_state *, struct cee_json *);
+extern bool cee_json_is_bool (struct cee_json *);
+
 
 extern struct json * cee_json_find (struct cee_json *, char *);
 extern struct json * cee_json_get(struct cee_json *, char *, 
@@ -61,16 +62,18 @@ extern int cee_json_cmp (struct cee_json *, struct cee_json *);
 
 extern struct cee_list * cee_json_to_array (struct cee_json *);
 extern struct cee_map * cee_json_to_object (struct cee_json *);
-extern struct cee_boxed * cee_json_to_double (struct cee_json *);
-extern struct cee_boxed * cee_json_to_i64 (struct cee_json*);
-extern struct cee_boxed * cee_json_to_u64 (struct cee_json*);
+extern struct cee_boxed * cee_json_to_boxed (struct cee_json *);
 extern struct cee_str * cee_json_to_string (struct cee_json *);
+extern double cee_json_to_double (struct cee_json *);
+extern int64_t cee_json_to_i64 (struct cee_json*);
+extern uint64_t cee_json_to_u64 (struct cee_json*);
+extern bool cee_json_to_bool(struct cee_json*);
 
-extern struct cee_json * cee_json_true (struct cee_state *);
-extern struct cee_json * cee_json_false (struct cee_state *);
-extern struct cee_json * cee_json_bool (struct cee_state *, bool b);
-extern struct cee_json * cee_json_undefined (struct cee_state *);
-extern struct cee_json * cee_json_null (struct cee_state *);
+extern struct cee_json * cee_json_true ();
+extern struct cee_json * cee_json_false ();
+extern struct cee_json * cee_json_bool (bool b);
+extern struct cee_json * cee_json_undefined ();
+extern struct cee_json * cee_json_null ();
 extern struct cee_json * cee_json_object_mk (struct cee_state *);
 extern struct cee_json * cee_json_double_mk (struct cee_state *, double d);
 extern struct cee_json * cee_json_i64_mk(struct cee_state *, int64_t);

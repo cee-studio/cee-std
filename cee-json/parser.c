@@ -79,17 +79,17 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           POP(sp);
         }
         else if(c==tock_true) {
-          top->_[1]=cee_json_true(st);
+          top->_[1]=cee_json_true();
           state=TOPS;
           POP(sp);
         }
         else if(c==tock_false) {
-          top->_[1]=cee_json_false(st);
+          top->_[1]=cee_json_false();
           state=TOPS;
           POP(sp);
         }
         else if(c==tock_null) {
-          top->_[1]=cee_json_null(st);
+          top->_[1]=cee_json_null();
           state=TOPS;
           POP(sp);
         }
@@ -129,15 +129,15 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_true) {
-          cee_map_add(obj, key, cee_json_true(st));
+          cee_map_add(obj, key, cee_json_true());
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_false) {
-          cee_map_add(obj, key, cee_json_false(st));
+          cee_map_add(obj, key, cee_json_false());
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_null) {
-          cee_map_add(obj, key, cee_json_null(st));
+          cee_map_add(obj, key, cee_json_null());
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_number) {
@@ -183,15 +183,15 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           state=st_array_close_or_comma_expected;
         } 
         else if(c==tock_true) {
-          cee_list_append(&ar, cee_json_true(st));
+          cee_list_append(&ar, cee_json_true());
           state=st_array_close_or_comma_expected;
         } 
         else if(c==tock_false) {
-          cee_list_append(&ar, cee_json_false(st));
+          cee_list_append(&ar, cee_json_false());
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_null) {
-          cee_list_append(&ar, cee_json_null(st));
+          cee_list_append(&ar, cee_json_null());
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_number) {

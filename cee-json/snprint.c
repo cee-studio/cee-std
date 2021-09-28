@@ -211,7 +211,7 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
         {
           pad(&offset, buf, ccnt, f);
           char * s = "false";			
-          if (cee_json_to_bool(st, cur_json))
+          if (cee_json_to_bool(cur_json))
             s = "true";
           if (buf) 
             memcpy(buf + offset, s, strlen(s));
@@ -243,35 +243,13 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
         }
         break;
       case CEE_JSON_DOUBLE:
-        {
-          pad(&offset, buf, ccnt, f);
-          incr = cee_boxed_snprint (NULL, 0, cee_json_to_double(cur_json));
-          if (buf)
-            cee_boxed_snprint (buf+offset, incr+1/*\0*/, cee_json_to_double(cur_json));
-          offset+=incr;
-          if (ccnt->more_siblings)
-            delimiter(&offset, buf, f, ccnt, ',');
-          cee_del(cee_stack_pop(sp));
-        }
-        break;
       case CEE_JSON_I64:
-        {
-          pad(&offset, buf, ccnt, f);
-          incr = cee_boxed_snprint (NULL, 0, cee_json_to_i64(cur_json));
-          if (buf)
-            cee_boxed_snprint (buf+offset, incr+1/*\0*/, cee_json_to_i64(cur_json));
-          offset+=incr;
-          if (ccnt->more_siblings)
-            delimiter(&offset, buf, f, ccnt, ',');
-          cee_del(cee_stack_pop(sp));
-        }
-        break;
       case CEE_JSON_U64:
         {
           pad(&offset, buf, ccnt, f);
-          incr = cee_boxed_snprint (NULL, 0, cee_json_to_u64(cur_json));
+          incr = cee_boxed_snprint (NULL, 0, cee_json_to_boxed(cur_json));
           if (buf)
-            cee_boxed_snprint (buf+offset, incr+1/*\0*/, cee_json_to_u64(cur_json));
+            cee_boxed_snprint (buf+offset, incr+1/*\0*/, cee_json_to_boxed(cur_json));
           offset+=incr;
           if (ccnt->more_siblings)
             delimiter(&offset, buf, f, ccnt, ',');
