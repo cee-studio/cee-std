@@ -91,6 +91,7 @@ extern void cee_json_array_append_string (struct cee_state *, struct cee_json *,
 extern void cee_json_array_append_double (struct cee_state *, struct cee_json *, double);
 extern void cee_json_array_append_i64 (struct cee_state *, struct cee_json *, int64_t);
 extern void cee_json_array_append_u64 (struct cee_state *, struct cee_json *, uint64_t);
+extern struct cee_json* cee_json_array_get(struct cee_state *, struct cee_json *, int);
 
 extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
 				 size_t size, struct cee_json *json,

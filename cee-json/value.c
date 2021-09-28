@@ -169,6 +169,16 @@ void cee_json_array_append_string (struct cee_state * st, struct cee_json * j, c
   }
 }
 
+struct cee_json* cee_json_array_get (struct cee_state *st, struct cee_json *j, int i) {
+  struct cee_list *o = cee_json_to_array(j);
+  if (!o)
+    cee_segfault();
+  if (0 <= i && i < cee_list_size(o))
+    return o->_[i];
+  else
+    return NULL;
+}
+
 /*
  * this function assume the file pointer points to the begin of a file
  */
