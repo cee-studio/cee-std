@@ -4,10 +4,27 @@ CC ?= gcc
 TEST_DIR = test
 
 JSON_SRC = value.c parser.c snprint.c tokenizer.c
+JSON_HDR = cee-json.h tokenizer.h utf8.h
+
+HEADERS  = stdlib.h string.h errno.h sys/types.h sys/stat.h unistd.h stdio.h
 
 CFLAGS= -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
 
 .PHONY: release clean test
+
+define cee_json_amalgamation
+	@echo "#ifndef CEE_JSON_ONE" > $(1)
+￼	@echo "#define CEE_JSON_ONE" >> $(1)
+￼	@echo "#define _GNU_SOURCE" >> $(1)
+￼	@for ii in $(HEADERS); do echo '#include <'$$ii'>' >> $(1); done
+￼	@echo "#include \"$(TOP)/cee.h\"" >> $(1)
+￼	@echo " " >> $(1)
+￼	@for ii in $(JSON_HDR); do cat $$ii >> $(1); echo " " >> $(1); done
+￼	@echo "#define CEE_JSON_AMALGAMATION" > tmp.c
+￼	@for ii in $(JSON_SRC); do echo '#include "'$$ii'"' >> tmp.c; done  
+￼	$(CC) -E $(2) -nostdinc tmp.c >> $(1)
+￼	@echo "#endif" >> $(1)
+endef
 
 # generic compilation
 %.out: %.c cee-json-one.o cee-one.o
@@ -20,30 +37,10 @@ cee-one.o: $(TOP)/cee-one.c
 	$(CC) $(CFLAGS) -c -g $<
 
 cee-json-one.c: $(JSON_SRC)
-	@ cat $(JSON_SRC) | awk \
-	'BEGIN {\
-		print "#ifndef CEE_JSON_ONE_H";\
-		print "#define CEE_JSON_ONE_H";\
-		print "#define CEE_JSON_AMALGAMATION";\
-		print "#define _GNU_SOURCE";\
-		print "#include <stdlib.h>";\
-		print "#include <string.h>";\
-		print "#include <stdio.h>";\
-		print "#include <errno.h>";\
-		print "#include <sys/types.h>";\
-		print "#include <sys/stat.h>";\
-		print "#include <unistd.h>";\
-		print "#include \"cee.h\"";\
-		print "#include \"tokenizer.h\"";\
-		print "#include \"cee-json.h\"";\
-	}\
-	{print $$0}\
-	END {\
-		print "#endif // CEE_JSON_ONE_H";\
-	}' > $@
+	$(call cee_json_amalgamation, cee-json-one.c)
 
 cee-json-one.o: cee-json-one.c $(TOP)/cee.h
-	$(CC) $(CFLAGS) -c cee-json-one.c
+	$(CC) -c -g cee-json-one.c
 
 release: $(JSON_SRC)
 	@ mkdir -p release
