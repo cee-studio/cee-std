@@ -226,10 +226,15 @@ extern bool cee_list_remove(struct cee_list * v, size_t index);
 extern size_t cee_list_size(struct cee_list *);
 
 /*
- *
+ * returns the capcity of the list
  */
 extern size_t cee_list_capacity (struct cee_list *);
 
+
+/*
+ * applies f to each element of the list with cxt
+ */
+extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, size_t idx, void * e));
   
 struct cee_tuple {
   void * _[2];
@@ -332,6 +337,11 @@ extern void * cee_map_find(struct cee_map * m, void * key);
 extern void * cee_map_remove(struct cee_map *m, void * key);
 extern struct cee_list * cee_map_keys(struct cee_map *m);
 extern struct cee_list * cee_map_values(struct cee_map *m);
+
+/*
+ * applies f to each (k,v) of the map m with ctx
+ */
+extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, void *key, void *value));
 
 
 /*
@@ -571,5 +581,9 @@ extern void cee_state_gc(struct cee_state *);
 extern void cee_state_add_context(struct cee_state *, char * key, void * val);
 extern void cee_state_remove_context(struct cee_state *, char * key);
 extern void * cee_state_get_context(struct cee_state *, char * key);
-  
+
+#ifndef NULL
+#define NULL     ((void *)0)
+#endif
+
 #endif // CEE_H

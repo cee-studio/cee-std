@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "cee-internal.h"
 
 #define FIND_SECT(p)  (struct cee_sect *)((void *)((char *)p - sizeof(struct cee_sect)))
 

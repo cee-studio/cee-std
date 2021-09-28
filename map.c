@@ -4,7 +4,6 @@
 #else
 #define S(f)  _##f
 #include "cee.h"
-#include "cee-internal.h"
 #include <stdlib.h>
 #include <string.h>
 #endif
@@ -25,19 +24,19 @@ struct S(header) {
     
 #include "cee-resize.h"
 
-static void S(free_pair_follow)(void * cxt, void * c) {
+static void S(free_pair_follow)(void * ctx, void * c) {
   cee_del(c);
 }
         
-static void S(trace_pair) (void * cxt, const void *nodep, const VISIT which, const int depth) {
+static void S(trace_pair) (void * ctx, const void *nodep, const VISIT which, const int depth) {
   struct cee_tuple * p;
   struct S(header) * h;
   switch (which) 
   {
     case preorder:
     case leaf:
-      p = (struct cee_tuple *)*(void **)nodep;
-      cee_trace(p, *(enum cee_trace_action *)cxt);
+      p = *(void **)nodep;
+      cee_trace(p, *(enum cee_trace_action *)ctx);
       break;
     default:
       break;
@@ -53,7 +52,7 @@ static void S(trace)(void * p, enum cee_trace_action ta) {
       free(h);
       break;
     case CEE_TRACE_DEL_FOLLOW:
-      musl_tdestroy((void *)&ta, h->_[0], S(free_pair_follow));
+      musl_tdestroy(&ta, h->_[0], S(free_pair_follow));
       S(de_chain)(h);
       free(h);
       break;
@@ -65,10 +64,10 @@ static void S(trace)(void * p, enum cee_trace_action ta) {
   }
 }
 
-static int S(cmp) (void * cxt, const void * v1, const void * v2) {
-  struct S(header) * h = (struct S(header) *) cxt;
-  struct cee_tuple * t1 = (struct cee_tuple *) v1;
-  struct cee_tuple * t2 = (struct cee_tuple *) v2;
+static int S(cmp) (void * ctx, const void * v1, const void * v2) {
+  struct S(header) * h = ctx;
+  struct cee_tuple * t1 = (void *)v1; // to remove const
+  struct cee_tuple * t2 = (void *)v2;
   return h->cmp(t1->_[0], t2->_[0]);
 }
 
@@ -92,7 +91,7 @@ struct cee_map * cee_map_mk_e (struct cee_state * st, enum cee_del_policy o[2],
   m->key_del_policy = o[0];
   m->val_del_policy = o[1];
   m->_[0] = 0;
-  return (struct cee_map *)m->_;
+  return (void *)m->_;
 }
 
 struct cee_map * cee_map_mk(struct cee_state * st, int (*cmp) (const void *, const void *)) {
@@ -113,7 +112,7 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
   d[1] = b->val_del_policy;
   
   struct cee_tuple * t = cee_tuple_mk_e(b->cs.state, d, key, value);
-  struct cee_tuple ** oldp = (struct cee_tuple **)musl_tsearch(b, t, b->_, S(cmp));
+  struct cee_tuple **oldp = musl_tsearch(b, t, b->_, S(cmp));
   if (oldp == NULL)
     cee_segfault(); // run out of memory
   else if (*oldp != t) 
@@ -126,23 +125,23 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
 void * cee_map_find(struct cee_map * m, void * key) {
   struct S(header) * b = FIND_HEADER(m);
   struct cee_tuple t = { key, 0 };
-  struct cee_tuple **pp = (struct cee_tuple **)musl_tfind(b, &t, b->_, S(cmp));
+  struct cee_tuple **pp = musl_tfind(b, &t, b->_, S(cmp));
   if (pp == NULL)
     return NULL;
   else {
-    struct cee_tuple * p = *pp;
+    struct cee_tuple *p = *pp;
     return p->_[1];
   }
 }
 
 void * cee_map_remove(struct cee_map * m, void * key) {
-  struct S(header) * b = FIND_HEADER(m);
-  void ** oldp = (void **)musl_tdelete(b, key, b->_, S(cmp));
+  struct S(header) *b = FIND_HEADER(m);
+  void **oldp = musl_tdelete(b, key, b->_, S(cmp));
   if (oldp == NULL)
     return NULL;
   else {
     b->size --;
-    struct cee_tuple * ret = (struct cee_tuple *)*oldp;
+    struct cee_tuple *ret = *oldp;
     cee_del(ret);
     cee_decr_indegree(b->key_del_policy, ret->_[0]);
     cee_decr_indegree(b->val_del_policy, ret->_[1]);
@@ -150,14 +149,14 @@ void * cee_map_remove(struct cee_map * m, void * key) {
   }
 }
 
-static void S(get_key) (void * cxt, const void *nodep, const VISIT which, const int depth) {
+static void S(get_key) (void * ctx, const void *nodep, const VISIT which, const int depth) {
   struct cee_tuple * p;
   switch (which) 
   {
     case preorder:
     case leaf:
-      p = *(struct cee_tuple **)nodep;
-      cee_list_append((struct cee_list **)cxt, p->_[0]);
+      p = *(void **)nodep;
+      cee_list_append(ctx, p->_[0]);
       break;
     default:
       break;
@@ -168,31 +167,70 @@ struct cee_list * cee_map_keys(struct cee_map * m) {
   uintptr_t n = cee_map_size(m);
   struct S(header) * b = FIND_HEADER(m);
   struct cee_list * keys = cee_list_mk(b->cs.state, n);
-  b->context = keys;
+  //b->context = keys;
   musl_twalk(&keys, b->_[0], S(get_key));
   return keys;
 }
 
 
-static void S(get_value) (void * cxt, const void *nodep, const VISIT which, const int depth) {
+static void S(get_value) (void * ctx, const void *nodep, const VISIT which, const int depth) {
   struct cee_tuple  * p;
   switch (which) 
   {
     case preorder:
     case leaf:
-      p = (struct cee_tuple *)*(void **)nodep;
-      cee_list_append((struct cee_list **)cxt, p->_[1]);
+      p = *(void **)nodep;
+      cee_list_append(ctx, p->_[1]);
       break;
     default:
       break;
   }
 }
 
-struct cee_list * cee_map_values(struct cee_map * m) {
+struct cee_list* cee_map_values(struct cee_map *m) {
   uintptr_t s = cee_map_size(m);
-  struct S(header) * b = FIND_HEADER(m);
-  struct cee_list * values = cee_list_mk(b->cs.state, s);
-  b->context = values;
+  struct S(header) *b = FIND_HEADER(m);
+  struct cee_list *values = cee_list_mk(b->cs.state, s);
+  //b->context = values;
   musl_twalk(&values, b->_[0], S(get_value));
   return values;
+}
+
+
+/*
+ * internal structure for cee_map_iterate
+ */
+struct S(fn_ctx) {
+  void *ctx;
+  void (*f)(void *ctx, void *key, void *value);
+};
+
+/*
+ * helper function for cee_map_iterate
+ */
+static void S(apply_each) (void *ctx, const void *nodep, const VISIT which, const int depth) {
+  struct cee_tuple *p;
+  struct S(fn_ctx) * fn_ctx_p = ctx;
+  switch(which)
+  {
+  case preorder:
+  case leaf:
+    p = *(void **)nodep;
+    fn_ctx_p->f(fn_ctx_p->ctx, p->_[0], p->_[1]);
+    break;
+  default:
+    break;
+  }
+}
+
+/*
+ * iterate
+ */
+void cee_map_iterate(struct cee_map *m, void *ctx,
+		     void (*f)(void *ctx, void *key, void *value))
+{
+  struct S(header) *b = FIND_HEADER(m);
+  struct S(fn_ctx) fn_ctx = { .ctx = ctx, .f = f };
+  musl_twalk(&fn_ctx, b->_[0], S(apply_each));
+  return;
 }
