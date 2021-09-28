@@ -1,3 +1,5 @@
+*.o
+tmp.c
 .stensal_*
 cee-one.c
 *.out
