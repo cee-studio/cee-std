@@ -34,19 +34,6 @@ struct cee_json * cee_json_null () {
   return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_UNDEFINED, 0);  
 }
 
-bool cee_is_undefined(struct cee_json *p) {
-  return p->t == CEE_JSON_UNDEFINED;
-}
-
-bool cee_is_null(struct cee_json *p) {
-  return p->t == CEE_JSON_NULL;
-}
-
-bool cee_is_bool(struct cee_json *p) {
-  return p->t == CEE_JSON_BOOLEAN;
-}
-
-
 struct cee_map * cee_json_to_object (struct cee_json *p) {
   return (p->t == CEE_JSON_OBJECT) ? p->value.object : NULL;
 }

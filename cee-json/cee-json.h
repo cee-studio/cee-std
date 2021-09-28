@@ -40,10 +40,6 @@ enum cee_json_format {
   cee_json_format_readable = 1
 };
 
-extern bool cee_json_is_undefined (struct cee_json *);
-extern bool cee_json_is_null (struct cee_json *);
-extern bool cee_json_is_bool (struct cee_json *);
-
 extern struct cee_json * cee_json_select (struct cee_json *, char *selector);
 extern int cee_json_extract(struct cee_json *, char *extactor, ...);
 
