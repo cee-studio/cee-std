@@ -1,10 +1,10 @@
 SHELL := /bin/bash
 CC ?= gcc
-CEE_SRC = musl-hsearch.c musl-insque.c musl-lsearch.c musl-tsearch.c \
-          cee-common.c boxed.c str.c dict.c map.c set.c stack.c      \
-          tuple.c triple.c quadruple.c list.c tagged.c singleton.c   \
-          closure.c block.c n_tuple.c env.c state.c 
-HEADERS = stdio.h string.h stdlib.h stdarg.h search.h assert.h errno.h
+
+MUSL_SRC = musl-hsearch.c musl-insque.c musl-lsearch.c musl-tsearch.c
+CEE_SRC  = $(MUSL_SRC) cee-common.c boxed.c str.c dict.c map.c set.c stack.c tuple.c triple.c \
+           quadruple.c list.c tagged.c singleton.c closure.c block.c n_tuple.c env.c state.c 
+HEADERS  = stdio.h string.h stdlib.h stdarg.h assert.h errno.h
 
 CEE_UTILS_DIR = cee-utils
 
@@ -18,8 +18,9 @@ define cee_amalgamation
 	@echo "#define _GNU_SOURCE" >> $(1)
 	@for ii in $(HEADERS); do echo '#include <'$$ii'>' >> $(1); done
 	@cat cee.h >> $(1)
+	@cat musl-search.h >> $(1)
 	@echo " " >> $(1)
-	$(CC) -E -CC $(2) tmp.c >> $(1)
+	$(CC) -E -CC $(2) -nostdinc tmp.c >> $(1)
 	@echo "#endif" >> $(1)
 endef
 
@@ -28,9 +29,6 @@ endef
 all: cee_utils tester
 
 cee_utils: $(CEE_UTILS_DIR)
-
-tester: cee-one.c
-	$(CC) $(CFLAGS) $@.c -o $@.out $<
 
 echo:
 	@ echo "$(CEE_SRC)"
@@ -46,6 +44,9 @@ release:
 	@mkdir -p release
 	@mv cee.c  release
 	@cp cee.h  release
+
+tester: cee-one.o
+	$(CC) -static -g tester.c cee-one.o
 
 $(CEE_UTILS_DIR):
 	if [[ ! -d $@ ]]; then                \
