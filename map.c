@@ -21,7 +21,7 @@ struct S(header) {
   struct cee_sect cs;
   void * _[1];
 };
-    
+
 #include "cee-resize.h"
 
 static void S(free_pair_follow)(void * ctx, void * c) {
@@ -98,7 +98,7 @@ struct cee_map * cee_map_mk(struct cee_state * st, int (*cmp) (const void *, con
   static enum cee_del_policy d[2] = { CEE_DEFAULT_DEL_POLICY, CEE_DEFAULT_DEL_POLICY };
   return cee_map_mk_e(st, d, cmp);
 }
-    
+
 uintptr_t cee_map_size(struct cee_map * m) {
   struct S(header) * b = FIND_HEADER(m);
   return b->size;
@@ -106,7 +106,7 @@ uintptr_t cee_map_size(struct cee_map * m) {
 
 void cee_map_add(struct cee_map * m, void * key, void * value) {
   struct S(header) * b = FIND_HEADER(m);
-  
+
   enum cee_del_policy d[2];
   d[0] = b->key_del_policy;
   d[1] = b->val_del_policy;
@@ -227,7 +227,7 @@ static void S(apply_each) (void *ctx, const void *nodep, const VISIT which, cons
  * iterate
  */
 void cee_map_iterate(struct cee_map *m, void *ctx,
-		     void (*f)(void *ctx, void *key, void *value))
+                     void (*f)(void *ctx, void *key, void *value))
 {
   struct S(header) *b = FIND_HEADER(m);
   struct S(fn_ctx) fn_ctx = { .ctx = ctx, .f = f };

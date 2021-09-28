@@ -155,6 +155,16 @@ void cee_json_object_set_u64 (struct cee_state * st, struct cee_json * j, char *
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_u64_mk(st, real));
 }
 
+void cee_json_object_iterate (struct cee_state *st, struct cee_json *j, void *ctx,
+                              void (*f)(void *ctx, struct cee_json *key, struct cee_json *value))
+{
+  struct cee_map *o = cee_json_to_object(j);
+  if (!o)
+    cee_segfault();
+  typedef void (*fnt)(void *, void*, void*);
+  cee_map_iterate(st, o, ctx, (fnt)f);
+};
+
 void cee_json_array_append (struct cee_state * st, struct cee_json * j, struct cee_json *v) {
   (void)st;
   struct cee_list * o = cee_json_to_array(j);
