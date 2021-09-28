@@ -4,12 +4,12 @@
 #else
 #define S(f)    _##f
 #include "cee.h"
+#include "musl-search.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #endif
 #include "cee-header.h"
-#include "musl-search.h"
 
 struct S(header) {
   void * context;

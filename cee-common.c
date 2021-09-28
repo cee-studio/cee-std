@@ -1,7 +1,13 @@
+#ifdef CEE_AMALGAMATION
+#undef  S
+#define S(f) _cee_common_##f
+#else
+#define $(f) _##f
 #include "cee.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#endif
 
 #define FIND_SECT(p)  (struct cee_sect *)((void *)((char *)p - sizeof(struct cee_sect)))
 
