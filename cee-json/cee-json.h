@@ -10,19 +10,16 @@
 
 #define MAX_JSON_DEPTH 500
 
-struct cee_json_null {};
-struct cee_json_undefined {};
-
 enum cee_json_type {
-  CEE_JSON_UNDEFINED,	///< Undefined value
-  CEE_JSON_NULL,	///< null value
-  CEE_JSON_BOOLEAN,	///< boolean value
-  CEE_JSON_DOUBLE,	///< double value
-  CEE_JSON_I64,         ///< 64-bit signed int
-  CEE_JSON_U64,         ///< 65-bit unsigned int
-  CEE_JSON_STRING,	///< string value
-  CEE_JSON_OBJECT,	///< object value 
-  CEE_JSON_ARRAY	///< array value
+  CEE_JSON_UNDEFINED,    ///< Undefined value
+  CEE_JSON_NULL,         ///< null value
+  CEE_JSON_BOOLEAN,      ///< boolean value
+  CEE_JSON_DOUBLE,       ///< double value
+  CEE_JSON_I64,          ///< 64-bit signed int
+  CEE_JSON_U64,          ///< 65-bit unsigned int
+  CEE_JSON_STRING,       ///< string value
+  CEE_JSON_OBJECT,       ///< object value 
+  CEE_JSON_ARRAY         ///< array value
 };
 
 struct cee_json {
@@ -43,15 +40,12 @@ enum cee_json_format {
   cee_json_format_readable = 1
 };
 
-extern enum cee_json_type cee_json_type  (struct cee_json *);
 extern bool cee_json_is_undefined (struct cee_json *);
 extern bool cee_json_is_null (struct cee_json *);
 extern bool cee_json_is_bool (struct cee_json *);
 
-
-extern struct json * cee_json_find (struct cee_json *, char *);
-extern struct json * cee_json_get(struct cee_json *, char *, 
-                                  struct cee_json * def);
+extern struct cee_json * cee_json_select (struct cee_json *, char *selector);
+extern int cee_json_extract(struct cee_json *, char *extactor, ...);
 
 extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int how);
 extern struct cee_json * cee_json_load_from_file (struct cee_state *,
@@ -97,11 +91,11 @@ extern void cee_json_array_append_u64 (struct cee_state *, struct cee_json *, ui
 extern struct cee_json* cee_json_array_get(struct cee_state *, struct cee_json *, int);
 
 extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
-				 size_t size, struct cee_json *json,
-				 enum cee_json_format);
+                 size_t size, struct cee_json *json,
+                 enum cee_json_format);
 
 extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p,
-				 struct cee_json *json, enum cee_json_format);
+                 struct cee_json *json, enum cee_json_format);
 
 extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);

@@ -9,6 +9,7 @@
 #include <unistd.h>
 #endif
 
+
 struct cee_json * cee_json_true () {
   static char b[CEE_SINGLETON_SIZE];
   return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_BOOLEAN, 1);
@@ -34,15 +35,15 @@ struct cee_json * cee_json_null () {
 }
 
 bool cee_is_undefined(struct cee_json *p) {
-  return p == cee_json_undefined();
+  return p->t == CEE_JSON_UNDEFINED;
 }
 
 bool cee_is_null(struct cee_json *p) {
-  return p == cee_json_null();
+  return p->t == CEE_JSON_NULL;
 }
 
 bool cee_is_bool(struct cee_json *p) {
-  return p == cee_json_true() || p == cee_json_false();
+  return p->t == CEE_JSON_BOOLEAN;
 }
 
 
