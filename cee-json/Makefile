@@ -4,7 +4,7 @@ CC ?= gcc
 TEST_DIR = test
 
 JSON_SRC = value.c parser.c snprint.c tokenizer.c
-JSON_HDR = cee-json.h tokenizer.h utf8.h
+JSON_HDR = cee-json.h tokenizer.h 
 
 HEADERS  = stdlib.h string.h errno.h sys/types.h sys/stat.h unistd.h stdio.h ctype.h
 
@@ -40,10 +40,9 @@ cee-json-one.o: cee-json-one.c $(TOP)/cee.h
 	$(CC) $(CFLAGS) -c -g cee-json-one.c
 
 release: $(JSON_SRC)
-	$(call cee_amalgamation, cee-json-one.c,-P)
+	$(call cee_json_amalgamation, cee-json.c,-P)
 	@ mkdir -p release
-	@ $(MAKE) cee-json-one.c
-	@ mv cee-json-one.c release
+	@ mv cee-json.c release
 	@ cp cee-json.h release
 
 test: all
