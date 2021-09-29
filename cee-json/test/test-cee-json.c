@@ -122,6 +122,30 @@ SUITE(json_transform)
   }
 }
 
+#if 0
+TEST double_to_i64(void)
+{
+  static char errbuf[2048];
+
+  char str[] = "{ \"double\":[13.423, 100.1, -0.32], \"int64\":[100, 1, 0, -5] }";
+
+  struct cee_state * st = cee_state_mk(10);
+  struct cee_json *json = NULL;
+  int errline=-1;
+
+  cee_json_parse(st, str, sizeof(str), &json, true, &errline);
+  if (-1 == errline) {
+    snprintf(errbuf, sizeof(errbuf), "JSON: %s", str);
+    FAILm(errbuf);
+  }
+}
+
+SUITE(conversion)
+{
+  RUN_TEST(double_to_i64);
+}
+#endif
+
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char *argv[]) 
