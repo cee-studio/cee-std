@@ -1,11 +1,10 @@
 #ifndef CEE_JSON_AMALGAMATION
 #include <stdlib.h>
+#include <ctype.h>
 #include "cee.h"
 #include "cee-json.h"
 #include "tokenizer.h"
 #endif
-
-#include <ctype.h>
 
 static const uint32_t utf_illegal = 0xFFFFFFFFu;
 static bool utf_valid(uint32_t v)
