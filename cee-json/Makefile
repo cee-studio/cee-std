@@ -40,7 +40,7 @@ cee-json-one.o: cee-json-one.c $(TOP)/cee.h
 	$(CC) $(CFLAGS) -c -g cee-json-one.c
 
 release: $(JSON_SRC)
-	$(call cee_amalgamation, cee-json-one.c.c,-P)
+	$(call cee_amalgamation, cee-json-one.c,-P)
 	@ mkdir -p release
 	@ $(MAKE) cee-json-one.c
 	@ mv cee-json-one.c release
