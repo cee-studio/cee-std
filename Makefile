@@ -42,7 +42,7 @@ cee-one.o: cee-one.c
 release:
 	$(call cee_amalgamation, cee.c,-P)
 	@mkdir -p release
-	@mv cee-one.c  release/cee.c
+	@mv cee.c  release
 	@cp cee.h  release
 
 tester: cee-one.o
