@@ -22,6 +22,7 @@ define cee_amalgamation
 	@echo " " >> $(1)
 	$(CC) -E -CC $(2) -nostdinc tmp.c >> $(1)
 	@echo "#endif" >> $(1)
+	@rm -f tmp.c
 endef
 
 .PHONY: release clean distclean
