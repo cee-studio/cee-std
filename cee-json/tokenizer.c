@@ -359,25 +359,25 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
   char *end = start;
 
   // reach the end of the string
-  while (*end != '\0' && *end != '\"') {
+  while (*end != '\0' && *end != '"') {
     if ('\\' == *end++ && *end != '\0') { // check for escaped characters
       ++end; // eat-up escaped character
     }
   }
-  if (*end != '\"') return false; // make sure reach end of string
+  if (*end != '"') return false; // make sure reach end of string
 
   char * unscp_str = NULL;
   size_t unscp_len = 0;
   if (json_string_unescape(&unscp_str,  &unscp_len, start, end-start)) {
     if (unscp_str == start) {
-      t->str = cee_str_mk_e(st, end-start, "%s", start);
+      t->str = cee_str_mk_e(st, end-start+1, "%.*s", end-start, start);
     }
     else {
       /// @todo? create a cee_str func that takes ownership of string
-      t->str = cee_str_mk_e(st, unscp_len, "%s", unscp_str);
+      t->str = cee_str_mk_e(st, unscp_len+1, "%s", unscp_str);
       free(unscp_str);
     }
-    t->buf = end + 1; // '"' + 1
+    t->buf = end + 1; // skip the closing '"'
     return true;
   }
   return false; // ill formed string
