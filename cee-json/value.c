@@ -162,7 +162,7 @@ void cee_json_object_iterate (struct cee_state *st, struct cee_json *j, void *ct
   if (!o)
     cee_segfault();
   typedef void (*fnt)(void *, void*, void*);
-  cee_map_iterate(st, o, ctx, (fnt)f);
+  cee_map_iterate(o, ctx, (fnt)f);
 };
 
 void cee_json_array_append (struct cee_state * st, struct cee_json * j, struct cee_json *v) {
