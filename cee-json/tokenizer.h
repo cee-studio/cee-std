@@ -15,7 +15,6 @@ struct tokenizer {
   char * buf;
   char * buf_end;
   struct cee_str * str;
-  double real; // to be deleted
   enum number_type {
      NUMBER_IS_DOUBLE,
      NUMBER_IS_I64,
