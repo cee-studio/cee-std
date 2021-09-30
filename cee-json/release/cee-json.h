@@ -78,7 +78,7 @@ extern void cee_json_object_set_double (struct cee_state *, struct cee_json *, c
 extern void cee_json_object_set_i64 (struct cee_state *, struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_state *, struct cee_json *, char *, uint64_t);
 extern void cee_json_object_iterate (struct cee_state *, struct cee_json *, void *ctx, 
-                                     void (*f)(void *ctx, struct cee_json *key, struct cee_json *val));
+                                     void (*f)(void *ctx, struct cee_str *key, struct cee_json *val));
 
 extern void cee_json_array_append (struct cee_state *, struct cee_json *, struct cee_json *);
 extern void cee_json_array_append_bool (struct cee_state *, struct cee_json *, bool);

@@ -439,14 +439,8 @@ static bool parse_number(struct tokenizer *t) {
     t->number.real = strtod(numstr, NULL); // TODO: check endptr
   }
   else if (is_integer) {
-    if (offset_sign) {
-      t->type = NUMBER_IS_I64;
-      ret = sscanf(numstr, "%"PRId64, &t->number.i64);
-    }
-    else {
-      t->type = NUMBER_IS_U64;
-      ret = sscanf(numstr, "%"PRIu64, &t->number.u64);
-    }
+    t->type = NUMBER_IS_I64;
+    ret = sscanf(numstr, "%"PRId64, &t->number.i64);
   }
   else {
     t->type = NUMBER_IS_DOUBLE;

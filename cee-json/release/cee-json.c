@@ -91,7 +91,7 @@ extern void cee_json_object_set_double (struct cee_state *, struct cee_json *, c
 extern void cee_json_object_set_i64 (struct cee_state *, struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_state *, struct cee_json *, char *, uint64_t);
 extern void cee_json_object_iterate (struct cee_state *, struct cee_json *, void *ctx, 
-                                     void (*f)(void *ctx, struct cee_json *key, struct cee_json *val));
+                                     void (*f)(void *ctx, struct cee_str *key, struct cee_json *val));
 
 extern void cee_json_array_append (struct cee_state *, struct cee_json *, struct cee_json *);
 extern void cee_json_array_append_bool (struct cee_state *, struct cee_json *, bool);
@@ -266,7 +266,7 @@ void cee_json_object_set_u64 (struct cee_state * st, struct cee_json * j, char *
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_u64_mk(st, real));
 }
 void cee_json_object_iterate (struct cee_state *st, struct cee_json *j, void *ctx,
-                              void (*f)(void *ctx, struct cee_json *key, struct cee_json *value))
+                              void (*f)(void *ctx, struct cee_str *key, struct cee_json *value))
 {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
@@ -1206,14 +1206,8 @@ static bool parse_number(struct tokenizer *t) {
     t->number.real = strtod(numstr, NULL);
   }
   else if (is_integer) {
-    if (offset_sign) {
-      t->type = NUMBER_IS_I64;
-      ret = sscanf(numstr, "%"PRId64, &t->number.i64);
-    }
-    else {
-      t->type = NUMBER_IS_U64;
-      ret = sscanf(numstr, "%"PRIu64, &t->number.u64);
-    }
+    t->type = NUMBER_IS_I64;
+    ret = sscanf(numstr, "%"PRId64, &t->number.i64);
   }
   else {
     t->type = NUMBER_IS_DOUBLE;
