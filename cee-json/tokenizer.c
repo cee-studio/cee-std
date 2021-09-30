@@ -428,15 +428,10 @@ static bool parse_number(struct tokenizer *t) {
   }
 
   /* 5th STEP: convert string to number */
-  char numstr[32];
-  snprintf(numstr, sizeof(numstr), "%.*s", (int)(end-start), start);
-
-  t->buf = end; /* skips entire length of number */
-
   int ret;
   if (is_exponent) {
     t->type = NUMBER_IS_DOUBLE;
-    t->number.real = strtod(numstr, NULL); // TODO: check endptr
+    ret = sscanf(start, "%lf", &t->number.real);
   }
   else if (is_integer) {
     t->type = NUMBER_IS_I64;
@@ -444,8 +439,11 @@ static bool parse_number(struct tokenizer *t) {
   }
   else {
     t->type = NUMBER_IS_DOUBLE;
-    ret = sscanf(numstr, "%lf", &t->number.real);
+    ret = sscanf(start, "%lf", &t->number.real);
   }
+
+  t->buf = end; /* skips entire length of number */
+
   return EOF != ret;
 }
 
