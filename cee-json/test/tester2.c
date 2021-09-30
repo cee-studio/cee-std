@@ -7,7 +7,7 @@
 int main () {
   struct cee_state *state = cee_state_mk(100);
 
-  char *buf = "{ \"id\":-1 }";
+  char *buf = "{ \"a\":-1, \"b\":5e10, \"c\":5e-10, \"d\":1.337 }";
   struct cee_json *result = NULL;
   int line = 0;
   if (!cee_json_parse(state, buf, strlen(buf),  &result, true, &line)) {

@@ -383,12 +383,11 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
   return false; // ill formed string
 }
 
-
 static bool parse_number(struct tokenizer *t) {
   char *start = t->buf;
   char *end = start;
 
-  bool is_integer = true;
+  bool is_integer = true, is_exponent = false;
   int offset_sign = 0;
 
   /* 1st STEP: check for a minus sign and skip it */
@@ -413,6 +412,7 @@ static bool parse_number(struct tokenizer *t) {
   }
 
   /* 4th STEP: check for exponent and skip its tokens */
+  // TODO: check if its an integer or not and change 'is_integer' accordingly
   if ('e' == *end || 'E' == *end) {
     ++end;
     if ('+' == *end || '-' == *end)
@@ -421,18 +421,38 @@ static bool parse_number(struct tokenizer *t) {
       return false;
     while (isdigit(*++end))
       continue;
+    is_exponent = true;
   } // can't be a integer that starts with zero followed n numbers (ex: 012, -023)
   else if (is_integer && (end-1) != (start+offset_sign) && '0' == start[offset_sign]) {
     return false;
   }
 
-  /* 5th STEP: convert string to double */
+  /* 5th STEP: convert string to number */
   char numstr[32];
   snprintf(numstr, sizeof(numstr), "%.*s", (int)(end-start), start);
 
   t->buf = end; /* skips entire length of number */
 
-  return 1 == sscanf(numstr, "%lf", &t->real);
+  int ret;
+  if (is_exponent) {
+    t->type = NUMBER_IS_DOUBLE;
+    t->number.real = strtod(numstr, NULL); // TODO: check endptr
+  }
+  else if (is_integer) {
+    if (offset_sign) {
+      t->type = NUMBER_IS_I64;
+      ret = sscanf(numstr, "%"PRId64, &t->number.i64);
+    }
+    else {
+      t->type = NUMBER_IS_U64;
+      ret = sscanf(numstr, "%"PRIu64, &t->number.u64);
+    }
+  }
+  else {
+    t->type = NUMBER_IS_DOUBLE;
+    ret = sscanf(numstr, "%lf", &t->number.real);
+  }
+  return EOF != ret;
 }
 
 enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {

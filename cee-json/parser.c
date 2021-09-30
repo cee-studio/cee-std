@@ -94,7 +94,12 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           POP(sp);
         }
         else if(c==tock_number) {
-          top->_[1] = cee_json_double_mk (st, tock.real);
+          if (tock.type == NUMBER_IS_I64)
+            top->_[1] = cee_json_i64_mk (st, tock.number.i64);
+          else if (tock.type == NUMBER_IS_U64)
+            top->_[1] = cee_json_u64_mk (st, tock.number.u64);
+          else
+            top->_[1] = cee_json_double_mk (st, tock.number.real);
           state=TOPS;
           POP(sp);
         }
@@ -140,8 +145,12 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           state=st_object_close_or_comma_expected;
         }
         else if(c==tock_number) {
-	  // TODO: need to handle different number types
-          cee_map_add(obj, key, cee_json_double_mk(st, tock.real));
+          if (tock.type == NUMBER_IS_I64)
+            cee_map_add(obj, key, cee_json_i64_mk(st, tock.number.i64));
+          else if (tock.type == NUMBER_IS_U64)
+            cee_map_add(obj, key, cee_json_u64_mk(st, tock.number.u64));
+          else
+            cee_map_add(obj, key, cee_json_double_mk(st, tock.number.real));
           state=st_object_close_or_comma_expected;
         }
         else if(c=='[') {
@@ -194,8 +203,12 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_number) {
-	  // TODO: need to handle different number types
-          cee_list_append(&ar, cee_json_double_mk(st, tock.real));
+          if (tock.type == NUMBER_IS_I64)
+            cee_list_append(&ar, cee_json_double_mk(st, tock.number.i64));
+          else if (tock.type == NUMBER_IS_U64)
+            cee_list_append(&ar, cee_json_double_mk(st, tock.number.u64));
+          else
+            cee_list_append(&ar, cee_json_double_mk(st, tock.number.real));
           state=st_array_close_or_comma_expected;
         }
         else if(c=='[') {
