@@ -1,3 +1,4 @@
+
 #include "cee.h"
 #include <stdio.h>
 #include <stdarg.h>
@@ -38,6 +39,14 @@ void * bar (struct cee_state *st, struct cee_env * outer, size_t amt, va_list ap
   struct cee_closure * c = cee_closure_mk(st, e, &baz);
 
   return cee_boxed_from_i32(st, (i+j+k) * cee_boxed_to_i32(cee_closure_call(st, c, 3, 1, 2, 3)));
+}
+
+
+void f(void *ctx, void *key, void *value)
+{
+  struct cee_str *k = key;
+  struct cee_boxed *v = value;
+  printf ("key:%s->%d\n", k->_, cee_boxed_to_i32(v));
 }
 
 int main () {
@@ -131,7 +140,9 @@ int main () {
   struct cee_list * keys = cee_map_keys(mp);
   for (i = 0; i < cee_list_size(keys); i++)
     printf ("[%d] key:%s\n", i, (char *)keys->_[i]);
-  
+
+  cee_map_iterate(mp, NULL, f);
+
   // optional
   //cee_del(keys);
   //cee_del(mp);

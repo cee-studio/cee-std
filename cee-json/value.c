@@ -156,7 +156,7 @@ void cee_json_object_set_u64 (struct cee_state * st, struct cee_json * j, char *
 }
 
 void cee_json_object_iterate (struct cee_state *st, struct cee_json *j, void *ctx,
-                              void (*f)(void *ctx, struct cee_json *key, struct cee_json *value))
+                              void (*f)(void *ctx, struct cee_str *key, struct cee_json *value))
 {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
