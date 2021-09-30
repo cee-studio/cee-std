@@ -237,10 +237,10 @@ size_t cee_boxed_snprint (char * buf, size_t size, struct cee_boxed * x) {
   switch(h->type)
   {
     case cee_primitive_f64:
-      s = snprintf(buf, size, "%lf", h->_[0].f64);
+      s = snprintf(buf, size, "%lg", h->_[0].f64);
       break;
     case cee_primitive_f32:
-      s = snprintf(buf, size, "%f", h->_[0].f32);
+      s = snprintf(buf, size, "%g", h->_[0].f32);
       break;
     case cee_primitive_i64:
       s = snprintf(buf, size, "%"PRId64, h->_[0].i64);
