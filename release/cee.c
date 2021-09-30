@@ -1766,7 +1766,6 @@ void * cee_dict_find(struct cee_dict * d, char * key) {
   return NULL;
 }
 struct _cee_map_header {
-  void * context;
   int (*cmp)(const void *l, const void *r);
   uintptr_t size;
   enum cee_del_policy key_del_policy;
@@ -1866,7 +1865,6 @@ struct cee_map * cee_map_mk_e (struct cee_state * st, enum cee_del_policy o[2],
                   int (*cmp)(const void *, const void *)) {
   size_t mem_block_size = sizeof(struct _cee_map_header);
   struct _cee_map_header * m = malloc(mem_block_size);
-  m->context = NULL;
   m->cmp = cmp;
   m->size = 0;
   do{ memset(&m->cs, 0, sizeof(struct cee_sect)); } while(0);;
@@ -1947,7 +1945,6 @@ struct cee_list * cee_map_keys(struct cee_map * m) {
   uintptr_t n = cee_map_size(m);
   struct _cee_map_header * b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
   struct cee_list * keys = cee_list_mk(b->cs.state, n);
-  //b->context = keys;
   musl_twalk(&keys, b->_[0], _cee_map_get_key);
   return keys;
 }
@@ -1968,7 +1965,6 @@ struct cee_list* cee_map_values(struct cee_map *m) {
   uintptr_t s = cee_map_size(m);
   struct _cee_map_header *b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
   struct cee_list *values = cee_list_mk(b->cs.state, s);
-  //b->context = values;
   musl_twalk(&values, b->_[0], _cee_map_get_value);
   return values;
 }
@@ -2008,7 +2004,6 @@ void cee_map_iterate(struct cee_map *m, void *ctx,
   return;
 }
 struct _cee_set_header {
-  void * context;
   int (*cmp)(const void *l, const void *r);
   uintptr_t size;
   enum cee_del_policy del_policy;
@@ -2118,7 +2113,6 @@ struct cee_set * cee_set_mk_e (struct cee_state * st, enum cee_del_policy o,
   m->cs.trace = _cee_set_trace;
   m->cs.resize_method = CEE_RESIZE_WITH_IDENTITY;
   m->cs.n_product = 1;
-  m->context = NULL;
   m->_[0] = NULL;
   m->del_policy = o;
   return (struct cee_set *)m->_;
@@ -2194,10 +2188,10 @@ static void _cee_set_get_value (void * cxt, const void *nodep, const VISIT which
 struct cee_list * cee_set_values(struct cee_set * m) {
   uintptr_t s = cee_set_size(m);
   struct _cee_set_header * h = (struct _cee_set_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_set_header, _))));
-  h->context = cee_list_mk(h->cs.state, s);
-  cee_use_realloc(h->context);
-  musl_twalk(&h->context, h->_[0], _cee_set_get_value);
-  return (struct cee_list *)h->context;
+  struct cee_list *values = cee_list_mk(h->cs.state, s);
+  cee_use_realloc(values);
+  musl_twalk(&values, h->_[0], _cee_set_get_value);
+  return values;
 }
 void * cee_set_remove(struct cee_set *m, void * key) {
   struct _cee_set_header * h = (struct _cee_set_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_set_header, _))));
