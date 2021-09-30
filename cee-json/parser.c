@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #endif
 
-#define DOUBLE_IS_INTEGER(d) ((d) <= INT64_MIN || (d) >= INT64_MAX || (d) == (int64_t)(d))
-
 enum state_type {
   st_init = 0,
   st_object_or_array_or_value_expected = 0 ,
@@ -96,10 +94,7 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           POP(sp);
         }
         else if(c==tock_number) {
-          if (DOUBLE_IS_INTEGER(tock.real))
-            top->_[1] = cee_json_i64_mk (st, (int64_t)tock.real);
-          else
-            top->_[1] = cee_json_double_mk (st, tock.real);
+          top->_[1] = cee_json_double_mk (st, tock.real);
           state=TOPS;
           POP(sp);
         }
