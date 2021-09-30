@@ -12,7 +12,6 @@
 #include "cee-header.h"
 
 struct S(header) {
-  void * context;
   int (*cmp)(const void *l, const void *r);
   uintptr_t size;
   enum cee_del_policy del_policy;
@@ -86,7 +85,6 @@ struct cee_set * cee_set_mk_e (struct cee_state * st, enum cee_del_policy o,
   m->cs.trace = S(trace);
   m->cs.resize_method = CEE_RESIZE_WITH_IDENTITY;
   m->cs.n_product = 1;
-  m->context = NULL;
   m->_[0] = NULL;
   m->del_policy = o;
   return (struct cee_set *)m->_;
@@ -171,10 +169,10 @@ static void S(get_value) (void * cxt, const void *nodep, const VISIT which, cons
 struct cee_list * cee_set_values(struct cee_set * m) {
   uintptr_t s = cee_set_size(m);
   struct S(header) * h = FIND_HEADER(m);
-  h->context = cee_list_mk(h->cs.state, s);
-  cee_use_realloc(h->context);
-  musl_twalk(&h->context, h->_[0], S(get_value));
-  return (struct cee_list *)h->context;
+  struct cee_list *values = cee_list_mk(h->cs.state, s);
+  cee_use_realloc(values);
+  musl_twalk(&values, h->_[0], S(get_value));
+  return values;
 }
 
 void * cee_set_remove(struct cee_set *m, void * key) {

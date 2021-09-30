@@ -92,6 +92,8 @@ int main () {
   
   printf ("st: %p\n", set1);
   cee_set_add(set1, cee_str_mk(st, "a"));
+  cee_set_add(set1, cee_str_mk(st, "b"));
+  cee_set_add(set1, cee_str_mk(st, "c"));  
   void * sx = cee_str_mk(st, "aabc");
   printf ("sx:%p\n", sx);
   cee_set_add(set1, sx);
@@ -105,6 +107,7 @@ int main () {
   
   struct cee_list * svals = NULL;
   svals = cee_set_values(set1);
+  printf ("print out values of a set\n");
   for (i = 0; i < cee_list_size(svals); i++)
     printf ("%d %s\n", i, (char*)svals->_[i]);
   
@@ -123,7 +126,8 @@ int main () {
   
   struct cee_boxed * t = (struct cee_boxed *)cee_map_find(mp, (char *)"1");
   printf ("found value %d\n", cee_boxed_to_i32(t));
-  
+
+  printf ("print out keys of a map\n");
   struct cee_list * keys = cee_map_keys(mp);
   for (i = 0; i < cee_list_size(keys); i++)
     printf ("[%d] key:%s\n", i, (char *)keys->_[i]);

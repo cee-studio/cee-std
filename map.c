@@ -12,7 +12,6 @@
 
 
 struct S(header) {
-  void * context;
   int (*cmp)(const void *l, const void *r);
   uintptr_t size;
   enum cee_del_policy key_del_policy;
@@ -75,7 +74,6 @@ struct cee_map * cee_map_mk_e (struct cee_state * st, enum cee_del_policy o[2],
                   int (*cmp)(const void *, const void *)) {
   size_t mem_block_size = sizeof(struct S(header));
   struct S(header) * m = malloc(mem_block_size);
-  m->context = NULL;
   m->cmp = cmp;
   m->size = 0;
   ZERO_CEE_SECT(&m->cs);
@@ -167,7 +165,6 @@ struct cee_list * cee_map_keys(struct cee_map * m) {
   uintptr_t n = cee_map_size(m);
   struct S(header) * b = FIND_HEADER(m);
   struct cee_list * keys = cee_list_mk(b->cs.state, n);
-  //b->context = keys;
   musl_twalk(&keys, b->_[0], S(get_key));
   return keys;
 }
@@ -191,7 +188,6 @@ struct cee_list* cee_map_values(struct cee_map *m) {
   uintptr_t s = cee_map_size(m);
   struct S(header) *b = FIND_HEADER(m);
   struct cee_list *values = cee_list_mk(b->cs.state, s);
-  //b->context = values;
   musl_twalk(&values, b->_[0], S(get_value));
   return values;
 }
