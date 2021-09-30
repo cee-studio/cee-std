@@ -53,7 +53,14 @@ enum cee_json_format {
   cee_json_format_readable = 1
 };
 
-extern struct cee_json * cee_json_select (struct cee_json *, char *selector);
+/*
+ *
+ */
+extern struct cee_json* cee_json_select (struct cee_json *, char *selector, ...);
+
+/*
+ * TODO: json_extract style function
+ */
 extern int cee_json_extract(struct cee_json *, char *extactor, ...);
 
 extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int how);
@@ -90,8 +97,11 @@ extern void cee_json_object_set_string (struct cee_state *, struct cee_json *, c
 extern void cee_json_object_set_double (struct cee_state *, struct cee_json *, char *, double);
 extern void cee_json_object_set_i64 (struct cee_state *, struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_state *, struct cee_json *, char *, uint64_t);
-extern void cee_json_object_iterate (struct cee_state *, struct cee_json *, void *ctx, 
+
+extern struct cee_json* cee_json_object_get(struct cee_json *, char *key);
+extern void cee_json_object_iterate (struct cee_json *, void *ctx, 
                                      void (*f)(void *ctx, struct cee_str *key, struct cee_json *val));
+
 
 extern void cee_json_array_append (struct cee_state *, struct cee_json *, struct cee_json *);
 extern void cee_json_array_append_bool (struct cee_state *, struct cee_json *, bool);
@@ -99,14 +109,17 @@ extern void cee_json_array_append_string (struct cee_state *, struct cee_json *,
 extern void cee_json_array_append_double (struct cee_state *, struct cee_json *, double);
 extern void cee_json_array_append_i64 (struct cee_state *, struct cee_json *, int64_t);
 extern void cee_json_array_append_u64 (struct cee_state *, struct cee_json *, uint64_t);
-extern struct cee_json* cee_json_array_get(struct cee_state *, struct cee_json *, int);
+
+extern struct cee_json* cee_json_array_get(struct cee_json *, int);
+extern void cee_json_array_iterate (struct cee_json *, void *ctx,
+				    void (*f)(void *ctx, int index, struct cee_json *val));
 
 extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
-                 size_t size, struct cee_json *json,
-                 enum cee_json_format);
+				 size_t size, struct cee_json *json,
+				 enum cee_json_format);
 
 extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p,
-                 struct cee_json *json, enum cee_json_format);
+				 struct cee_json *json, enum cee_json_format);
 
 extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);
@@ -229,6 +242,13 @@ struct cee_json * cee_json_object_mk(struct cee_state *st) {
   struct cee_tagged * t = cee_tagged_mk (st, CEE_JSON_OBJECT, m);
   return (struct cee_json *)t;
 }
+struct cee_json* cee_json_object_get(struct cee_json *j, char *key)
+{
+  struct cee_map *o = cee_json_to_object(j);
+  if (!o)
+    cee_segfault();
+  return cee_map_find(o, key);
+}
 void cee_json_object_set(struct cee_state *st, struct cee_json *j, char *key, struct cee_json *v) {
   struct cee_map * o = cee_json_to_object(j);
   if (!o)
@@ -265,7 +285,7 @@ void cee_json_object_set_u64 (struct cee_state * st, struct cee_json * j, char *
     cee_segfault();
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_u64_mk(st, real));
 }
-void cee_json_object_iterate (struct cee_state *st, struct cee_json *j, void *ctx,
+void cee_json_object_iterate (struct cee_json *j, void *ctx,
                               void (*f)(void *ctx, struct cee_str *key, struct cee_json *value))
 {
   struct cee_map *o = cee_json_to_object(j);
@@ -302,7 +322,7 @@ void cee_json_array_append_string (struct cee_state * st, struct cee_json * j, c
     j->value.array = o;
   }
 }
-struct cee_json* cee_json_array_get (struct cee_state *st, struct cee_json *j, int i) {
+struct cee_json* cee_json_array_get (struct cee_json *j, int i) {
   struct cee_list *o = cee_json_to_array(j);
   if (!o)
     cee_segfault();
@@ -311,6 +331,15 @@ struct cee_json* cee_json_array_get (struct cee_state *st, struct cee_json *j, i
   else
     return NULL;
 }
+void cee_json_array_iterate (struct cee_json *j, void *ctx,
+        void (*f)(void *ctx, int index, struct cee_json *value))
+{
+  struct cee_list *o = cee_json_to_array(j);
+  if (!o)
+    cee_segfault();
+  typedef void (*fnt)(void *, int, void*);
+  cee_list_iterate(o, ctx, (fnt)f);
+};
 struct cee_json * cee_json_load_from_file (struct cee_state * st,
                                            FILE * f, bool force_eof,
                                            int * error_at_line) {
@@ -336,6 +365,85 @@ bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how)
     return false;
   }
   return true;
+}
+struct cee_json* cee_json_select(struct cee_json *o, char *fmt, ...) {
+  enum next_selector_token {
+    JSEL_INVALID = 0,
+    JSEL_OBJ = 1,
+    JSEL_ARRAY = 2,
+    JSEL_TYPECHECK = 3,
+    JSEL_MAX_TOKEN = 256
+  } next = JSEL_INVALID;
+  char token[JSEL_MAX_TOKEN+1];
+  int tlen;
+  va_list ap;
+  va_start(ap,fmt);
+  const char *p = fmt;
+  tlen = 0;
+  while(1) {
+    if (tlen && (*p == '\0' || strchr(".[]:",*p))) {
+      token[tlen] = '\0';
+      if (next == JSEL_INVALID) {
+ goto notfound;
+      } else if (next == JSEL_ARRAY) {
+ if (o->t != CEE_JSON_ARRAY) goto notfound;
+ int idx = atoi(token);
+ if ((o = cee_json_array_get(o,idx)) == NULL)
+   goto notfound;
+      } else if (next == JSEL_OBJ) {
+ if (o->t != CEE_JSON_OBJECT) goto notfound;
+ if ((o = cee_json_object_get(o,token)) == NULL)
+   goto notfound;
+      } else if (next == JSEL_TYPECHECK) {
+ if (token[0] == 's' && o->t != CEE_JSON_STRING) goto notfound;
+ if (token[0] == 'n' && o->t != CEE_JSON_I64) goto notfound;
+ if (token[0] == 'o' && o->t != CEE_JSON_OBJECT) goto notfound;
+ if (token[0] == 'a' && o->t != CEE_JSON_ARRAY) goto notfound;
+ if (token[0] == 'b' && o->t != CEE_JSON_BOOLEAN) goto notfound;
+ if (token[0] == '!' && o->t != CEE_JSON_NULL) goto notfound;
+      }
+    } else if (next != JSEL_INVALID) {
+      if (*p != '*') {
+ token[tlen] = *p++;
+ tlen++;
+ if (tlen > JSEL_MAX_TOKEN) goto notfound;
+ continue;
+      } else {
+ int len;
+ char buf[64];
+ char *s;
+ if (next == JSEL_ARRAY) {
+   int idx = va_arg(ap,int);
+   len = snprintf(buf,sizeof(buf),"%d",idx);
+   s = buf;
+ } else if (next == JSEL_OBJ) {
+   s = va_arg(ap,char*);
+   len = strlen(s);
+ } else {
+   goto notfound;
+ }
+ if (tlen+len > JSEL_MAX_TOKEN) goto notfound;
+ memcpy(token+tlen,buf,len);
+ tlen += len;
+ p++;
+ continue;
+      }
+    }
+    if (*p == ']') p++;
+    if (*p == '\0') break;
+    else if (*p == '.') next = JSEL_OBJ;
+    else if (*p == '[') next = JSEL_ARRAY;
+    else if (*p == ':') next = JSEL_TYPECHECK;
+    else goto notfound;
+    tlen = 0;
+    p++;
+  }
+cleanup:
+  va_end(ap);
+  return o;
+notfound:
+  o = NULL;
+  goto cleanup;
 }
 enum state_type {
   st_init = 0,
@@ -1197,22 +1305,16 @@ static bool parse_number(struct tokenizer *t) {
   else if (is_integer && (end-1) != (start+offset_sign) && '0' == start[offset_sign]) {
     return false;
   }
-  char numstr[32];
-  snprintf(numstr, sizeof(numstr), "%.*s", (int)(end-start), start);
-  t->buf = end;
   int ret;
-  if (is_exponent) {
+  if (is_exponent || !is_integer) {
     t->type = NUMBER_IS_DOUBLE;
-    t->number.real = strtod(numstr, NULL);
-  }
-  else if (is_integer) {
-    t->type = NUMBER_IS_I64;
-    ret = sscanf(numstr, "%"PRId64, &t->number.i64);
+    ret = sscanf(start, "%lf", &t->number.real);
   }
   else {
-    t->type = NUMBER_IS_DOUBLE;
-    ret = sscanf(numstr, "%lf", &t->number.real);
+    t->type = NUMBER_IS_I64;
+    ret = sscanf(start, "%"PRId64, &t->number.i64);
   }
+  t->buf = end;
   return EOF != ret;
 }
 enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {

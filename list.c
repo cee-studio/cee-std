@@ -83,7 +83,7 @@ struct cee_list * cee_list_append (struct cee_list ** l, void *e) {
   return *l;
 }
 
-struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, size_t index, void *e) {
+struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, int index, void *e) {
   struct cee_list * v = *l;
   if (v == NULL) {
     v = cee_list_mk(s, 10);
@@ -110,7 +110,7 @@ struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, si
   return *l;
 }
 
-bool cee_list_remove(struct cee_list * v, size_t index) {
+bool cee_list_remove(struct cee_list * v, int index) {
   struct S(header) * m = FIND_HEADER(v);
   if (index >= m->size) return false;
  
@@ -131,7 +131,16 @@ size_t cee_list_size (struct cee_list *x) {
   return m->size;
 }
 
-size_t cee_list_capacity (struct cee_list * x) {
+size_t cee_list_capacity (struct cee_list *x) {
   struct S(header) * h = FIND_HEADER(x);
   return h->capacity;
+}
+
+void cee_list_iterate (struct cee_list *x, void *ctx,
+		       void (*f)(void *cxt, int idx, void *e)) {
+  struct S(header) *m = FIND_HEADER(x);
+  int i;
+  for (i = 0; i < m->size; i++)
+    f(ctx, i, m->_[i]);
+  return;
 }

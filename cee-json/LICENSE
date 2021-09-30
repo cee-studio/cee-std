@@ -1,3 +1,8 @@
+The folder contains code that belongs to the following projects;
+cppcms:https://github.com/artyom-beilis/cppcms
+cJSON:https://github.com/DaveGamble/cJSON
+stonky:https://github.com/antirez/stonky
+
 Copyright 2020 Stensal Inc.
 
 Redistribution and use in source and binary forms, with or without
