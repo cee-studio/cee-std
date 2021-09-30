@@ -429,17 +429,13 @@ static bool parse_number(struct tokenizer *t) {
 
   /* 5th STEP: convert string to number */
   int ret;
-  if (is_exponent) {
+  if (is_exponent || !is_integer) {
     t->type = NUMBER_IS_DOUBLE;
     ret = sscanf(start, "%lf", &t->number.real);
-  }
-  else if (is_integer) {
-    t->type = NUMBER_IS_I64;
-    ret = sscanf(numstr, "%"PRId64, &t->number.i64);
   }
   else {
-    t->type = NUMBER_IS_DOUBLE;
-    ret = sscanf(start, "%lf", &t->number.real);
+    t->type = NUMBER_IS_I64;
+    ret = sscanf(start, "%"PRId64, &t->number.i64);
   }
 
   t->buf = end; /* skips entire length of number */
