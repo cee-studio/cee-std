@@ -4,6 +4,7 @@
 #ifndef CEE_JSON_AMALGAMATION
 #include "cee-json.h"
 #include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #endif
 
