@@ -1,14 +1,15 @@
 TOP = ..
+
 CC ?= gcc
+OBJDIR  = obj
+TESTDIR = test
 
-TEST_DIR = test
+SRC     = value.c parser.c snprint.c tokenizer.c
+HDR     = cee-json.h tokenizer.h 
+STD_HDR = stdlib.h string.h errno.h sys/types.h sys/stat.h unistd.h stdio.h ctype.h
+OBJS    = $(SRC:%.c=$(OBJDIR)/%.o)
 
-JSON_SRC = value.c parser.c snprint.c tokenizer.c
-JSON_HDR = cee-json.h tokenizer.h 
-
-HEADERS  = stdlib.h string.h errno.h sys/types.h sys/stat.h unistd.h stdio.h ctype.h
-
-CFLAGS= -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
+CFLAGS = -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
 
 .PHONY: release clean test
 
@@ -16,39 +17,48 @@ define cee_json_amalgamation
 	@echo "#ifndef CEE_JSON_ONE" > $(1)
 	@echo "#define CEE_JSON_ONE" >> $(1)
 	@echo "#define _GNU_SOURCE" >> $(1)
-	@for ii in $(HEADERS); do echo '#include <'$$ii'>' >> $(1); done
+	@for ii in $(STD_HDR); do echo '#include <'$$ii'>' >> $(1); done
 	@echo "#include \"cee.h\"" >> $(1)
 	@echo " " >> $(1)
-	@for ii in $(JSON_HDR); do cat $$ii >> $(1); echo " " >> $(1); done
+	@for ii in $(HDR); do cat $$ii >> $(1); echo " " >> $(1); done
 	@echo "#define CEE_JSON_AMALGAMATION" > tmp.c
-	@for ii in $(JSON_SRC); do echo '#include "'$$ii'"' >> tmp.c; done  
+	@for ii in $(SRC); do echo '#include "'$$ii'"' >> tmp.c; done  
 	$(CC) -E $(2) -nostdinc tmp.c >> $(1)
 	@echo "#endif" >> $(1)
 	@rm -f tmp.c
 endef
 
-all: cee-one.o cee-json-one.o
+# generic compilation
+$(OBJDIR)/%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+all: $(OBJS)
+
+$(OBJS): | $(OBJDIR)
+
+$(OBJDIR):
+	@mkdir -p $(OBJDIR)
 
 cee-one.o: $(TOP)/cee-one.c
 	$(MAKE) -C $(TOP)
 	$(CC) $(CFLAGS) -c -g $<
 
-cee-json-one.c: $(JSON_SRC)
+cee-json-one.c: $(SRC)
 	$(call cee_json_amalgamation, $@)
 
 cee-json-one.o: cee-json-one.c $(TOP)/cee.h
 	$(CC) $(CFLAGS) -c -g cee-json-one.c
 
-release: $(JSON_SRC)
+release: cee-one.o cee-json-one.o
 	$(call cee_json_amalgamation, cee-json.c,-P)
 	@ mkdir -p release
 	@ mv cee-json.c release
 	@ cp cee-json.h release
 
 test: all
-	$(MAKE) -C $(TEST_DIR) -f test.mk
+	$(MAKE) -C $(TESTDIR) -f test.mk
 
 clean:
-	rm -f a.c cee-one.o cee-json-one.c cee-json-one.o
-	rm -f release/*
-	$(MAKE) -C $(TEST_DIR) -f test.mk clean
+	rm -rf a.c cee-one.o cee-json-one.c cee-json-one.o
+	rm -rf release/* $(OBJDIR)
+	$(MAKE) -C $(TESTDIR) -f test.mk clean
