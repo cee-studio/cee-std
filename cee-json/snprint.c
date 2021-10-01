@@ -83,7 +83,7 @@ static void delimiter (uintptr_t * offp, char * buf, enum cee_json_format f,
   uintptr_t offset = *offp;
   if (!f) {
     if (buf) buf[offset] = c;
-    offset ++; // only count one
+    offset ++; /*  only count one */
     *offp = offset;
     return;
   }
@@ -157,7 +157,7 @@ static void str_append(char * out, uintptr_t *offp, char *begin, unsigned len) {
       }
     };
     if(addon) {
-      //a.append(last,i-last);
+      /* a.append(last,i-last); */
       if (out) memcpy(out+offset, last, i-last);
       offset += i-last;
       

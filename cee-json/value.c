@@ -180,7 +180,7 @@ void cee_json_array_append (struct cee_state * st, struct cee_json * j, struct c
     cee_segfault();
   cee_list_append(&o, v);
   if (o != j->value.array) {
-    // free j->value.array
+    /*  free j->value.array */
     j->value.array = o;
   }
 }
@@ -191,7 +191,7 @@ void cee_json_array_append_bool (struct cee_state * st, struct cee_json * j, boo
     cee_segfault();
   cee_list_append(&o, cee_json_bool(b));
   if (o != j->value.array) {
-    // free j->value.array
+    /*  free j->value.array */
     j->value.array = o;
   }
 }
@@ -202,7 +202,7 @@ void cee_json_array_append_string (struct cee_state * st, struct cee_json * j, c
     cee_segfault();
   cee_list_append(&o, cee_json_string_mk(st, cee_str_mk(st, "%s", x)));
   if (o != j->value.array) {
-    // free j->value.array
+    /*  free j->value.array */
     j->value.array = o;
   }
 }
@@ -244,7 +244,7 @@ struct cee_json * cee_json_load_from_file (struct cee_state * st,
   int line = 0;
   struct cee_json * j;
   if (!cee_json_parse(st, b, size, &j, true, &line)) {
-    // report error
+    /*  report error */
   }
   return j;
 }

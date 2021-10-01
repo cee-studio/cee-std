@@ -11,12 +11,12 @@ static bool utf_valid(uint32_t v)
 {
   if(v>0x10FFFF)
     return false;
-  if(0xD800 <=v && v<= 0xDFFF) // surragates
+  if(0xD800 <=v && v<= 0xDFFF) /*  surragates */
     return false;
   return true;
 }
 
-//namespace utf8 {
+/* namespace utf8 { */
 static bool utf8_is_trail(char ci)
 {
   unsigned char c=ci;
@@ -55,8 +55,8 @@ static int utf8_width(uint32_t value)
   }
 }
 
-// See RFC 3629
-// Based on: http://www.w3.org/International/questions/qa-forms-utf-8
+/*  See RFC 3629 */
+/*  Based on: http://www.w3.org/International/questions/qa-forms-utf-8 */
 static uint32_t next(char ** p, char * e, bool html)
 {
   if(*p==e)
@@ -65,16 +65,16 @@ static uint32_t next(char ** p, char * e, bool html)
   unsigned char lead = **p;
   (*p)++;
 
-  // First byte is fully validated here
+  /*  First byte is fully validated here */
   int trail_size = utf8_trail_length(lead);
 
   if(trail_size < 0)
     return utf_illegal;
 
-  //
-  // Ok as only ASCII may be of size = 0
-  // also optimize for ASCII text
-  //
+  /*  */
+  /*  Ok as only ASCII may be of size = 0 */
+  /*  also optimize for ASCII text */
+  /*  */
   if(trail_size == 0) {
     if(!html || (lead >= 0x20 && lead!=0x7F) || lead==0x9 || lead==0x0A || lead==0x0D)
       return lead;
@@ -83,7 +83,7 @@ static uint32_t next(char ** p, char * e, bool html)
 
   uint32_t c = lead & ((1<<(6-trail_size))-1);
 
-  // Read the rest
+  /*  Read the rest */
   unsigned char tmp;
   switch(trail_size) {
     case 3:
@@ -112,19 +112,19 @@ static uint32_t next(char ** p, char * e, bool html)
       c = (c << 6) | ( tmp & 0x3F);
   }
 
-  // Check code point validity: no surrogates and
-  // valid range
+  /*  Check code point validity: no surrogates and */
+  /*  valid range */
   if(!utf_valid(c))
     return utf_illegal;
 
-  // make sure it is the most compact representation
+  /*  make sure it is the most compact representation */
   if(utf8_width(c)!=trail_size + 1)
     return utf_illegal;
 
   if(html && c<0xA0)
     return utf_illegal;
   return c;
-} // valid
+} /*  valid */
 
 
 /*
@@ -154,7 +154,7 @@ struct utf8_seq {
 };
 
 static void utf8_encode(uint32_t value, struct utf8_seq *out) {
-  //struct utf8_seq out={0};
+  /* struct utf8_seq out={0}; */
   if(value <=0x7F) {
     out->c[0]=value;
     out->len=1;
@@ -275,11 +275,11 @@ second_iter:
     if('\\' == c) {
       if (TESTING == state) {
         state = ALLOCATING;
-        break; // break the while loop
+        break; /*  break the while loop */
       }
 
       if (s == input_end) {
-        //input is not a well-formed json string
+        /* input is not a well-formed json string */
         goto return_err;
       }
 
@@ -355,16 +355,16 @@ return_err:
 }
 
 static bool parse_string(struct cee_state * st, struct tokenizer * t) {
-  char *start = t->buf + 1; // start after initial '"'
+  char *start = t->buf + 1; /*  start after initial '"' */
   char *end = start;
 
-  // reach the end of the string
+  /*  reach the end of the string */
   while (*end != '\0' && *end != '"') {
-    if ('\\' == *end++ && *end != '\0') { // check for escaped characters
-      ++end; // eat-up escaped character
+    if ('\\' == *end++ && *end != '\0') { /*  check for escaped characters */
+      ++end; /*  eat-up escaped character */
     }
   }
-  if (*end != '"') return false; // make sure reach end of string
+  if (*end != '"') return false; /*  make sure reach end of string */
 
   char * unscp_str = NULL;
   size_t unscp_len = 0;
@@ -373,14 +373,14 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
       t->str = cee_str_mk_e(st, end-start+1, "%.*s", end-start, start);
     }
     else {
-      /// @todo? create a cee_str func that takes ownership of string
+      /* / @todo? create a cee_str func that takes ownership of string */
       t->str = cee_str_mk_e(st, unscp_len+1, "%s", unscp_str);
       free(unscp_str);
     }
-    t->buf = end + 1; // skip the closing '"'
+    t->buf = end + 1; /*  skip the closing '"' */
     return true;
   }
-  return false; // ill formed string
+  return false; /*  ill formed string */
 }
 
 static bool parse_number(struct tokenizer *t) {
@@ -412,7 +412,7 @@ static bool parse_number(struct tokenizer *t) {
   }
 
   /* 4th STEP: check for exponent and skip its tokens */
-  // TODO: check if its an integer or not and change 'is_integer' accordingly
+  /*  TODO: check if its an integer or not and change 'is_integer' accordingly */
   if ('e' == *end || 'E' == *end) {
     ++end;
     if ('+' == *end || '-' == *end)
@@ -422,7 +422,7 @@ static bool parse_number(struct tokenizer *t) {
     while (isdigit(*++end))
       continue;
     is_exponent = true;
-  } // can't be a integer that starts with zero followed n numbers (ex: 012, -023)
+  } /*  can't be a integer that starts with zero followed n numbers (ex: 012, -023) */
   else if (is_integer && (end-1) != (start+offset_sign) && '0' == start[offset_sign]) {
     return false;
   }

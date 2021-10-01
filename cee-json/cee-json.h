@@ -5,21 +5,21 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <sys/types.h> // ssize_t
+#include <sys/types.h> /*  ssize_t */
 #endif
 
 #define MAX_JSON_DEPTH 500
 
 enum cee_json_type {
-  CEE_JSON_UNDEFINED,    ///< Undefined value
-  CEE_JSON_NULL,         ///< null value
-  CEE_JSON_BOOLEAN,      ///< boolean value
-  CEE_JSON_DOUBLE,       ///< double value
-  CEE_JSON_I64,          ///< 64-bit signed int
-  CEE_JSON_U64,          ///< 65-bit unsigned int
-  CEE_JSON_STRING,       ///< string value
-  CEE_JSON_OBJECT,       ///< object value 
-  CEE_JSON_ARRAY         ///< array value
+  CEE_JSON_UNDEFINED,    /**  Undefined value */
+  CEE_JSON_NULL,         /**  null value */
+  CEE_JSON_BOOLEAN,      /**  boolean value */
+  CEE_JSON_DOUBLE,       /**  double value */
+  CEE_JSON_I64,          /**  64-bit signed int */
+  CEE_JSON_U64,          /**  65-bit unsigned int */
+  CEE_JSON_STRING,       /**  string value */
+  CEE_JSON_OBJECT,       /**  object value  */
+  CEE_JSON_ARRAY         /**  array value */
 };
 
 struct cee_json {
@@ -111,4 +111,4 @@ extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p,
 extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);
 
-#endif // CEE_JSON_H
+#endif /*  CEE_JSON_H */
