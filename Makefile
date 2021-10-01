@@ -35,7 +35,7 @@ endef
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-all: cee_utils $(OBJS)
+all: cee_utils $(OBJS) cee-one.c
 
 cee_utils: $(CEE_UTILS_DIR)
 $(OBJS): | $(OBJDIR)
@@ -50,7 +50,7 @@ $(OBJDIR):
 cee-one.c: $(SRC)
 	$(call cee_amalgamation, cee-one.c)
 
-release: cee-one.c
+release: all
 	$(call cee_amalgamation, cee.c,-P)
 	@mkdir -p release
 	@mv cee.c  release

@@ -32,17 +32,17 @@ endef
 $(OBJDIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-all: $(OBJS)
+all: $(OBJS) cee-json-one.c
 
 $(OBJS): | $(OBJDIR)
 
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)
 
-cee-json-one.c: $(SRC)
+cee-json-one.c: $(TOP)/cee-one.c $(SRC)
 	$(call cee_json_amalgamation, $@)
 
-release: $(TOP)/cee-one.c cee-json-one.c
+release: all
 	$(call cee_json_amalgamation, cee-json.c,-P)
 	@mkdir -p release
 	@mv cee-json.c release
