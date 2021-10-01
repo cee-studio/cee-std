@@ -6,21 +6,21 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
-struct cee_state; // forwarding
+struct cee_state; /* forwarding */
 
 typedef uintptr_t cee_tag_t;
 typedef int (*cee_cmp_fun) (const void *, const void *);
 
 enum cee_resize_method {
-  CEE_RESIZE_WITH_IDENTITY = 0, // resize with identity function
-  CEE_RESIZE_WITH_MALLOC = 1,   // resize with malloc  (safe, but leak)
-  CEE_RESIZE_WITH_REALLOC = 2   // resize with realloc (probably unsafe)
+  CEE_RESIZE_WITH_IDENTITY = 0, /* resize with identity function */
+  CEE_RESIZE_WITH_MALLOC = 1,   /* resize with malloc  (safe, but leak) */
+  CEE_RESIZE_WITH_REALLOC = 2   /* resize with realloc (probably unsafe) */
 };
 
 enum cee_trace_action {
   CEE_TRACE_DEL_NO_FOLLOW = 0,
-  CEE_TRACE_DEL_FOLLOW, // trace points-to graph and delete each node
-  CEE_TRACE_MARK,       // trace points-to graph and mark each node
+  CEE_TRACE_DEL_FOLLOW, /* trace points-to graph and delete each node */
+  CEE_TRACE_MARK,       /* trace points-to graph and mark each node */
 };
 
 
@@ -69,22 +69,22 @@ enum cee_del_policy {
  *
  */
 struct cee_sect {
-  uint8_t  cmp_stop_at_null:1;  // 0: compare all bytes, otherwise stop at '\0'
-  uint8_t  resize_method:2;     // three values: identity, malloc, realloc
-  uint8_t  retained:1;          // if it is retained, in_degree is ignored
-  uint8_t  gc_mark:2;           // used for mark & sweep gc
-  uint8_t  n_product;           // n-ary (no more than 256) product type
-  uint16_t in_degree;           // the number of cee objects points to this object
-  // begin of gc fields
-  struct cee_state * state;     // the gc state under which this block is allocated
-  struct cee_sect * trace_next; // used for chaining cee::_::data to be traced
-  struct cee_sect * trace_prev; // used for chaining cee::_::data to be traced
-  // end of gc fields
-  uintptr_t mem_block_size;     // the size of a memory block enclosing this struct
-  void *cmp;                    // compare two memory blocks
+  uint8_t  cmp_stop_at_null:1;  /* 0: compare all bytes, otherwise stop at '\0' */
+  uint8_t  resize_method:2;     /* three values: identity, malloc, realloc */
+  uint8_t  retained:1;          /* if it is retained, in_degree is ignored */
+  uint8_t  gc_mark:2;           /* used for mark & sweep gc */
+  uint8_t  n_product;           /* n-ary (no more than 256) product type */
+  uint16_t in_degree;           /* the number of cee objects points to this object */
+  /* begin of gc fields */
+  struct cee_state * state;     /* the gc state under which this block is allocated */
+  struct cee_sect * trace_next; /* used for chaining cee::_::data to be traced */
+  struct cee_sect * trace_prev; /* used for chaining cee::_::data to be traced */
+  /* end of gc fields */
+  uintptr_t mem_block_size;     /* the size of a memory block enclosing this struct */
+  void *cmp;                    /* compare two memory blocks */
   
-  // the object specific generic scan function
-  // it does memory deallocation, reference count decreasing, or liveness marking
+  /* the object specific generic scan function */
+  /* it does memory deallocation, reference count decreasing, or liveness marking */
   void (*trace)(void *, enum cee_trace_action);
 };
 
@@ -94,7 +94,7 @@ struct cee_sect {
  * be terminated by '\0'.
  */
 struct cee_block {
-  char _[1]; // an array of chars
+  char _[1]; /* an array of chars */
 };
 
 /*
@@ -187,7 +187,7 @@ extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
   
 /* an auto expandable list */
 struct cee_list {
-  void * _[1]; // an array of `void *`s
+  void * _[1]; /* an array of `void *`s */
 };
 
 /*
@@ -286,7 +286,7 @@ extern struct cee_quadruple * cee_quadruple_mk_e(struct cee_state * s,
                               void *v3, void *v4);
 
 struct cee_n_tuple {
-  void * _[1];  // n elements
+  void * _[1];  /* n elements */
 };
 extern struct cee_n_tuple * cee_n_tuple_mk (struct cee_state * s, size_t n, ...);
 extern struct cee_n_tuple * cee_n_tuple_mk_e (struct cee_state * s, size_t n, enum cee_del_policy o[], ...);
@@ -353,7 +353,7 @@ extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, v
  *
  */
 struct cee_dict {
-  char _[1];  // opaque data
+  char _[1];  /* opaque data */
 };
 
 /*
@@ -560,14 +560,14 @@ extern uint16_t cee_get_rc (void *);
 extern void cee_segfault() __attribute__((noreturn));
 
 struct cee_state {
-  // arbitrary number of contexts
+  /* arbitrary number of contexts */
   struct cee_map   * contexts;
-  struct cee_stack * stack;  // the stack
+  struct cee_stack * stack;  /* the stack */
   struct cee_sect  * trace_tail;
-  // all memory blocks are reachables from the roots
-  // are considered alive
+  /* all memory blocks are reachables from the roots */
+  /* are considered alive */
   struct cee_set   * roots; 
-  // the mark value for the next iteration
+  /* the mark value for the next iteration */
   int                next_mark;
 };
 /*
@@ -586,4 +586,4 @@ extern void * cee_state_get_context(struct cee_state *, char * key);
 #define NULL     ((void *)0)
 #endif
 
-#endif // CEE_H
+#endif /* CEE_H */
