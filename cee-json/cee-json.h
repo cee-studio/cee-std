@@ -11,15 +11,15 @@
 #define MAX_JSON_DEPTH 500
 
 enum cee_json_type {
-  CEE_JSON_UNDEFINED,    /**  Undefined value */
-  CEE_JSON_NULL,         /**  null value */
-  CEE_JSON_BOOLEAN,      /**  boolean value */
-  CEE_JSON_DOUBLE,       /**  double value */
-  CEE_JSON_I64,          /**  64-bit signed int */
-  CEE_JSON_U64,          /**  65-bit unsigned int */
-  CEE_JSON_STRING,       /**  string value */
-  CEE_JSON_OBJECT,       /**  object value  */
-  CEE_JSON_ARRAY         /**  array value */
+  CEE_JSON_UNDEFINED,    /**<  Undefined value */
+  CEE_JSON_NULL,         /**<  null value */
+  CEE_JSON_BOOLEAN,      /**<  boolean value */
+  CEE_JSON_DOUBLE,       /**<  double value */
+  CEE_JSON_I64,          /**<  64-bit signed int */
+  CEE_JSON_U64,          /**<  64-bit unsigned int */
+  CEE_JSON_STRING,       /**<  string value */
+  CEE_JSON_OBJECT,       /**<  object value  */
+  CEE_JSON_ARRAY         /**<  array value */
 };
 
 struct cee_json {
