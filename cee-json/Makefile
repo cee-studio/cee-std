@@ -39,26 +39,19 @@ $(OBJS): | $(OBJDIR)
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)
 
-cee-one.o: $(TOP)/cee-one.c
-	$(MAKE) -C $(TOP)
-	$(CC) $(CFLAGS) -c -g $<
-
-cee-json-one.c: $(SRC)
+cee-json-one.c: $(SRC) $(TOP)/cee.h
 	$(call cee_json_amalgamation, $@)
 
-cee-json-one.o: cee-json-one.c $(TOP)/cee.h
-	$(CC) $(CFLAGS) -c -g cee-json-one.c
-
-release: cee-one.o cee-json-one.o
+release: $(TOP)/cee-one.c cee-json-one.c
 	$(call cee_json_amalgamation, cee-json.c,-P)
-	@ mkdir -p release
-	@ mv cee-json.c release
-	@ cp cee-json.h release
+	@mkdir -p release
+	@mv cee-json.c release
+	@cp cee-json.h release
 
 test: all
 	$(MAKE) -C $(TESTDIR) -f test.mk
 
 clean:
-	rm -rf a.c cee-one.o cee-json-one.c cee-json-one.o
-	rm -rf release/* $(OBJDIR)
+	rm -rf a.c cee-json-one.c
+	rm -rf release $(OBJDIR)
 	$(MAKE) -C $(TESTDIR) -f test.mk clean
