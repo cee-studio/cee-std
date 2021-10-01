@@ -19,7 +19,7 @@ enum cee_resize_method {
 
 enum cee_trace_action {
   CEE_TRACE_DEL_NO_FOLLOW = 0,
-  CEE_TRACE_DEL_FOLLOW, /* trace points-to graph and delete each node */
+  CEE_TRACE_DEL_FOLLOW, /* trace points-to graph and delete each destination node */
   CEE_TRACE_MARK,       /* trace points-to graph and mark each node */
 };
 
@@ -27,11 +27,11 @@ enum cee_trace_action {
 
 
 /*
- * a cotainer is an instance of struct cee_*
- * a cee element is an instance of struct cee_*
+ * A cotainer is an instance of struct cee_*
+ * A cee element is an instance of struct cee_*
  * 
  * 
- * a container has one of the three delete policies, the policies dedicate
+ * A container has one of the three delete policies, which dedicate
  * how the elements of the container will be handled once the container is 
  * deleted (freed).
  * 
@@ -42,12 +42,12 @@ enum cee_trace_action {
  * 
  * CEE_DP_DEL: if a container is freed, all its cee elements will be freed 
  *         immediately. It's developer's responsiblity to prevent an element is 
- *         retained by multiple containers that have this policy.
+ *         retained by multiple containers from having this policy.
  *
  * CEE_DP_NOOP: if a container is freed, nothing will happen to its elements.
- *          It's developer's responsiblity to prevent memory leaks.
+ *         It's developer's responsiblity to prevent memory leaks.
  *
- * the default del_policy is CEE_DP_DEL_RC, which can be configured at compile
+ * The default del_policy is CEE_DP_DEL_RC, which can be configured at compile
  * time with CEE_DEFAULT_DEL_POLICY
  */
 enum cee_del_policy {
