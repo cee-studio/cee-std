@@ -8,7 +8,7 @@ HEADERS  = stdio.h string.h stdlib.h stdarg.h assert.h errno.h
 
 CEE_UTILS_DIR = cee-utils
 
-CFLAGS = -fno-exceptions -g -I./ -I./$(CEE_UTILS_DIR)
+CFLAGS = -std=c89 -fno-exceptions -g -I./ -I./$(CEE_UTILS_DIR)
 
 define cee_amalgamation
 	@echo "#define CEE_AMALGAMATION" > tmp.c
@@ -38,7 +38,7 @@ cee-one.c: $(CEE_SRC)
 	$(call cee_amalgamation, cee-one.c)
 
 cee-one.o: cee-one.c
-	$(CC) -c -g $<
+	$(CC) -c $(CFLAGS) $<
 
 release:
 	$(call cee_amalgamation, cee.c,-P)

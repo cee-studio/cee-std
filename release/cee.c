@@ -221,13 +221,13 @@ extern struct cee_list * cee_list_append(struct cee_list ** v, void * e);
  * it inserts an element e at index and shift the rest elements 
  * to higher indices
  */
-extern struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, size_t index, void *e);
+extern struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, int index, void *e);
 
 /*
  * it removes an element at index and shift the rest elements
  * to lower indices
  */
-extern bool cee_list_remove(struct cee_list * v, size_t index);
+extern bool cee_list_remove(struct cee_list * v, int index);
 
 /*
  * returns the number of elements in the list
@@ -243,7 +243,7 @@ extern size_t cee_list_capacity (struct cee_list *);
 /*
  * applies f to each element of the list with cxt
  */
-extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, size_t idx, void * e));
+extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, int idx, void * e));
   
 struct cee_tuple {
   void * _[2];
@@ -1353,10 +1353,10 @@ size_t cee_boxed_snprint (char * buf, size_t size, struct cee_boxed * x) {
   switch(h->type)
   {
     case cee_primitive_f64:
-      s = snprintf(buf, size, "%lf", h->_[0].f64);
+      s = snprintf(buf, size, "%lg", h->_[0].f64);
       break;
     case cee_primitive_f32:
-      s = snprintf(buf, size, "%f", h->_[0].f32);
+      s = snprintf(buf, size, "%g", h->_[0].f32);
       break;
     case cee_primitive_i64:
       s = snprintf(buf, size, "%"PRId64, h->_[0].i64);
@@ -2743,7 +2743,7 @@ struct cee_list * cee_list_append (struct cee_list ** l, void *e) {
   cee_incr_indegree(m->del_policy, e);
   return *l;
 }
-struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, size_t index, void *e) {
+struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, int index, void *e) {
   struct cee_list * v = *l;
   if (v == NULL) {
     v = cee_list_mk(s, 10);
@@ -2767,7 +2767,7 @@ struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, si
   cee_incr_indegree(m->del_policy, e);
   return *l;
 }
-bool cee_list_remove(struct cee_list * v, size_t index) {
+bool cee_list_remove(struct cee_list * v, int index) {
   struct _cee_list_header * m = (struct _cee_list_header *)((void *)((char *)(v) - (__builtin_offsetof(struct _cee_list_header, _))));
   if (index >= m->size) return false;
   void * e = m->_[index];
@@ -2783,9 +2783,17 @@ size_t cee_list_size (struct cee_list *x) {
   struct _cee_list_header * m = (struct _cee_list_header *)((void *)((char *)(x) - (__builtin_offsetof(struct _cee_list_header, _))));
   return m->size;
 }
-size_t cee_list_capacity (struct cee_list * x) {
+size_t cee_list_capacity (struct cee_list *x) {
   struct _cee_list_header * h = (struct _cee_list_header *)((void *)((char *)(x) - (__builtin_offsetof(struct _cee_list_header, _))));
   return h->capacity;
+}
+void cee_list_iterate (struct cee_list *x, void *ctx,
+         void (*f)(void *cxt, int idx, void *e)) {
+  struct _cee_list_header *m = (struct _cee_list_header *)((void *)((char *)(x) - (__builtin_offsetof(struct _cee_list_header, _))));
+  int i;
+  for (i = 0; i < m->size; i++)
+    f(ctx, i, m->_[i]);
+  return;
 }
 struct _cee_tagged_header {
   enum cee_del_policy del_policy;

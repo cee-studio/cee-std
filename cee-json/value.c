@@ -113,6 +113,14 @@ struct cee_json * cee_json_object_mk(struct cee_state *st) {
   return (struct cee_json *)t;
 }
 
+struct cee_json* cee_json_object_get(struct cee_json *j, char *key)
+{
+  struct cee_map *o = cee_json_to_object(j);
+  if (!o)
+    cee_segfault();
+  return cee_map_find(o, key);
+}
+
 void cee_json_object_set(struct cee_state *st, struct cee_json *j, char *key, struct cee_json *v) {
   struct cee_map * o = cee_json_to_object(j);
   if (!o) 
@@ -155,7 +163,7 @@ void cee_json_object_set_u64 (struct cee_state * st, struct cee_json * j, char *
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_u64_mk(st, real));
 }
 
-void cee_json_object_iterate (struct cee_state *st, struct cee_json *j, void *ctx,
+void cee_json_object_iterate (struct cee_json *j, void *ctx,
                               void (*f)(void *ctx, struct cee_str *key, struct cee_json *value))
 {
   struct cee_map *o = cee_json_to_object(j);
@@ -199,7 +207,7 @@ void cee_json_array_append_string (struct cee_state * st, struct cee_json * j, c
   }
 }
 
-struct cee_json* cee_json_array_get (struct cee_state *st, struct cee_json *j, int i) {
+struct cee_json* cee_json_array_get (struct cee_json *j, int i) {
   struct cee_list *o = cee_json_to_array(j);
   if (!o)
     cee_segfault();
@@ -208,6 +216,16 @@ struct cee_json* cee_json_array_get (struct cee_state *st, struct cee_json *j, i
   else
     return NULL;
 }
+
+void cee_json_array_iterate (struct cee_json *j, void *ctx,
+			     void (*f)(void *ctx, int index, struct cee_json *value))
+{
+  struct cee_list *o = cee_json_to_array(j);
+  if (!o)
+    cee_segfault();
+  typedef void (*fnt)(void *, int, void*);
+  cee_list_iterate(o, ctx, (fnt)f);
+};
 
 /*
  * this function assume the file pointer points to the begin of a file
@@ -240,4 +258,110 @@ bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how)
     return false;
   }
   return true;
+}
+
+
+/*
+ * The following code is shamelessly stolen from the 
+ * great work of antirez's stonky:
+ * https://github.com/antirez/stonky/blob/7260d9de9c6ae60776125842643ada84cc7e5ec6/stonky.c#L309
+ *
+ * It is modified to work with cee_json with minimum changes
+ */
+struct cee_json* cee_json_select(struct cee_json *o, char *fmt, ...) {
+  enum next_selector_token {
+    JSEL_INVALID = 0,
+    JSEL_OBJ = 1,            /* "." */
+    JSEL_ARRAY = 2,          /* "[" */
+    JSEL_TYPECHECK = 3,      /* ":" */
+    JSEL_MAX_TOKEN = 256
+  } next = JSEL_INVALID;          /* Type of the next selector. */
+  char token[JSEL_MAX_TOKEN+1];   /* Current token. */
+  int tlen;                       /* Current length of the token. */
+  va_list ap;
+  
+  va_start(ap,fmt);
+  const char *p = fmt;
+  tlen = 0;
+  while(1) {
+    /* Our four special chars (plus the end of the string) signal the
+     * end of the previous token and the start of the next one. */
+    if (tlen && (*p == '\0' || strchr(".[]:",*p))) {
+      token[tlen] = '\0';
+      if (next == JSEL_INVALID) {
+	goto notfound;
+      } else if (next == JSEL_ARRAY) {
+	if (o->t != CEE_JSON_ARRAY) goto notfound;
+	int idx = atoi(token); /* cee_json API index is int. */
+	if ((o = cee_json_array_get(o,idx)) == NULL)
+	  goto notfound;
+      } else if (next == JSEL_OBJ) {
+	if (o->t != CEE_JSON_OBJECT) goto notfound;
+	if ((o = cee_json_object_get(o,token)) == NULL)
+	  goto notfound;
+      } else if (next == JSEL_TYPECHECK) {
+	if (token[0] == 's' && o->t != CEE_JSON_STRING) goto notfound;
+	if (token[0] == 'n' && o->t != CEE_JSON_I64) goto notfound;
+	if (token[0] == 'o' && o->t != CEE_JSON_OBJECT) goto notfound;
+	if (token[0] == 'a' && o->t != CEE_JSON_ARRAY) goto notfound;
+	if (token[0] == 'b' && o->t != CEE_JSON_BOOLEAN) goto notfound;
+	if (token[0] == '!' && o->t != CEE_JSON_NULL) goto notfound;
+      }
+    } else if (next != JSEL_INVALID) {
+      /* Otherwise accumulate characters in the current token, note that
+       * the above check for JSEL_NEXT_INVALID prevents us from
+       * accumulating at the start of the fmt string if no token was
+       * yet selected. */
+      if (*p != '*') {
+	token[tlen] = *p++;
+	tlen++;
+	if (tlen > JSEL_MAX_TOKEN) goto notfound;
+	continue;
+      } else {
+	/* The "*" character is special: if we are in the context
+	 * of an array, we read an integer from the variable argument
+	 * list, then concatenate it to the current string.
+	 *
+	 * If the context is an object, we read a string pointer
+	 * from the variable argument string and concatenate the
+	 * string to the current token. */
+	int len;
+	char buf[64];
+	char *s;
+	if (next == JSEL_ARRAY) {
+	  int idx = va_arg(ap,int);
+	  len = snprintf(buf,sizeof(buf),"%d",idx);
+	  s = buf;
+	} else if (next == JSEL_OBJ) {
+	  s = va_arg(ap,char*);
+	  len = strlen(s);
+	} else {
+	  goto notfound;
+	}
+	/* Common path. */
+	if (tlen+len > JSEL_MAX_TOKEN) goto notfound;
+	memcpy(token+tlen,buf,len);
+	tlen += len;
+	p++;
+	continue;
+      }
+    }
+    /* Select the next token type according to its type specifier. */
+    if (*p == ']') p++; /* Skip closing "]", it's just useless syntax. */
+    if (*p == '\0') break;
+    else if (*p == '.') next = JSEL_OBJ;
+    else if (*p == '[') next = JSEL_ARRAY;
+    else if (*p == ':') next = JSEL_TYPECHECK;
+    else goto notfound;
+    tlen = 0; /* A new token starts. */
+    p++; /* Token starts at next character. */
+  }
+
+cleanup:
+  va_end(ap);
+  return o;
+  
+notfound:
+  o = NULL;
+  goto cleanup;
 }
