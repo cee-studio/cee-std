@@ -42,6 +42,9 @@ int main () {
   printf ("parsed -> printed\n");
   printf ("%s\n", buf);
 
+  struct cee_json *x = cee_json_select(result, ".a1[0]:s");
+  printf ("%p\n", x);
+
   cee_del(result);
   cee_del(js);
   cee_del(st);

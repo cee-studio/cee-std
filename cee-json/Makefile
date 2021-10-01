@@ -8,7 +8,7 @@ JSON_HDR = cee-json.h tokenizer.h
 
 HEADERS  = stdlib.h string.h errno.h sys/types.h sys/stat.h unistd.h stdio.h ctype.h
 
-CFLAGS= -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
+CFLAGS= -std=c89 -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
 
 .PHONY: release clean test
 

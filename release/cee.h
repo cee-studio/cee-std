@@ -212,13 +212,13 @@ extern struct cee_list * cee_list_append(struct cee_list ** v, void * e);
  * it inserts an element e at index and shift the rest elements 
  * to higher indices
  */
-extern struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, size_t index, void *e);
+extern struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, int index, void *e);
 
 /*
  * it removes an element at index and shift the rest elements
  * to lower indices
  */
-extern bool cee_list_remove(struct cee_list * v, size_t index);
+extern bool cee_list_remove(struct cee_list * v, int index);
 
 /*
  * returns the number of elements in the list
@@ -234,7 +234,7 @@ extern size_t cee_list_capacity (struct cee_list *);
 /*
  * applies f to each element of the list with cxt
  */
-extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, size_t idx, void * e));
+extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, int idx, void * e));
   
 struct cee_tuple {
   void * _[2];
