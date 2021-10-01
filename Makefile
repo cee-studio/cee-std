@@ -1,22 +1,26 @@
 SHELL := /bin/bash
 CC ?= gcc
 
-MUSL_SRC = musl-hsearch.c musl-insque.c musl-lsearch.c musl-tsearch.c
-CEE_SRC  = $(MUSL_SRC) cee-common.c boxed.c str.c dict.c map.c set.c stack.c tuple.c triple.c \
-           quadruple.c list.c tagged.c singleton.c closure.c block.c n_tuple.c env.c state.c 
-HEADERS  = stdio.h string.h stdlib.h stdarg.h assert.h errno.h
-
+OBJDIR        = obj
+TESTDIR       = test
 CEE_UTILS_DIR = cee-utils
+
+MUSL_SRC = musl-hsearch.c musl-insque.c musl-lsearch.c musl-tsearch.c
+CEE_SRC  = cee-common.c boxed.c str.c dict.c map.c set.c stack.c tuple.c triple.c \
+           quadruple.c list.c tagged.c singleton.c closure.c block.c n_tuple.c env.c state.c 
+SRC      = $(MUSL_SRC) $(CEE_SRC)
+STD_HDR  = stdio.h string.h stdlib.h stdarg.h assert.h errno.h
+OBJS    = $(SRC:%.c=$(OBJDIR)/%.o)
 
 CFLAGS = -std=c89 -fno-exceptions -g -I./ -I./$(CEE_UTILS_DIR)
 
 define cee_amalgamation
 	@echo "#define CEE_AMALGAMATION" > tmp.c
-	@for ii in $(CEE_SRC); do echo '#include "'$$ii'"' >> tmp.c; done
+	@for ii in $(SRC); do echo '#include "'$$ii'"' >> tmp.c; done
 	@echo "#ifndef CEE_ONE" > $(1)
 	@echo "#define CEE_ONE" >> $(1)
 	@echo "#define _GNU_SOURCE" >> $(1)
-	@for ii in $(HEADERS); do echo '#include <'$$ii'>' >> $(1); done
+	@for ii in $(STD_HDR); do echo '#include <'$$ii'>' >> $(1); done
 	@cat cee.h >> $(1)
 	@cat musl-search.h >> $(1)
 	@echo " " >> $(1)
@@ -27,32 +31,38 @@ endef
 
 .PHONY: release clean distclean
 
-all: cee_utils tester
+# generic compilation
+$(OBJDIR)/%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+all: cee_utils $(OBJS)
 
 cee_utils: $(CEE_UTILS_DIR)
-
-echo:
-	@ echo "$(CEE_SRC)"
-
-cee-one.c: $(CEE_SRC)
-	$(call cee_amalgamation, cee-one.c)
-
-cee-one.o: cee-one.c
-	$(CC) -c $(CFLAGS) $<
-
-release:
-	$(call cee_amalgamation, cee.c,-P)
-	@mkdir -p release
-	@mv cee.c  release
-	@cp cee.h  release
-
-tester: cee-one.o
-	$(CC) -static -g tester.c cee-one.o
+$(OBJS): | $(OBJDIR)
 
 $(CEE_UTILS_DIR):
 	if [[ ! -d $@ ]]; then                \
 	  ./scripts/get-cee-utils.sh || exit; \
 	fi
+$(OBJDIR):
+	@mkdir -p $(OBJDIR)
+
+cee-one.c: $(SRC)
+	$(call cee_amalgamation, cee-one.c)
+
+release: cee-one.c
+	$(call cee_amalgamation, cee.c,-P)
+	@mkdir -p release
+	@mv cee.c  release
+	@cp cee.h  release
+
+test: all
+	$(MAKE) -C $(TESTDIR) -f test.mk
+
+echo:
+	@ echo "$(SRC)"
 
 clean:
-	rm -f cee-one.* cee.c tmp.c one.* a.out
+	rm -rf cee-one.c cee.c tmp.c a.out
+	rm -rf release $(OBJDIR)
+	$(MAKE) -C $(TESTDIR) -f test.mk clean

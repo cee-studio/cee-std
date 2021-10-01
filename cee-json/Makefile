@@ -1,6 +1,6 @@
 TOP = ..
-
 CC ?= gcc
+
 OBJDIR  = obj
 TESTDIR = test
 
@@ -39,7 +39,7 @@ $(OBJS): | $(OBJDIR)
 $(OBJDIR):
 	@mkdir -p $(OBJDIR)
 
-cee-json-one.c: $(SRC) $(TOP)/cee.h
+cee-json-one.c: $(SRC)
 	$(call cee_json_amalgamation, $@)
 
 release: $(TOP)/cee-one.c cee-json-one.c
@@ -49,6 +49,7 @@ release: $(TOP)/cee-one.c cee-json-one.c
 	@cp cee-json.h release
 
 test: all
+	$(MAKE) -C $(TOP) release
 	$(MAKE) -C $(TESTDIR) -f test.mk
 
 clean:
