@@ -34,6 +34,15 @@ struct cee_json * cee_json_null () {
   return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_UNDEFINED, 0);  
 }
 
+struct cee_json * cee_list_to_json(struct cee_state *st, struct cee_list *v) {
+  return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_ARRAY, v);
+}
+
+struct cee_json * cee_map_to_json(struct cee_state *st, struct cee_map *v) {
+  /* TODO: check v use strcmp as the comparison function */
+  return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_OBJECT, v);
+}
+
 struct cee_map * cee_json_to_object (struct cee_json *p) {
   return (p->t == CEE_JSON_OBJECT) ? p->value.object : NULL;
 }
@@ -111,6 +120,13 @@ struct cee_json * cee_json_object_mk(struct cee_state *st) {
   struct cee_map * m = cee_map_mk (st, (cee_cmp_fun)strcmp);
   struct cee_tagged * t = cee_tagged_mk (st, CEE_JSON_OBJECT, m);
   return (struct cee_json *)t;
+}
+
+struct cee_json * cee_json_object_kv(struct cee_state *st, char *key, struct cee_json *value) {
+  struct cee_json *j = cee_json_object_mk(st);
+  struct cee_map * m = cee_json_to_object(j);
+  cee_json_object_set (st, j, key, value);
+  return j;
 }
 
 struct cee_json* cee_json_object_get(struct cee_json *j, char *key)

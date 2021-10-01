@@ -45,17 +45,16 @@ enum cee_json_format {
  */
 extern struct cee_json* cee_json_select (struct cee_json *, char *selector, ...);
 
-/*
- * TODO: json_extract style function
- */
-extern int cee_json_extract(struct cee_json *, char *extactor, ...);
-
 extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int how);
 extern struct cee_json * cee_json_load_from_file (struct cee_state *,
                                                   FILE *, bool force_eof, 
                                                   int * error_at_line);
 extern struct cee_json * cee_json_load_from_buffer (int size, char *, int line);
 extern int cee_json_cmp (struct cee_json *, struct cee_json *);
+
+
+extern struct cee_json * cee_list_to_json (struct cee_state *st, struct cee_list *v);
+extern struct cee_json * cee_map_to_json (struct cee_state *st, struct cee_map *v);
 
 extern struct cee_list * cee_json_to_array (struct cee_json *);
 extern struct cee_map * cee_json_to_object (struct cee_json *);
@@ -72,6 +71,8 @@ extern struct cee_json * cee_json_bool (bool b);
 extern struct cee_json * cee_json_undefined ();
 extern struct cee_json * cee_json_null ();
 extern struct cee_json * cee_json_object_mk (struct cee_state *);
+extern struct cee_json * cee_json_object_kv (struct cee_state *, char *key, struct cee_json *value);
+
 extern struct cee_json * cee_json_double_mk (struct cee_state *, double d);
 extern struct cee_json * cee_json_i64_mk(struct cee_state *, int64_t);
 extern struct cee_json * cee_json_u64_mk(struct cee_state *, uint64_t);
