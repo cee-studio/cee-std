@@ -66,7 +66,7 @@ struct cee_dict * cee_dict_mk_e (struct cee_state * s, enum cee_del_policy o, si
   m->cs.trace = S(trace);
   m->cs.mem_block_size = mem_block_size;
   m->cs.resize_method = CEE_RESIZE_WITH_IDENTITY;
-  m->cs.n_product = 2; // key:str, value
+  m->cs.n_product = 2; /* key:str, value */
   size_t  hsize = (size_t)((float)size * 1.25);
   memset(m->_, 0, sizeof(struct musl_hsearch_data));
   if (musl_hcreate_r(hsize, m->_)) {

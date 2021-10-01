@@ -65,7 +65,7 @@ static void S(trace)(void * p, enum cee_trace_action ta) {
 
 static int S(cmp) (void * ctx, const void * v1, const void * v2) {
   struct S(header) * h = ctx;
-  struct cee_tuple * t1 = (void *)v1; // to remove const
+  struct cee_tuple * t1 = (void *)v1; /* to remove const */
   struct cee_tuple * t2 = (void *)v2;
   return h->cmp(t1->_[0], t2->_[0]);
 }
@@ -84,7 +84,7 @@ struct cee_map * cee_map_mk_e (struct cee_state * st, enum cee_del_policy o[2],
   m->cs.mem_block_size = mem_block_size;
   m->cs.cmp = 0;
   m->cs.cmp_stop_at_null = 0;
-  m->cs.n_product = 2; // key, value
+  m->cs.n_product = 2; /* key, value */
   
   m->key_del_policy = o[0];
   m->val_del_policy = o[1];
@@ -112,7 +112,7 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
   struct cee_tuple * t = cee_tuple_mk_e(b->cs.state, d, key, value);
   struct cee_tuple **oldp = musl_tsearch(b, t, b->_, S(cmp));
   if (oldp == NULL)
-    cee_segfault(); // run out of memory
+    cee_segfault(); /* run out of memory */
   else if (*oldp != t) 
     cee_del(t);
   else

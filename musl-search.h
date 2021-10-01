@@ -49,5 +49,5 @@ struct musl_qelem {
 
 void musl_tdestroy(void * cxt, void *, void (*)(void * cxt, void *));
 
-#endif // MUSL_SEARCH
+#endif /* MUSL_SEARCH */
 

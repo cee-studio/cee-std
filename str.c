@@ -39,8 +39,8 @@ static void S(trace) (void * p, enum cee_trace_action ta) {
 
 struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
   if (!fmt) {
-    // fmt cannot be null
-    // intentionally cause a segfault
+    /* fmt cannot be null */
+    /* intentionally cause a segfault */
     cee_segfault();
   }
 
@@ -81,7 +81,7 @@ struct cee_str * cee_str_mk_e (struct cee_state * st, size_t n, const char * fmt
   if (fmt) {
     va_start(ap, fmt);
     s = vsnprintf(NULL, 0, fmt, ap);
-    s ++; // including the null terminator
+    s ++; /* including the null terminator */
   }
   else
     s = n;
@@ -105,7 +105,7 @@ struct cee_str * cee_str_mk_e (struct cee_state * st, size_t n, const char * fmt
     vsnprintf(m->_, mem_block_size, fmt, ap);
   } 
   else {
-    m->_[0] = '\0'; // terminates with '\0'
+    m->_[0] = '\0'; /* terminates with '\0' */
   }
   return (struct cee_str *)(m->_);
 }
@@ -126,7 +126,7 @@ struct cee_block * cee_block_empty () {
  */
 char * cee_str_end(struct cee_str * str) {
   struct S(header) * b = FIND_HEADER(str);
-  // TODO: fixes this
+  /* TODO: fixes this */
   return (char *)str + strlen((char *)str);
   /*
   int i = 0; 
@@ -168,7 +168,7 @@ struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   size_t s = vsnprintf(NULL, 0, fmt, ap);
-  s ++; // including the null terminator
+  s ++; /* including the null terminator */
 
   va_start(ap, fmt);
   if (slen + s < b->capacity) {

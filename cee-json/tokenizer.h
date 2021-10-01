@@ -28,4 +28,4 @@ struct tokenizer {
 };
 
 extern enum token cee_json_next_token(struct cee_state *, struct tokenizer * t);
-#endif /*  CEE_JSON_TOKENIZER_H */
+#endif /* CEE_JSON_TOKENIZER_H */

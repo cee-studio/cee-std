@@ -19,7 +19,7 @@ struct S(header) {
   uintptr_t capacity;
   enum cee_del_policy del_policy;
   struct cee_sect cs;
-  char _[1]; // actual data
+  char _[1]; /* actual data */
 };
 
 #include "cee-resize.h"

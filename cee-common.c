@@ -75,7 +75,7 @@ static void _cee_common_decr_rc (void * p) {
   if (cs->in_degree)
     cs->in_degree --;
   else {
-    // report warnings
+    /* report warnings */
   }
 }
 
@@ -94,7 +94,7 @@ static void _cee_common_release (void * p) {
   if(cs->retained)
     cs->retained = 0;
   else {
-    // report error
+    /* report error */
     cee_segfault();
   }
 }

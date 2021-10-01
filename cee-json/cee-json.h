@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <sys/types.h> /*  ssize_t */
+#include <sys/types.h> /* ssize_t */
 #endif
 
 #define MAX_JSON_DEPTH 500
@@ -111,4 +111,4 @@ extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p,
 extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);
 
-#endif /*  CEE_JSON_H */
+#endif /* CEE_JSON_H */

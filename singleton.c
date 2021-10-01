@@ -10,7 +10,7 @@
 
 struct S(header) {
   struct cee_sect cs;
-  uintptr_t _; // tag
+  uintptr_t _; /* tag */
   uintptr_t val;
 };
 
@@ -18,7 +18,7 @@ struct S(header) {
  * the parameter of this function has to be a global/static 
  * uintptr_t array of two elements
  */
-#if 1 // original
+#if 1 /* original */
 /*
  * singleton should never be deleted, hence we pass a noop
  */
@@ -35,7 +35,7 @@ struct cee_singleton * cee_singleton_init(void *s, uintptr_t tag, uintptr_t val)
   b->val = val;
   return (struct cee_singleton *)&(b->_);
 }
-#else // update attempt
+#else /* update attempt */
 
 #include "cee-resize.h"
 

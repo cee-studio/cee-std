@@ -18,7 +18,7 @@ void *musl_lsearch(const void *key, void *base, size_t *nelp, size_t width,
     if (compar(p[i], key) == 0)
       return p[i];
   *nelp = n+1;
-  // b.o. here when width is longer than the size of key
+  /* b.o. here when width is longer than the size of key */
   return memcpy(p[n], key, width);
 }
 

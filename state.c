@@ -20,7 +20,7 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
   switch (ta) {
     case CEE_TRACE_DEL_FOLLOW: 
     {
-      // following this tracing chain but not the relations
+      /* following this tracing chain but not the relations */
       struct cee_sect * tail = m->_.trace_tail;
       while (tail != &m->cs) {
         cee_trace(tail + 1, CEE_TRACE_DEL_NO_FOLLOW);
@@ -31,7 +31,7 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
     }
     case CEE_TRACE_DEL_NO_FOLLOW: 
     {
-      // TODO detach the this state from all memory blocks
+      /* TODO detach the this state from all memory blocks */
       free(m);
       break;
     }
@@ -72,7 +72,7 @@ struct cee_state * cee_state_mk(size_t n) {
   struct S(header) * h = malloc(memblock_size);
   ZERO_CEE_SECT(&h->cs);
   h->cs.trace = S(trace);
-  h->_.trace_tail = &h->cs; // points to self;
+  h->_.trace_tail = &h->cs; /* points to self; */
   
   struct cee_set * roots = cee_set_mk_e(&h->_, CEE_DP_NOOP, S(cmp));
   h->_.roots = roots;
