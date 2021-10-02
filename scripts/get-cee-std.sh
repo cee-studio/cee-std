@@ -8,17 +8,25 @@ url="https://raw.githubusercontent.com/cee-studio/cee-std/master"
 wget $url/scripts/get-cee-std.sh -O ${mypath}/get-cee-std.sh
 chmod +x ${mypath}/get-cee-std.sh
 
-list="
-cee-json/cee-json.h
-cee-json/cee-json.c
+cee_list="
 cee.h
 cee.c"
 
+json_list="
+cee-json.h
+cee-json.c"
+
 mkdir -p $mypath/../cee-std
 pushd $mypath/../cee-std
-for i in $list; do
+for i in $cee_list; do
     echo "getting $i"
     echo "$url/release/$i"
     wget $url/release/$i -O $i
+done
+
+for i in $json_list; do
+    echo "getting $i"
+    echo "$url/cee-json/release/$i"
+    wget $url/cee-json/release/$i -O $i
 done
 popd
