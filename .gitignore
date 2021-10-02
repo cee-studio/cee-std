@@ -1,4 +1,3 @@
-release
 *.o
 tmp.c
 .stensal_*
