@@ -35,9 +35,9 @@ struct cee_json {
   } value;
 };
 
-enum cee_json_format {
-  cee_json_format_compact = 0,
-  cee_json_format_readable = 1
+enum cee_json_fmt {
+  CEE_JSON_FMT_COMPACT = 0,
+  CEE_JSON_FMT_PRETTY  = 1
 };
 
 /*
@@ -105,10 +105,10 @@ extern void cee_json_array_iterate (struct cee_json *, void *ctx,
 
 extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
 				 size_t size, struct cee_json *json,
-				 enum cee_json_format);
+				 enum cee_json_fmt);
 
 extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p,
-				 struct cee_json *json, enum cee_json_format);
+				 struct cee_json *json, enum cee_json_fmt);
 
 extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);

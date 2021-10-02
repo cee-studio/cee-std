@@ -63,7 +63,7 @@ static struct counter * push(struct cee_state * st, uintptr_t tabs, bool more_si
 }
 
 static void pad (uintptr_t * offp, char * buf, struct counter * cnt, 
-                 enum cee_json_format f) {
+                 enum cee_json_fmt f) {
   if (!f) return;
   
   uintptr_t offset = *offp;
@@ -77,7 +77,7 @@ static void pad (uintptr_t * offp, char * buf, struct counter * cnt,
   return;
 }
 
-static void delimiter (uintptr_t * offp, char * buf, enum cee_json_format f, 
+static void delimiter (uintptr_t * offp, char * buf, enum cee_json_fmt f, 
                        struct counter * cnt, char c) 
 {
   uintptr_t offset = *offp;
@@ -181,7 +181,7 @@ static void str_append(char * out, uintptr_t *offp, char *begin, unsigned len) {
  * compute how many bytes are needed to serialize cee_json as a string
  */
 ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct cee_json *j,
-			  enum cee_json_format f) {
+			  enum cee_json_fmt f) {
   struct cee_tuple * cur;
   struct cee_json * cur_json;
   struct counter * ccnt;
@@ -321,7 +321,7 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
 
 ssize_t
 cee_json_asprint(struct cee_state *st, char **buf_p, struct cee_json *j, 
-		 enum cee_json_format f)
+		 enum cee_json_fmt f)
 {
   size_t buf_size = cee_json_snprint(st, NULL, 0, j, f) + 1/*\0*/;
   char *buf = malloc(buf_size);
