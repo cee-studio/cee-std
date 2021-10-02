@@ -36,7 +36,7 @@ static void S(trace)(void * v, enum cee_trace_action ta) {
       S(de_chain)(b);
       free(b);
       break;
-    default:
+    case CEE_TRACE_MARK:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < b->cs.n_product; i++)
         cee_trace(b->_[i], ta);
@@ -74,7 +74,7 @@ struct cee_n_tuple * cee_n_tuple_mk (struct cee_state * st, size_t ntuple, ...) 
   enum cee_del_policy * o = malloc(ntuple * sizeof (enum cee_del_policy));
   int i;
   for (i = 0; i < ntuple; i++)
-    o[i] = CEE_DEFAULT_DEL_POLICY;
+    o[i] = CEE_DP_DEL_RC;
   
   struct S(header) * h = cee_n_tuple_v(st, ntuple, o, ap);
   free(o);

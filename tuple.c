@@ -32,7 +32,7 @@ static void S(trace)(void * v, enum cee_trace_action ta) {
       S(de_chain)(b);
       free(b);
       break;
-    default:
+    case CEE_TRACE_MARK:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < 2; i++)
         cee_trace(b->_[i], ta);
@@ -62,6 +62,6 @@ struct cee_tuple * cee_tuple_mk_e (struct cee_state * st, enum cee_del_policy o[
 }
 
 struct cee_tuple * cee_tuple_mk (struct cee_state * st, void * v1, void * v2) {
-  static enum cee_del_policy o[2] = { CEE_DEFAULT_DEL_POLICY, CEE_DEFAULT_DEL_POLICY };
+  static enum cee_del_policy o[2] = { CEE_DP_DEL_RC, CEE_DP_DEL_RC };
   return cee_tuple_mk_e(st, o, v1, v2);
 }

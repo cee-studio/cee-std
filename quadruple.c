@@ -32,7 +32,7 @@ static void S(trace)(void * v, enum cee_trace_action ta) {
       S(de_chain)(b);
       free(b);
       break;
-    default:
+    case CEE_TRACE_MARK:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < 4; i++)
         cee_trace(b->_[i], ta);

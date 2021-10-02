@@ -55,7 +55,7 @@ static void S(trace)(void * p, enum cee_trace_action ta) {
       S(de_chain)(h);
       free(h);
       break;
-    default:
+    case CEE_TRACE_MARK:
       h->cs.gc_mark = ta - CEE_TRACE_MARK;
       h->ta = ta;
       musl_twalk(&ta, h->_[0], S(trace_pair));
@@ -91,7 +91,7 @@ struct cee_set * cee_set_mk_e (struct cee_state * st, enum cee_del_policy o,
 }
 
 struct cee_set * cee_set_mk (struct cee_state * s, int (*cmp)(const void *, const void *)) {
-  return cee_set_mk_e(s, CEE_DEFAULT_DEL_POLICY, cmp);
+  return cee_set_mk_e(s, CEE_DP_DEL_RC, cmp);
 }
 
 size_t cee_set_size (struct cee_set * s) {

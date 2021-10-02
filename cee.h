@@ -47,8 +47,7 @@ enum cee_trace_action {
  * CEE_DP_NOOP: if a container is freed, nothing will happen to its elements.
  *         It's developer's responsiblity to prevent memory leaks.
  *
- * The default del_policy is CEE_DP_DEL_RC, which can be configured at compile
- * time with CEE_DEFAULT_DEL_POLICY
+ * The default del_policy is CEE_DP_DEL_RC
  */
 enum cee_del_policy {
   CEE_DP_DEL_RC = 0,
@@ -56,9 +55,6 @@ enum cee_del_policy {
   CEE_DP_NOOP = 2
 };
 
-#ifndef CEE_DEFAULT_DEL_POLICY
-#define CEE_DEFAULT_DEL_POLICY  CEE_DP_DEL_RC
-#endif
 /*
  *
  * if an object is owned an del_immediate container, retained is 1, and 
@@ -137,8 +133,8 @@ struct cee_str {
  *      cee_str_mk (state, "%d", 10);
  *
  */
-extern struct cee_str  * cee_str_mk (struct cee_state *s, const char * fmt, ...);
-
+extern struct cee_str * cee_str_mk (struct cee_state *s, const char *fmt, ...);
+extern struct cee_str * cee_str_mkv (struct cee_state *s, const char *fmt, va_list ap);
 
 /*
  * the function performs the following task

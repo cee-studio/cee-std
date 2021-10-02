@@ -31,13 +31,13 @@ static void S(trace) (void * p, enum cee_trace_action ta) {
       S(de_chain)(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }
 }
 
-struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
+struct cee_str * cee_str_mkv (struct cee_state *st, const char *fmt, va_list ap) {
   if (!fmt) {
     /* fmt cannot be null */
     /* intentionally cause a segfault */
@@ -45,9 +45,9 @@ struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
   }
 
   uintptr_t s;
-  va_list ap;
+  va_list saved_ap;
+  va_copy(saved_ap, ap);
 
-  va_start(ap, fmt);
   s = vsnprintf(NULL, 0, fmt, ap);
   s ++;
 
@@ -68,11 +68,24 @@ struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
   
   h->capacity = s - sizeof(struct S(header));
 
-  va_start(ap, fmt);
-  vsnprintf(h->_, s, fmt, ap);
-  
+  vsnprintf(h->_, s, fmt, saved_ap);
   return (struct cee_str *)(h->_);
-} 
+}
+
+struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
+  if (!fmt) {
+    /* fmt cannot be null */
+    /* intentionally cause a segfault */
+    cee_segfault();
+  }
+
+  va_list ap;
+
+  va_start(ap, fmt);
+  void *p = cee_str_mkv (st, fmt, ap);
+  va_end(ap);
+  return p;
+}
 
 struct cee_str * cee_str_mk_e (struct cee_state * st, size_t n, const char * fmt, ...) {
   uintptr_t s;

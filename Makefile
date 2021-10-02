@@ -12,7 +12,7 @@ SRC      = $(MUSL_SRC) $(CEE_SRC)
 STD_HDR  = stdio.h string.h stdlib.h stdarg.h assert.h errno.h
 OBJS    = $(SRC:%.c=$(OBJDIR)/%.o)
 
-CFLAGS = -std=c89 -fno-exceptions -g -I./ -I./$(CEE_UTILS_DIR)
+CFLAGS = -g -I./ -I./$(CEE_UTILS_DIR)
 
 define cee_amalgamation
 	@echo "#define CEE_AMALGAMATION" > tmp.c

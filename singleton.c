@@ -47,7 +47,7 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
       S(de_chain)(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }

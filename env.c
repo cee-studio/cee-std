@@ -32,7 +32,7 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
       S(de_chain)(h);
       free(h);
       break;
-    default:
+    case CEE_TRACE_MARK:
       h->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(h->_.outer, ta);
       cee_trace(h->_.vars, ta);
@@ -62,7 +62,7 @@ struct cee_env * cee_env_mk_e(struct cee_state * st, enum cee_del_policy dp[2], 
 }
  
 struct cee_env * cee_env_mk(struct cee_state * st, struct cee_env * outer, struct cee_map * vars) {
-  enum cee_del_policy dp[2] = { CEE_DEFAULT_DEL_POLICY, CEE_DEFAULT_DEL_POLICY };
+  enum cee_del_policy dp[2] = { CEE_DP_DEL_RC, CEE_DP_DEL_RC };
   return cee_env_mk_e (st, dp, outer, vars);
 }
 

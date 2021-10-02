@@ -29,7 +29,7 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
       S(de_chain)(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->_.ptr._, ta);
       break;
@@ -54,5 +54,5 @@ struct cee_tagged * cee_tagged_mk_e (struct cee_state * st, enum cee_del_policy 
 }
 
 struct cee_tagged * cee_tagged_mk (struct cee_state * st, uintptr_t tag, void *p) {
-  return cee_tagged_mk_e(st, CEE_DEFAULT_DEL_POLICY, tag, p);
+  return cee_tagged_mk_e(st, CEE_DP_DEL_RC, tag, p);
 }

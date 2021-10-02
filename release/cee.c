@@ -56,8 +56,7 @@ enum cee_trace_action {
  * CEE_DP_NOOP: if a container is freed, nothing will happen to its elements.
  *         It's developer's responsiblity to prevent memory leaks.
  *
- * The default del_policy is CEE_DP_DEL_RC, which can be configured at compile
- * time with CEE_DEFAULT_DEL_POLICY
+ * The default del_policy is CEE_DP_DEL_RC
  */
 enum cee_del_policy {
   CEE_DP_DEL_RC = 0,
@@ -65,9 +64,6 @@ enum cee_del_policy {
   CEE_DP_NOOP = 2
 };
 
-#ifndef CEE_DEFAULT_DEL_POLICY
-#define CEE_DEFAULT_DEL_POLICY  CEE_DP_DEL_RC
-#endif
 /*
  *
  * if an object is owned an del_immediate container, retained is 1, and 
@@ -146,8 +142,8 @@ struct cee_str {
  *      cee_str_mk (state, "%d", 10);
  *
  */
-extern struct cee_str  * cee_str_mk (struct cee_state *s, const char * fmt, ...);
-
+extern struct cee_str * cee_str_mk (struct cee_state *s, const char *fmt, ...);
+extern struct cee_str * cee_str_mkv (struct cee_state *s, const char *fmt, va_list ap);
 
 /*
  * the function performs the following task
@@ -1257,7 +1253,7 @@ static void _cee_boxed_trace (void * v, enum cee_trace_action ta) {
       _cee_boxed_de_chain(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }
@@ -1650,13 +1646,13 @@ static void _cee_str_trace (void * p, enum cee_trace_action ta) {
       _cee_str_de_chain(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }
 }
 
-struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
+struct cee_str * cee_str_mkv (struct cee_state *st, const char *fmt, va_list ap) {
   if (!fmt) {
     /* fmt cannot be null */
     /* intentionally cause a segfault */
@@ -1664,9 +1660,9 @@ struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
   }
 
   uintptr_t s;
-  va_list ap;
+  va_list saved_ap;
+  va_copy(saved_ap, ap);
 
-  va_start(ap, fmt);
   s = vsnprintf(NULL, 0, fmt, ap);
   s ++;
 
@@ -1687,10 +1683,23 @@ struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
 
   h->capacity = s - sizeof(struct _cee_str_header);
 
-  va_start(ap, fmt);
-  vsnprintf(h->_, s, fmt, ap);
-
+  vsnprintf(h->_, s, fmt, saved_ap);
   return (struct cee_str *)(h->_);
+}
+
+struct cee_str * cee_str_mk (struct cee_state * st, const char * fmt, ...) {
+  if (!fmt) {
+    /* fmt cannot be null */
+    /* intentionally cause a segfault */
+    cee_segfault();
+  }
+
+  va_list ap;
+
+  va_start(ap, fmt);
+  void *p = cee_str_mkv (st, fmt, ap);
+  va_end(ap);
+  return p;
 }
 
 struct cee_str * cee_str_mk_e (struct cee_state * st, size_t n, const char * fmt, ...) {
@@ -1882,7 +1891,7 @@ static void _cee_dict_trace(void *d, enum cee_trace_action ta) {
       _cee_dict_de_chain(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->keys, ta);
       cee_trace(m->vals, ta);
@@ -1922,7 +1931,7 @@ struct cee_dict * cee_dict_mk_e (struct cee_state * s, enum cee_del_policy o, si
 }
 
 struct cee_dict * cee_dict_mk (struct cee_state *s, size_t size) {
-  return cee_dict_mk_e (s, CEE_DEFAULT_DEL_POLICY, size);
+  return cee_dict_mk_e (s, CEE_DP_DEL_RC, size);
 }
 
 void cee_dict_add (struct cee_dict * d, char * key, void * value) {
@@ -2042,7 +2051,7 @@ static void _cee_map_trace(void * p, enum cee_trace_action ta) {
       _cee_map_de_chain(h);
       free(h);
       break;
-    default:
+    case CEE_TRACE_MARK:
       h->cs.gc_mark = ta - CEE_TRACE_MARK;
       h->ta = ta;
       musl_twalk(&ta, h->_[0], _cee_map_trace_pair);
@@ -2080,7 +2089,7 @@ struct cee_map * cee_map_mk_e (struct cee_state * st, enum cee_del_policy o[2],
 }
 
 struct cee_map * cee_map_mk(struct cee_state * st, int (*cmp) (const void *, const void *)) {
-  static enum cee_del_policy d[2] = { CEE_DEFAULT_DEL_POLICY, CEE_DEFAULT_DEL_POLICY };
+  static enum cee_del_policy d[2] = { CEE_DP_DEL_RC, CEE_DP_DEL_RC };
   return cee_map_mk_e(st, d, cmp);
 }
 
@@ -2312,7 +2321,7 @@ static void _cee_set_trace(void * p, enum cee_trace_action ta) {
       _cee_set_de_chain(h);
       free(h);
       break;
-    default:
+    case CEE_TRACE_MARK:
       h->cs.gc_mark = ta - CEE_TRACE_MARK;
       h->ta = ta;
       musl_twalk(&ta, h->_[0], _cee_set_trace_pair);
@@ -2348,7 +2357,7 @@ struct cee_set * cee_set_mk_e (struct cee_state * st, enum cee_del_policy o,
 }
 
 struct cee_set * cee_set_mk (struct cee_state * s, int (*cmp)(const void *, const void *)) {
-  return cee_set_mk_e(s, CEE_DEFAULT_DEL_POLICY, cmp);
+  return cee_set_mk_e(s, CEE_DP_DEL_RC, cmp);
 }
 
 size_t cee_set_size (struct cee_set * s) {
@@ -2543,7 +2552,7 @@ static void _cee_stack_trace (void * v, enum cee_trace_action ta) {
       _cee_stack_de_chain(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < m->used; i++)
         cee_trace(m->_[i], ta);
@@ -2568,7 +2577,7 @@ struct cee_stack * cee_stack_mk_e (struct cee_state * st, enum cee_del_policy o,
 }
 
 struct cee_stack * cee_stack_mk (struct cee_state * st, size_t size) {
-  return cee_stack_mk_e(st, CEE_DEFAULT_DEL_POLICY, size);
+  return cee_stack_mk_e(st, CEE_DP_DEL_RC, size);
 }
 
 int cee_stack_push (struct cee_stack * v, void *e) {
@@ -2696,7 +2705,7 @@ static void _cee_tuple_trace(void * v, enum cee_trace_action ta) {
       _cee_tuple_de_chain(b);
       free(b);
       break;
-    default:
+    case CEE_TRACE_MARK:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < 2; i++)
         cee_trace(b->_[i], ta);
@@ -2726,7 +2735,7 @@ struct cee_tuple * cee_tuple_mk_e (struct cee_state * st, enum cee_del_policy o[
 }
 
 struct cee_tuple * cee_tuple_mk (struct cee_state * st, void * v1, void * v2) {
-  static enum cee_del_policy o[2] = { CEE_DEFAULT_DEL_POLICY, CEE_DEFAULT_DEL_POLICY };
+  static enum cee_del_policy o[2] = { CEE_DP_DEL_RC, CEE_DP_DEL_RC };
   return cee_tuple_mk_e(st, o, v1, v2);
 }
 
@@ -2803,7 +2812,7 @@ static void _cee_triple_trace(void * v, enum cee_trace_action ta) {
       _cee_triple_de_chain(b);
       free(b);
       break;
-    default:
+    case CEE_TRACE_MARK:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < 3; i++)
         cee_trace(b->_[i], ta);
@@ -2833,9 +2842,7 @@ struct cee_triple * cee_triple_mk_e (struct cee_state * st, enum cee_del_policy 
 }
 
 struct cee_triple * cee_triple_mk (struct cee_state * st, void * v1, void * v2, void *v3) {
-  static enum cee_del_policy o[3] = { CEE_DEFAULT_DEL_POLICY,
-                                 CEE_DEFAULT_DEL_POLICY,
-                                 CEE_DEFAULT_DEL_POLICY };
+  static enum cee_del_policy o[3] = { CEE_DP_DEL_RC, CEE_DP_DEL_RC, CEE_DP_DEL_RC };
   return cee_triple_mk_e(st, o, v1, v2, v3);
 }
 
@@ -2912,7 +2919,7 @@ static void _cee_quadruple_trace(void * v, enum cee_trace_action ta) {
       _cee_quadruple_de_chain(b);
       free(b);
       break;
-    default:
+    case CEE_TRACE_MARK:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < 4; i++)
         cee_trace(b->_[i], ta);
@@ -3019,7 +3026,7 @@ static void _cee_list_trace (void * v, enum cee_trace_action ta) {
       _cee_list_de_chain(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < m->size; i++)
         cee_trace(m->_[i], ta);
@@ -3044,7 +3051,7 @@ struct cee_list * cee_list_mk_e (struct cee_state * st, enum cee_del_policy o, s
 }
 
 struct cee_list * cee_list_mk (struct cee_state * s, size_t cap) {
-  return cee_list_mk_e(s, CEE_DEFAULT_DEL_POLICY, cap);
+  return cee_list_mk_e(s, CEE_DP_DEL_RC, cap);
 }
 
 struct cee_list * cee_list_append (struct cee_list ** l, void *e) {
@@ -3198,7 +3205,7 @@ static void _cee_tagged_trace (void * v, enum cee_trace_action ta) {
       _cee_tagged_de_chain(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->_.ptr._, ta);
       break;
@@ -3223,7 +3230,7 @@ struct cee_tagged * cee_tagged_mk_e (struct cee_state * st, enum cee_del_policy 
 }
 
 struct cee_tagged * cee_tagged_mk (struct cee_state * st, uintptr_t tag, void *p) {
-  return cee_tagged_mk_e(st, CEE_DEFAULT_DEL_POLICY, tag, p);
+  return cee_tagged_mk_e(st, CEE_DP_DEL_RC, tag, p);
 }
 
 
@@ -3327,7 +3334,7 @@ static void _cee_closure_trace (void * v, enum cee_trace_action sa) {
       _cee_closure_de_chain(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       break;
   }
 }
@@ -3429,7 +3436,7 @@ static void _cee_block_trace (void * p, enum cee_trace_action ta) {
       _cee_block_de_chain(m);
       free(m);
       break;
-    default:
+    case CEE_TRACE_MARK:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }
@@ -3534,7 +3541,7 @@ static void _cee_n_tuple_trace(void * v, enum cee_trace_action ta) {
       _cee_n_tuple_de_chain(b);
       free(b);
       break;
-    default:
+    case CEE_TRACE_MARK:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < b->cs.n_product; i++)
         cee_trace(b->_[i], ta);
@@ -3572,7 +3579,7 @@ struct cee_n_tuple * cee_n_tuple_mk (struct cee_state * st, size_t ntuple, ...) 
   enum cee_del_policy * o = malloc(ntuple * sizeof (enum cee_del_policy));
   int i;
   for (i = 0; i < ntuple; i++)
-    o[i] = CEE_DEFAULT_DEL_POLICY;
+    o[i] = CEE_DP_DEL_RC;
 
   struct _cee_n_tuple_header * h = cee_n_tuple_v(st, ntuple, o, ap);
   free(o);
@@ -3651,7 +3658,7 @@ static void _cee_env_trace (void * v, enum cee_trace_action ta) {
       _cee_env_de_chain(h);
       free(h);
       break;
-    default:
+    case CEE_TRACE_MARK:
       h->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(h->_.outer, ta);
       cee_trace(h->_.vars, ta);
@@ -3681,7 +3688,7 @@ struct cee_env * cee_env_mk_e(struct cee_state * st, enum cee_del_policy dp[2], 
 }
 
 struct cee_env * cee_env_mk(struct cee_state * st, struct cee_env * outer, struct cee_map * vars) {
-  enum cee_del_policy dp[2] = { CEE_DEFAULT_DEL_POLICY, CEE_DEFAULT_DEL_POLICY };
+  enum cee_del_policy dp[2] = { CEE_DP_DEL_RC, CEE_DP_DEL_RC };
   return cee_env_mk_e (st, dp, outer, vars);
 }
 
@@ -3720,7 +3727,7 @@ static void _cee_state_trace (void * v, enum cee_trace_action ta) {
       free(m);
       break;
     }
-    default:
+    case CEE_TRACE_MARK:
     {
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->_.roots, ta);
