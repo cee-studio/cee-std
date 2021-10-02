@@ -9,6 +9,8 @@ wget $url/scripts/get-cee-std.sh -O ${mypath}/get-cee-std.sh
 chmod +x ${mypath}/get-cee-std.sh
 
 list="
+cee-json/cee-json.h
+cee-json/cee-json.c
 cee.h
 cee.c"
 
