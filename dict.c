@@ -42,6 +42,7 @@ static void S(trace)(void *d, enum cee_trace_action ta) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->keys, ta);
       cee_trace(m->vals, ta);

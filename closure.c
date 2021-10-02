@@ -27,6 +27,7 @@ static void S(trace) (void * v, enum cee_trace_action sa) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       break;
   }
 }

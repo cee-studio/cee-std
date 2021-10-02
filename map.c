@@ -56,6 +56,7 @@ static void S(trace)(void * p, enum cee_trace_action ta) {
       free(h);
       break;
     case CEE_TRACE_MARK:
+    default:
       h->cs.gc_mark = ta - CEE_TRACE_MARK;
       h->ta = ta;
       musl_twalk(&ta, h->_[0], S(trace_pair));

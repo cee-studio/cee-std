@@ -1254,6 +1254,7 @@ static void _cee_boxed_trace (void * v, enum cee_trace_action ta) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }
@@ -1647,6 +1648,7 @@ static void _cee_str_trace (void * p, enum cee_trace_action ta) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }
@@ -1892,6 +1894,7 @@ static void _cee_dict_trace(void *d, enum cee_trace_action ta) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->keys, ta);
       cee_trace(m->vals, ta);
@@ -2052,6 +2055,7 @@ static void _cee_map_trace(void * p, enum cee_trace_action ta) {
       free(h);
       break;
     case CEE_TRACE_MARK:
+    default:
       h->cs.gc_mark = ta - CEE_TRACE_MARK;
       h->ta = ta;
       musl_twalk(&ta, h->_[0], _cee_map_trace_pair);
@@ -2322,6 +2326,7 @@ static void _cee_set_trace(void * p, enum cee_trace_action ta) {
       free(h);
       break;
     case CEE_TRACE_MARK:
+    default:
       h->cs.gc_mark = ta - CEE_TRACE_MARK;
       h->ta = ta;
       musl_twalk(&ta, h->_[0], _cee_set_trace_pair);
@@ -2553,6 +2558,7 @@ static void _cee_stack_trace (void * v, enum cee_trace_action ta) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < m->used; i++)
         cee_trace(m->_[i], ta);
@@ -2706,6 +2712,7 @@ static void _cee_tuple_trace(void * v, enum cee_trace_action ta) {
       free(b);
       break;
     case CEE_TRACE_MARK:
+    default:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < 2; i++)
         cee_trace(b->_[i], ta);
@@ -2813,6 +2820,7 @@ static void _cee_triple_trace(void * v, enum cee_trace_action ta) {
       free(b);
       break;
     case CEE_TRACE_MARK:
+    default:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < 3; i++)
         cee_trace(b->_[i], ta);
@@ -2920,6 +2928,7 @@ static void _cee_quadruple_trace(void * v, enum cee_trace_action ta) {
       free(b);
       break;
     case CEE_TRACE_MARK:
+    default:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < 4; i++)
         cee_trace(b->_[i], ta);
@@ -3027,6 +3036,7 @@ static void _cee_list_trace (void * v, enum cee_trace_action ta) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < m->size; i++)
         cee_trace(m->_[i], ta);
@@ -3206,6 +3216,7 @@ static void _cee_tagged_trace (void * v, enum cee_trace_action ta) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->_.ptr._, ta);
       break;
@@ -3335,6 +3346,7 @@ static void _cee_closure_trace (void * v, enum cee_trace_action sa) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       break;
   }
 }
@@ -3437,6 +3449,7 @@ static void _cee_block_trace (void * p, enum cee_trace_action ta) {
       free(m);
       break;
     case CEE_TRACE_MARK:
+    default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }
@@ -3542,6 +3555,7 @@ static void _cee_n_tuple_trace(void * v, enum cee_trace_action ta) {
       free(b);
       break;
     case CEE_TRACE_MARK:
+    default:
       b->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < b->cs.n_product; i++)
         cee_trace(b->_[i], ta);
@@ -3659,6 +3673,7 @@ static void _cee_env_trace (void * v, enum cee_trace_action ta) {
       free(h);
       break;
     case CEE_TRACE_MARK:
+    default:
       h->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(h->_.outer, ta);
       cee_trace(h->_.vars, ta);
@@ -3728,6 +3743,7 @@ static void _cee_state_trace (void * v, enum cee_trace_action ta) {
       break;
     }
     case CEE_TRACE_MARK:
+    default:
     {
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->_.roots, ta);
