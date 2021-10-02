@@ -31,7 +31,7 @@ struct cee_json * cee_json_undefined () {
 
 struct cee_json * cee_json_null () {
   static char b[CEE_SINGLETON_SIZE];
-  return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_UNDEFINED, 0);  
+  return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_NULL, 0);  
 }
 
 struct cee_json * cee_list_to_json(struct cee_state *st, struct cee_list *v) {
