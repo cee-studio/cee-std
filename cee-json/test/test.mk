@@ -6,7 +6,7 @@ OBJS = $(wildcard ../obj/*)
 SRC   = $(wildcard *.c)
 EXES  = $(SRC:%.c=%.out)
 
-SUITE_EXE           = test-cee-json.out
+SUITE_EXE           = test-parser.out
 SUITE_PARSING_DIR   = test_parsing
 SUITE_TRANSFORM_DIR = test_transform
 
