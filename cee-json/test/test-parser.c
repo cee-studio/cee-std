@@ -120,7 +120,7 @@ TEST check_print(char str[], long len)
 
   if (strcmp(normstr, jsonstr)) {
     snprintf(errbuf, sizeof(errbuf), "\nExpected: %.*s\nGot: %.*s", 
-      (int)jsonlen, jsonstr, (int)normlen, normstr);
+      (int)normlen, normstr, (int)jsonlen, jsonstr);
     failed = 1;
   }
 
