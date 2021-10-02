@@ -164,8 +164,6 @@ SUITE(json_transform)
 {
   char *jsonstr;
   long  jsonlen;
-  char  *tmp;
-  size_t size;
 
   for (int i=0; i < g_n_files; ++i) {
     jsonstr = load_whole_file(g_files[i], &jsonlen);
