@@ -90,6 +90,7 @@ extern struct cee_json * cee_json_double_mk (struct cee_state *, double d);
 extern struct cee_json * cee_json_i64_mk(struct cee_state *, int64_t);
 extern struct cee_json * cee_json_u64_mk(struct cee_state *, uint64_t);
 extern struct cee_json * cee_json_string_mk (struct cee_state *, struct cee_str * s);
+extern struct cee_json * cee_json_string_mkf (struct cee_state *, const char *fmt, ...);
 extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
 
 extern void cee_json_object_set (struct cee_state *, struct cee_json *, char *, struct cee_json *);
@@ -259,6 +260,14 @@ struct cee_json * cee_json_u64_mk (struct cee_state *st, uint64_t d) {
 
 struct cee_json * cee_json_string_mk(struct cee_state *st, struct cee_str *s) {
   return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_STRING, s);
+}
+
+struct cee_json * cee_json_string_mkf(struct cee_state *st, const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  struct cee_str *s = cee_str_mkv(st, fmt, ap);
+  va_end(ap);
+  return cee_json_string_mk(st, s);
 }
 
 struct cee_json * cee_json_array_mk(struct cee_state *st, int s) {
