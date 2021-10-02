@@ -10,8 +10,8 @@
 #include "greatest.h"
 
 
-static char** g_files;
-static char** g_suffixes;
+static char **g_files;
+static char **g_suffixes;
 static int    g_n_files;
 
 enum action { 
@@ -42,6 +42,19 @@ char* load_whole_file(char *filename, long *p_fsize)
   return str;
 }
 
+size_t normalize_string(char **dest, char *src, size_t size)
+{
+  char *iter = *dest = malloc(size + 1);
+
+  while (*src) {
+    if (!isspace(*src))
+      *iter++ = *src;
+    ++src;
+  }
+  *iter = 0;
+  return (size_t)(iter - *dest);
+}
+
 TEST check_parser(char str[], long len, enum action expected)
 {
   static char errbuf[2048];
@@ -54,12 +67,12 @@ TEST check_parser(char str[], long len, enum action expected)
   }
 
   if (0 == pid) { // child process
-    struct cee_state * st = cee_state_mk(10);
-    struct cee_json *json = NULL;
-    int errline=-1;
+    struct cee_state *st      = cee_state_mk(10);
+    struct cee_json  *json    = NULL;
+    int               errline = -1;
 
     cee_json_parse(st, str, len, &json, true, &errline);
-    _exit( (-1 == errline) ? EXIT_SUCCESS : EXIT_FAILURE );
+    _exit( -1 == errline ? EXIT_SUCCESS : EXIT_FAILURE );
   }
 
   int status;
@@ -82,13 +95,51 @@ TEST check_parser(char str[], long len, enum action expected)
   FAILm(errbuf);
 }
 
+TEST check_print(char str[], long len)
+{
+  static char errbuf[2048];
+  _Bool       failed = 0;
+
+  struct cee_state *st      = cee_state_mk(10);
+  struct cee_json  *json    = NULL;
+  int               errline = -1;
+  // normalize JSON first
+  char  *normstr  = NULL;
+  size_t normlen  = normalize_string(&normstr, str, len);
+  char   *jsonstr = NULL;
+  ssize_t jsonlen = 0;
+
+
+  cee_json_parse(st, normstr, normlen, &json, true, &errline);
+  if (errline != -1) {
+    free(normstr);
+    SKIPm("Can't validate JSON");
+  }
+
+  jsonlen = cee_json_asprint(st, &jsonstr, json, CEE_JSON_FMT_COMPACT);
+
+  if (strcmp(normstr, jsonstr)) {
+    snprintf(errbuf, sizeof(errbuf), "\nExpected: %.*s\nGot: %.*s", 
+      (int)jsonlen, jsonstr, (int)normlen, normstr);
+    failed = 1;
+  }
+
+  if (normstr) free(normstr);
+  if (jsonstr) free(jsonstr);
+
+if (failed)
+  FAILm(errbuf);
+else
+  PASS();
+}
+
 SUITE(json_parsing)
 {
   char* jsonstr;
-  long  fsize;
+  long  jsonlen;
 
   for (int i=0; i < g_n_files; ++i) {
-    jsonstr = load_whole_file(g_files[i], &fsize);
+    jsonstr = load_whole_file(g_files[i], &jsonlen);
 
     enum action expected;
     switch (g_suffixes[i][0]) {
@@ -101,50 +152,31 @@ SUITE(json_parsing)
     }
 
     greatest_set_test_suffix(g_suffixes[i]);
-    RUN_TESTp(check_parser, jsonstr, fsize, expected);
-
+    RUN_TESTp(check_parser, jsonstr, jsonlen, expected);
+    if (ACTION_ACCEPT == expected) {
+      RUN_TESTp(check_print, jsonstr, jsonlen); // test encoding
+    }
     free(jsonstr);
   }
 }
 
 SUITE(json_transform)
 {
-  char* jsonstr;
-  long  fsize;
+  char *jsonstr;
+  long  jsonlen;
+  char  *tmp;
+  size_t size;
 
   for (int i=0; i < g_n_files; ++i) {
-    jsonstr = load_whole_file(g_files[i], &fsize);
+    jsonstr = load_whole_file(g_files[i], &jsonlen);
 
     greatest_set_test_suffix(g_suffixes[i]);
-    RUN_TESTp(check_parser, jsonstr, fsize, ACTION_NONE);
+    RUN_TESTp(check_parser, jsonstr, jsonlen, ACTION_NONE);
+    RUN_TESTp(check_print, jsonstr, jsonlen);
 
     free(jsonstr);
   }
 }
-
-#if 0
-TEST double_to_i64(void)
-{
-  static char errbuf[2048];
-
-  char str[] = "{ \"double\":[13.423, 100.1, -0.32], \"int64\":[100, 1, 0, -5] }";
-
-  struct cee_state * st = cee_state_mk(10);
-  struct cee_json *json = NULL;
-  int errline=-1;
-
-  cee_json_parse(st, str, sizeof(str), &json, true, &errline);
-  if (-1 == errline) {
-    snprintf(errbuf, sizeof(errbuf), "JSON: %s", str);
-    FAILm(errbuf);
-  }
-}
-
-SUITE(conversion)
-{
-  RUN_TEST(double_to_i64);
-}
-#endif
 
 GREATEST_MAIN_DEFS();
 
