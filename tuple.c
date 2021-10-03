@@ -14,7 +14,7 @@ struct S(header) {
   struct cee_sect cs;
   void * _[2];
 };
-    
+
 #include "cee-resize.h"
     
 static void S(trace)(void * v, enum cee_trace_action ta) {
@@ -65,4 +65,11 @@ struct cee_tuple * cee_tuple_mk_e (struct cee_state * st, enum cee_del_policy o[
 struct cee_tuple * cee_tuple_mk (struct cee_state * st, void * v1, void * v2) {
   static enum cee_del_policy o[2] = { CEE_DP_DEL_RC, CEE_DP_DEL_RC };
   return cee_tuple_mk_e(st, o, v1, v2);
+}
+
+
+void cee_tuple_update_del_policy(struct cee_tuple *t, int index, enum cee_del_policy v) {
+  struct S(header) *b = FIND_HEADER(t);
+  b->del_policies[index] = v;
+  return;
 }

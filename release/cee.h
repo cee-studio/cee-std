@@ -246,6 +246,16 @@ extern struct cee_tuple * cee_tuple_mk (struct cee_state * s, void * v1, void * 
 extern struct cee_tuple * cee_tuple_mk_e (struct cee_state * s, 
                            enum cee_del_policy o[2], void * v1, void * v2);
 
+/*
+ * update the delete policy of each element of a tupple
+ * index: 0 or 1
+ * v:  delete policy
+ * 
+ */
+extern void cee_tuple_update_del_policy(struct cee_tuple *t,
+					int index,
+					enum cee_del_policy v);
+
 struct cee_triple {
   void * _[3];
 };
@@ -305,7 +315,7 @@ struct cee_set {
  */
 extern struct cee_set * cee_set_mk (struct cee_state * s, int (*cmp)(const void *, const void *));
 extern struct cee_set * cee_set_mk_e (struct cee_state *s, enum cee_del_policy o, 
-                         int (*cmp)(const void *, const void *));
+                                      int (*cmp)(const void *, const void *));
 
 extern void cee_set_add(struct cee_set * m, void * key);
 extern void * cee_set_find(struct cee_set * m, void * key);

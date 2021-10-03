@@ -255,6 +255,16 @@ extern struct cee_tuple * cee_tuple_mk (struct cee_state * s, void * v1, void * 
 extern struct cee_tuple * cee_tuple_mk_e (struct cee_state * s, 
                            enum cee_del_policy o[2], void * v1, void * v2);
 
+/*
+ * update the delete policy of each element of a tupple
+ * index: 0 or 1
+ * v:  delete policy
+ * 
+ */
+extern void cee_tuple_update_del_policy(struct cee_tuple *t,
+					int index,
+					enum cee_del_policy v);
+
 struct cee_triple {
   void * _[3];
 };
@@ -314,7 +324,7 @@ struct cee_set {
  */
 extern struct cee_set * cee_set_mk (struct cee_state * s, int (*cmp)(const void *, const void *));
 extern struct cee_set * cee_set_mk_e (struct cee_state *s, enum cee_del_policy o, 
-                         int (*cmp)(const void *, const void *));
+                                      int (*cmp)(const void *, const void *));
 
 extern void cee_set_add(struct cee_set * m, void * key);
 extern void * cee_set_find(struct cee_set * m, void * key);
@@ -2119,10 +2129,17 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
 
   struct cee_tuple * t = cee_tuple_mk_e(b->cs.state, d, key, value);
   struct cee_tuple **oldp = musl_tsearch(b, t, b->_, _cee_map_cmp);
+  struct cee_tuple *t1 = NULL;
   if (oldp == NULL)
     cee_segfault(); /* run out of memory */
-  else if (*oldp != t)
+  else if (*oldp != t) {
+    t1 = *oldp;
+    void *old_value = t1->_[1];
+    t1->_[1] = value; // detach old value  and capture value
+    cee_decr_indegree(d[1], t1->_[1]); // decrease the rc of old value
+    cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); // do nothing for t[1]
     cee_del(t);
+  }
   else
     b->size ++;
   return;
@@ -2384,17 +2401,19 @@ bool cee_set_empty (struct cee_set * s) {
 }
 
 /*
- * add an element key to the set m
+ * add an element value to the set m
  * 
  */
-void cee_set_add(struct cee_set *m, void * val) {
+void cee_set_add(struct cee_set *m, void *val) {
   struct _cee_set_header * h = (struct _cee_set_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_set_header, _))));
   void ** oldp = (void **) musl_tsearch(h, val, h->_, _cee_set_cmp);
 
   if (oldp == NULL)
     cee_segfault();
-  else if (*oldp != (void *)val)
+  else if (*oldp != (void *)val) {
+    // should val be freed
     return;
+  }
   else {
     h->size ++;
     cee_incr_indegree(h->del_policy, val);
@@ -2752,6 +2771,13 @@ struct cee_tuple * cee_tuple_mk_e (struct cee_state * st, enum cee_del_policy o[
 struct cee_tuple * cee_tuple_mk (struct cee_state * st, void * v1, void * v2) {
   static enum cee_del_policy o[2] = { CEE_DP_DEL_RC, CEE_DP_DEL_RC };
   return cee_tuple_mk_e(st, o, v1, v2);
+}
+
+
+void cee_tuple_update_del_policy(struct cee_tuple *t, int index, enum cee_del_policy v) {
+  struct _cee_tuple_header *b = (struct _cee_tuple_header *)((void *)((char *)(t) - (__builtin_offsetof(struct _cee_tuple_header, _))));
+  b->del_policies[index] = v;
+  return;
 }
 
 struct _cee_triple_header {

@@ -112,10 +112,17 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
   
   struct cee_tuple * t = cee_tuple_mk_e(b->cs.state, d, key, value);
   struct cee_tuple **oldp = musl_tsearch(b, t, b->_, S(cmp));
+  struct cee_tuple *t1 = NULL;
   if (oldp == NULL)
     cee_segfault(); /* run out of memory */
-  else if (*oldp != t) 
+  else if (*oldp != t) {
+    t1 = *oldp;
+    void *old_value = t1->_[1];
+    t1->_[1] = value; // detach old value  and capture value
+    cee_decr_indegree(d[1], t1->_[1]); // decrease the rc of old value
+    cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); // do nothing for t[1]
     cee_del(t);
+  }
   else
     b->size ++;
   return;

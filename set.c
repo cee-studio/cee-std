@@ -106,17 +106,19 @@ bool cee_set_empty (struct cee_set * s) {
 }
 
 /*
- * add an element key to the set m
+ * add an element value to the set m
  * 
  */
-void cee_set_add(struct cee_set *m, void * val) {
+void cee_set_add(struct cee_set *m, void *val) {
   struct S(header) * h = FIND_HEADER(m);
   void ** oldp = (void **) musl_tsearch(h, val, h->_, S(cmp));
   
   if (oldp == NULL)
     cee_segfault();
-  else if (*oldp != (void *)val)
+  else if (*oldp != (void *)val) {
+    // should val be freed
     return;
+  }
   else {
     h->size ++;
     cee_incr_indegree(h->del_policy, val);

@@ -132,6 +132,7 @@ int main () {
   cee_map_add(mp, cee_str_mk(st, "1"), cee_boxed_from_i32(st, 10));
   cee_map_add(mp, cee_str_mk(st, "2"), cee_boxed_from_i32(st, 20));
   cee_map_add(mp, cee_str_mk(st, "3"), cee_boxed_from_i32(st, 30));
+  cee_map_add(mp, cee_str_mk(st, "1"), cee_boxed_from_i32(st, 100));
   
   struct cee_boxed * t = (struct cee_boxed *)cee_map_find(mp, (char *)"1");
   printf ("found value %d\n", cee_boxed_to_i32(t));
