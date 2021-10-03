@@ -28,6 +28,12 @@ void cee_del(void *p) {
   cs->trace(p, CEE_TRACE_DEL_FOLLOW);
 }
 
+
+struct cee_state* cee_get_state (void *p) {
+  struct cee_sect *cs = FIND_SECT(p);
+  return cs->state;
+}
+
 void cee_del_ref(void *p) {
   if (!p) return;
   

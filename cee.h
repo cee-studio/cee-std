@@ -578,6 +578,8 @@ extern void cee_state_add_context(struct cee_state *, char * key, void * val);
 extern void cee_state_remove_context(struct cee_state *, char * key);
 extern void * cee_state_get_context(struct cee_state *, char * key);
 
+extern struct cee_state* cee_get_state(void *p);
+
 #ifndef NULL
 #define NULL     ((void *)0)
 #endif

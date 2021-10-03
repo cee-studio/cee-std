@@ -587,6 +587,8 @@ extern void cee_state_add_context(struct cee_state *, char * key, void * val);
 extern void cee_state_remove_context(struct cee_state *, char * key);
 extern void * cee_state_get_context(struct cee_state *, char * key);
 
+extern struct cee_state* cee_get_state(void *p);
+
 #ifndef NULL
 #define NULL     ((void *)0)
 #endif
@@ -1074,6 +1076,12 @@ void cee_del(void *p) {
 
   struct cee_sect * cs = (struct cee_sect *)((void *)((char *)p - sizeof(struct cee_sect)));
   cs->trace(p, CEE_TRACE_DEL_FOLLOW);
+}
+
+
+struct cee_state* cee_get_state (void *p) {
+  struct cee_sect *cs = (struct cee_sect *)((void *)((char *)p - sizeof(struct cee_sect)));
+  return cs->state;
 }
 
 void cee_del_ref(void *p) {
