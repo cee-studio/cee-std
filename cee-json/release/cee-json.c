@@ -48,9 +48,9 @@ struct cee_json {
   } value;
 };
 
-enum cee_json_format {
-  cee_json_format_compact = 0,
-  cee_json_format_readable = 1
+enum cee_json_fmt {
+  CEE_JSON_FMT_COMPACT = 0,
+  CEE_JSON_FMT_PRETTY  = 1
 };
 
 /*
@@ -66,8 +66,8 @@ extern struct cee_json * cee_json_load_from_buffer (int size, char *, int line);
 extern int cee_json_cmp (struct cee_json *, struct cee_json *);
 
 
-extern struct cee_json * cee_list_to_json (struct cee_state *st, struct cee_list *v);
-extern struct cee_json * cee_map_to_json (struct cee_state *st, struct cee_map *v);
+extern struct cee_json * cee_list_to_json (struct cee_list *v);
+extern struct cee_json * cee_map_to_json (struct cee_map *v);
 
 extern struct cee_list * cee_json_to_array (struct cee_json *);
 extern struct cee_map * cee_json_to_object (struct cee_json *);
@@ -93,24 +93,24 @@ extern struct cee_json * cee_json_string_mk (struct cee_state *, struct cee_str 
 extern struct cee_json * cee_json_string_mkf (struct cee_state *, const char *fmt, ...);
 extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
 
-extern void cee_json_object_set (struct cee_state *, struct cee_json *, char *, struct cee_json *);
-extern void cee_json_object_set_bool (struct cee_state *, struct cee_json *, char *, bool);
-extern void cee_json_object_set_string (struct cee_state *, struct cee_json *, char *, char *);
-extern void cee_json_object_set_double (struct cee_state *, struct cee_json *, char *, double);
-extern void cee_json_object_set_i64 (struct cee_state *, struct cee_json *, char *, int64_t);
-extern void cee_json_object_set_u64 (struct cee_state *, struct cee_json *, char *, uint64_t);
+extern void cee_json_object_set (struct cee_json *, char *, struct cee_json *);
+extern void cee_json_object_set_bool (struct cee_json *, char *, bool);
+extern void cee_json_object_set_string (struct cee_json *, char *, char *);
+extern void cee_json_object_set_double (struct cee_json *, char *, double);
+extern void cee_json_object_set_i64 (struct cee_json *, char *, int64_t);
+extern void cee_json_object_set_u64 (struct cee_json *, char *, uint64_t);
 
 extern struct cee_json* cee_json_object_get(struct cee_json *, char *key);
 extern void cee_json_object_iterate (struct cee_json *, void *ctx, 
                                      void (*f)(void *ctx, struct cee_str *key, struct cee_json *val));
 
 
-extern void cee_json_array_append (struct cee_state *, struct cee_json *, struct cee_json *);
-extern void cee_json_array_append_bool (struct cee_state *, struct cee_json *, bool);
-extern void cee_json_array_append_string (struct cee_state *, struct cee_json *, char *);
-extern void cee_json_array_append_double (struct cee_state *, struct cee_json *, double);
-extern void cee_json_array_append_i64 (struct cee_state *, struct cee_json *, int64_t);
-extern void cee_json_array_append_u64 (struct cee_state *, struct cee_json *, uint64_t);
+extern void cee_json_array_append (struct cee_json *, struct cee_json *);
+extern void cee_json_array_append_bool (struct cee_json *, bool);
+extern void cee_json_array_append_string (struct cee_json *, char *);
+extern void cee_json_array_append_double (struct cee_json *, double);
+extern void cee_json_array_append_i64 (struct cee_json *, int64_t);
+extern void cee_json_array_append_u64 (struct cee_json *, uint64_t);
 
 extern struct cee_json* cee_json_array_get(struct cee_json *, int);
 extern void cee_json_array_iterate (struct cee_json *, void *ctx,
@@ -118,10 +118,10 @@ extern void cee_json_array_iterate (struct cee_json *, void *ctx,
 
 extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
 				 size_t size, struct cee_json *json,
-				 enum cee_json_format);
+				 enum cee_json_fmt);
 
 extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p,
-				 struct cee_json *json, enum cee_json_format);
+				 struct cee_json *json, enum cee_json_fmt);
 
 extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);
@@ -182,14 +182,16 @@ struct cee_json * cee_json_undefined () {
 
 struct cee_json * cee_json_null () {
   static char b[CEE_SINGLETON_SIZE];
-  return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_UNDEFINED, 0);
+  return (struct cee_json *)cee_singleton_init(b, (uintptr_t)CEE_JSON_NULL, 0);
 }
 
-struct cee_json * cee_list_to_json(struct cee_state *st, struct cee_list *v) {
+struct cee_json * cee_list_to_json(struct cee_list *v) {
+  struct cee_state *st = cee_get_state(v);
   return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_ARRAY, v);
 }
 
-struct cee_json * cee_map_to_json(struct cee_state *st, struct cee_map *v) {
+struct cee_json * cee_map_to_json(struct cee_map *v) {
+  struct cee_state *st = cee_get_state(v);
 
   return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_OBJECT, v);
 }
@@ -284,7 +286,7 @@ struct cee_json * cee_json_object_mk(struct cee_state *st) {
 struct cee_json * cee_json_object_kv(struct cee_state *st, char *key, struct cee_json *value) {
   struct cee_json *j = cee_json_object_mk(st);
   struct cee_map * m = cee_json_to_object(j);
-  cee_json_object_set (st, j, key, value);
+  cee_json_object_set (j, key, value);
   return j;
 }
 
@@ -296,45 +298,51 @@ struct cee_json* cee_json_object_get(struct cee_json *j, char *key)
   return cee_map_find(o, key);
 }
 
-void cee_json_object_set(struct cee_state *st, struct cee_json *j, char *key, struct cee_json *v) {
-  struct cee_map * o = cee_json_to_object(j);
+void cee_json_object_set(struct cee_json *j, char *key, struct cee_json *v) {
+  struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
+  struct cee_state *st = cee_get_state(o);
   cee_map_add(o, cee_str_mk(st, "%s", key), v);
 }
 
-void cee_json_object_set_bool(struct cee_state * st, struct cee_json * j, char * key, bool b) {
+void cee_json_object_set_bool(struct cee_json * j, char * key, bool b) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
+  struct cee_state *st = cee_get_state(o);
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_bool(b));
 }
 
-void cee_json_object_set_string (struct cee_state *st, struct cee_json *j, char * key, char *str) {
+void cee_json_object_set_string (struct cee_json *j, char * key, char *str) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
+  struct cee_state *st = cee_get_state(o);
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_string_mk(st, cee_str_mk(st, "%s", str)));
 }
 
-void cee_json_object_set_double (struct cee_state *st, struct cee_json *j, char *key, double real) {
+void cee_json_object_set_double (struct cee_json *j, char *key, double real) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
+  struct cee_state *st = cee_get_state(o);
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_double_mk(st, real));
 }
 
-void cee_json_object_set_i64 (struct cee_state *st, struct cee_json *j, char *key, int64_t real) {
+void cee_json_object_set_i64 (struct cee_json *j, char *key, int64_t real) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
+  struct cee_state *st = cee_get_state(o);
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_i64_mk(st, real));
 }
 
-void cee_json_object_set_u64 (struct cee_state * st, struct cee_json * j, char * key, uint64_t real) {
+void cee_json_object_set_u64 (struct cee_json * j, char * key, uint64_t real) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
+  struct cee_state *st = cee_get_state(o);
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_u64_mk(st, real));
 }
 
@@ -348,9 +356,8 @@ void cee_json_object_iterate (struct cee_json *j, void *ctx,
   cee_map_iterate(o, ctx, (fnt)f);
 };
 
-void cee_json_array_append (struct cee_state * st, struct cee_json * j, struct cee_json *v) {
-  (void)st;
-  struct cee_list * o = cee_json_to_array(j);
+void cee_json_array_append (struct cee_json * j, struct cee_json *v) {
+  struct cee_list *o = cee_json_to_array(j);
   if (!o)
     cee_segfault();
   cee_list_append(&o, v);
@@ -360,7 +367,7 @@ void cee_json_array_append (struct cee_state * st, struct cee_json * j, struct c
   }
 }
 
-void cee_json_array_append_bool (struct cee_state * st, struct cee_json * j, bool b) {
+void cee_json_array_append_bool (struct cee_json * j, bool b) {
   struct cee_list * o = cee_json_to_array(j);
   if (!o)
     cee_segfault();
@@ -371,10 +378,11 @@ void cee_json_array_append_bool (struct cee_state * st, struct cee_json * j, boo
   }
 }
 
-void cee_json_array_append_string (struct cee_state * st, struct cee_json * j, char * x) {
-  struct cee_list * o = cee_json_to_array(j);
+void cee_json_array_append_string (struct cee_json * j, char * x) {
+  struct cee_list *o = cee_json_to_array(j);
   if (!o)
     cee_segfault();
+  struct cee_state *st = cee_get_state(o);
   cee_list_append(&o, cee_json_string_mk(st, cee_str_mk(st, "%s", x)));
   if (o != j->value.array) {
 
@@ -832,7 +840,7 @@ static struct counter * push(struct cee_state * st, uintptr_t tabs, bool more_si
 }
 
 static void pad (uintptr_t * offp, char * buf, struct counter * cnt,
-                 enum cee_json_format f) {
+                 enum cee_json_fmt f) {
   if (!f) return;
 
   uintptr_t offset = *offp;
@@ -846,7 +854,7 @@ static void pad (uintptr_t * offp, char * buf, struct counter * cnt,
   return;
 }
 
-static void delimiter (uintptr_t * offp, char * buf, enum cee_json_format f,
+static void delimiter (uintptr_t * offp, char * buf, enum cee_json_fmt f,
                        struct counter * cnt, char c)
 {
   uintptr_t offset = *offp;
@@ -950,7 +958,7 @@ static void str_append(char * out, uintptr_t *offp, char *begin, unsigned len) {
 
 
 ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct cee_json *j,
-     enum cee_json_format f) {
+     enum cee_json_fmt f) {
   struct cee_tuple * cur;
   struct cee_json * cur_json;
   struct counter * ccnt;
@@ -1004,8 +1012,9 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
         break;
       case CEE_JSON_STRING:
         {
-          char * str = (char *)cee_json_to_string(cur_json);
+          char *str = (char *)cee_json_to_string(cur_json);
           pad(&offset, buf, ccnt, f);
+
           str_append(buf, &offset, str, strlen(str));
           if (ccnt->more_siblings)
             delimiter(&offset, buf, f, ccnt, ',');
@@ -1090,7 +1099,7 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
 
 ssize_t
 cee_json_asprint(struct cee_state *st, char **buf_p, struct cee_json *j,
-   enum cee_json_format f)
+   enum cee_json_fmt f)
 {
   size_t buf_size = cee_json_snprint(st, NULL, 0, j, f) + 1 ;
   char *buf = malloc(buf_size);
