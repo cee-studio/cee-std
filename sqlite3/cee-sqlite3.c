@@ -1,4 +1,4 @@
-#include "cee-sqlite3-2.h"
+#include "cee-sqlite3.h"
 
 sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts)
 {
