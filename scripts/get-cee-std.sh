@@ -38,4 +38,5 @@ for i in $sqlite3_list; do
     echo "getting $i"
     echo "$url/sqlite3/release/$i"
     wget --no-cache $url/sqlite3/release/$i -O $i
+done
 popd
