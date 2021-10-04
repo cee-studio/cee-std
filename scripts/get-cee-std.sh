@@ -16,6 +16,10 @@ json_list="
 cee-json.h
 cee-json.c"
 
+sqlite3_list="
+cee-sqlite3.h
+cee-sqlite3.c"
+
 mkdir -p $mypath/../cee-std
 pushd $mypath/../cee-std
 for i in $cee_list; do
@@ -29,4 +33,9 @@ for i in $json_list; do
     echo "$url/cee-json/release/$i"
     wget --no-cache $url/cee-json/release/$i -O $i
 done
+
+for i in $sqlite3_list; do
+    echo "getting $i"
+    echo "$url/sqlite3/release/$i"
+    wget --no-cache $url/sqlite3/release/$i -O $i
 popd
