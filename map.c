@@ -110,9 +110,10 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
   d[0] = b->key_del_policy;
   d[1] = b->val_del_policy;
   
-  struct cee_tuple * t = cee_tuple_mk_e(b->cs.state, d, key, value);
-  struct cee_tuple **oldp = musl_tsearch(b, t, b->_, S(cmp));
-  struct cee_tuple *t1 = NULL;
+  struct cee_tuple *t, *t1 = NULL, **oldp;
+  t = cee_tuple_mk_e(b->cs.state, d, key, value);
+  oldp = musl_tsearch(b, t, b->_, S(cmp));
+
   if (oldp == NULL)
     cee_segfault(); /* run out of memory */
   else if (*oldp != t) {
