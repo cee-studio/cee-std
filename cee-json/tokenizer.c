@@ -430,19 +430,19 @@ static bool parse_number(struct tokenizer *t) {
   }
 
   /* 5th STEP: convert string to number */
-  int ret;
+  char *endptr=NULL;
   if (is_exponent || !is_integer) {
     t->type = NUMBER_IS_DOUBLE;
-    ret = sscanf(start, "%lf", &t->number.real);
+    t->number.real = strtod(start, &endptr);
   }
   else {
     t->type = NUMBER_IS_I64;
-    ret = sscanf(start, "%"PRId64, &t->number.i64);
+    t->number.i64 = strtoll(start, &endptr, 10);
   }
 
   t->buf = end; /* skips entire length of number */
 
-  return EOF != ret;
+  return start != endptr;
 }
 
 enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
