@@ -213,11 +213,13 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         }
         else if(c=='[') {
           struct cee_json * a = cee_json_array_mk(st, 10);
+          cee_list_append(&ar, a);
           state=st_array_value_or_close_expected;
           cee_stack_push(sp, SPI(st, st_array_close_or_comma_expected,a));
         }
         else if(c=='{') {
           struct cee_json * o = cee_json_object_mk(st);
+          cee_list_append(&ar, o);
           state=st_object_key_or_close_expected;
           cee_stack_push(sp, SPI(st, st_array_close_or_comma_expected,o));
         }
