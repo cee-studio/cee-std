@@ -2136,9 +2136,9 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
   else if (*oldp != t) {
     t1 = *oldp;
     void *old_value = t1->_[1];
-    t1->_[1] = value; // detach old value  and capture value
-    cee_decr_indegree(d[1], t1->_[1]); // decrease the rc of old value
-    cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); // do nothing for t[1]
+    t1->_[1] = value; /* detach old value  and capture value */
+    cee_decr_indegree(d[1], old_value); /* decrease the rc of old value */
+    cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); /* do nothing for t[1] */
     cee_del(t);
   }
   else
