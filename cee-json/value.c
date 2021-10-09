@@ -147,6 +147,14 @@ struct cee_json* cee_json_object_get(struct cee_json *j, char *key)
   return cee_map_find(o, key);
 }
 
+void cee_json_object_remove(struct cee_json *j, char *key)
+{
+  struct cee_map *o = cee_json_to_object(j);
+  if (!o)
+    cee_segfault();
+  cee_map_remove(o, key);
+}
+
 void cee_json_object_set(struct cee_json *j, char *key, struct cee_json *v) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o) 
@@ -247,6 +255,14 @@ struct cee_json* cee_json_array_get (struct cee_json *j, int i) {
     return o->_[i];
   else
     return NULL;
+}
+
+void cee_json_array_remove(struct cee_json *j, int i) {
+  struct cee_list *o = cee_json_to_array(j);
+  if (!o)
+    cee_segfault();
+  if (0 < = i && i < cee_list_size(o))
+    cee_list_remove(o, i);
 }
 
 void cee_json_array_iterate (struct cee_json *j, void *ctx,
