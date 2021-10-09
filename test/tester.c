@@ -136,6 +136,12 @@ int main () {
   
   struct cee_boxed * t = (struct cee_boxed *)cee_map_find(mp, (char *)"1");
   printf ("found value %d\n", cee_boxed_to_i32(t));
+  if (cee_boxed_to_i32(t) != 100)  {
+     printf("test failed\n");
+     cee_segfault();
+     return 1;
+  }
+
 
   printf ("print out keys of a map\n");
   struct cee_list * keys = cee_map_keys(mp);
