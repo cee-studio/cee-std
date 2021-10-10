@@ -6,19 +6,24 @@ OBJS = $(wildcard ../obj/*)
 SRC   = $(wildcard *.c)
 EXES  = $(SRC:%.c=%.out)
 
-SUITE_EXE           = test-parser.out
-SUITE_PARSING_DIR   = test_parsing
-SUITE_TRANSFORM_DIR = test_transform
+TEST_PARSING_DIR   = test_parsing
+TEST_TRANSFORM_DIR = test_transform
+PARSER_SUITE_EXE   = test-parser.out
+PRINT_SUITE_EXE    = test-print.out
 
 CFLAGS= -fno-exceptions -g -I../ -I$(TOP)/ -I$(TOP)/cee-utils
 
 # generic compilation
 %.out: %.c $(OBJS) $(TOP)/cee-one.c
-	$(CC) $(CFLAGS) -g -o $@ $^
+	$(CC) $(CFLAGS) -g -o $@ $^ $(TOP)/cee-utils/cJSON.c
 
-all: $(EXES) $(SUITE_PARSING_DIR) $(SUITE_TRANSFORM_DIR)
-	- ./$(SUITE_EXE) -e -s json_parsing -- $(SUITE_PARSING_DIR)/*
-	- ./$(SUITE_EXE) -e -s json_transform -- $(SUITE_TRANSFORM_DIR)/*
+test_parse: $(EXES) $(TEST_PARSING_DIR) $(TEST_TRANSFORM_DIR)
+	- ./$(PARSER_SUITE_EXE) -e -s json_parsing -- $(TEST_PARSING_DIR)/*
+	- ./$(PARSER_SUITE_EXE) -e -s json_transform -- $(TEST_TRANSFORM_DIR)/*
+
+test_print: $(EXES) $(TEST_PARSING_DIR) $(TEST_TRANSFORM_DIR)
+	- ./$(PRINT_SUITE_EXE) -s json_parsing -t cmp -- $(TEST_PARSING_DIR)/*
+	- ./$(PRINT_SUITE_EXE) -s json_transform -t cmp -- $(TEST_TRANSFORM_DIR)/*
 
 clean:
 	rm -f *.out
