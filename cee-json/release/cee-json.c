@@ -100,7 +100,11 @@ extern void cee_json_object_set_double (struct cee_json *, char *, double);
 extern void cee_json_object_set_i64 (struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_json *, char *, uint64_t);
 
+
 extern struct cee_json* cee_json_object_get(struct cee_json *, char *key);
+/* remove a key from a json object */
+extern void cee_json_object_remove (struct cee_json *, char *);
+
 extern void cee_json_object_iterate (struct cee_json *, void *ctx, 
                                      void (*f)(void *ctx, struct cee_str *key, struct cee_json *val));
 
@@ -111,6 +115,9 @@ extern void cee_json_array_append_string (struct cee_json *, char *);
 extern void cee_json_array_append_double (struct cee_json *, double);
 extern void cee_json_array_append_i64 (struct cee_json *, int64_t);
 extern void cee_json_array_append_u64 (struct cee_json *, uint64_t);
+
+/* remove an element from a json array */
+extern void cee_json_array_remove (struct cee_json *, int index);
 
 extern struct cee_json* cee_json_array_get(struct cee_json *, int);
 extern void cee_json_array_iterate (struct cee_json *, void *ctx,
@@ -298,6 +305,14 @@ struct cee_json* cee_json_object_get(struct cee_json *j, char *key)
   return cee_map_find(o, key);
 }
 
+void cee_json_object_remove(struct cee_json *j, char *key)
+{
+  struct cee_map *o = cee_json_to_object(j);
+  if (!o)
+    cee_segfault();
+  cee_map_remove(o, key);
+}
+
 void cee_json_object_set(struct cee_json *j, char *key, struct cee_json *v) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
@@ -398,6 +413,14 @@ struct cee_json* cee_json_array_get (struct cee_json *j, int i) {
     return o->_[i];
   else
     return NULL;
+}
+
+void cee_json_array_remove(struct cee_json *j, int i) {
+  struct cee_list *o = cee_json_to_array(j);
+  if (!o)
+    cee_segfault();
+  if (0 <= i && i < cee_list_size(o))
+    cee_list_remove(o, i);
 }
 
 void cee_json_array_iterate (struct cee_json *j, void *ctx,
@@ -743,11 +766,13 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         }
         else if(c=='[') {
           struct cee_json * a = cee_json_array_mk(st, 10);
+          cee_list_append(&ar, a);
           state=st_array_value_or_close_expected;
           cee_stack_push(sp, cee_tuple_mk_e(st, (enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_array_close_or_comma_expected, a));
         }
         else if(c=='{') {
           struct cee_json * o = cee_json_object_mk(st);
+          cee_list_append(&ar, o);
           state=st_object_key_or_close_expected;
           cee_stack_push(sp, cee_tuple_mk_e(st, (enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)st_array_close_or_comma_expected, o));
         }
@@ -1524,19 +1549,19 @@ static bool parse_number(struct tokenizer *t) {
   }
 
 
-  int ret;
+  char *endptr=NULL;
   if (is_exponent || !is_integer) {
     t->type = NUMBER_IS_DOUBLE;
-    ret = sscanf(start, "%lf", &t->number.real);
+    t->number.real = strtod(start, &endptr);
   }
   else {
     t->type = NUMBER_IS_I64;
-    ret = sscanf(start, "%"PRId64, &t->number.i64);
+    t->number.i64 = strtoll(start, &endptr, 10);
   }
 
   t->buf = end;
 
-  return EOF != ret;
+  return start != endptr;
 }
 
 enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {

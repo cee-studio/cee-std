@@ -87,7 +87,11 @@ extern void cee_json_object_set_double (struct cee_json *, char *, double);
 extern void cee_json_object_set_i64 (struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_json *, char *, uint64_t);
 
+
 extern struct cee_json* cee_json_object_get(struct cee_json *, char *key);
+/* remove a key from a json object */
+extern void cee_json_object_remove (struct cee_json *, char *);
+
 extern void cee_json_object_iterate (struct cee_json *, void *ctx, 
                                      void (*f)(void *ctx, struct cee_str *key, struct cee_json *val));
 
@@ -98,6 +102,9 @@ extern void cee_json_array_append_string (struct cee_json *, char *);
 extern void cee_json_array_append_double (struct cee_json *, double);
 extern void cee_json_array_append_i64 (struct cee_json *, int64_t);
 extern void cee_json_array_append_u64 (struct cee_json *, uint64_t);
+
+/* remove an element from a json array */
+extern void cee_json_array_remove (struct cee_json *, int index);
 
 extern struct cee_json* cee_json_array_get(struct cee_json *, int);
 extern void cee_json_array_iterate (struct cee_json *, void *ctx,
