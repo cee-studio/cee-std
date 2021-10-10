@@ -50,7 +50,12 @@ release: all
 
 test: all
 	$(MAKE) -C $(TOP) release
-	$(MAKE) -C $(TESTDIR) -f test.mk
+
+test_parse: test
+	$(MAKE) -C $(TESTDIR) -f test.mk test_parse
+
+test_print: test
+	$(MAKE) -C $(TESTDIR) -f test.mk test_print
 
 clean:
 	rm -rf a.c cee-json-one.c
