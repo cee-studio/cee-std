@@ -15,7 +15,7 @@ static char **g_files;
 static char **g_suffixes;
 static int    g_n_files;
 
-#define ERRBUF_SIZE 2048
+#define ERRBUF_SIZE (1024*3)
 
 
 char* load_whole_file(char *filename, long *p_fsize) 
@@ -133,8 +133,13 @@ TEST cmp_cJSON_n_cee_json(char str[], long len)
   if (!jsonstr2) SKIPm("Couldn't validate JSON");
 
   if (strcmp(jsonstr1, jsonstr2)) {
-    snprintf(errbuf, sizeof(errbuf), "\ncJSON: %s\ncee_json: %s", 
-      jsonstr1, jsonstr2);
+    snprintf(errbuf, sizeof(errbuf), "\nINPUT: %.*s\ncJSON: %s\ncee_json: %s", 
+	     (int)normlen, normstr, jsonstr1, jsonstr2);
+    FAILm(errbuf);
+  }
+  else if (strcmp(normstr, jsonstr2)) {
+    snprintf(errbuf, sizeof(errbuf), "\nINPUT: %.*s\ncJSON: %s\ncee_json: %s",
+	     (int)normlen, normstr, jsonstr1, jsonstr2);
     FAILm(errbuf);
   }
   PASS();
