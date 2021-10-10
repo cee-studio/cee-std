@@ -42,19 +42,6 @@ char* load_whole_file(char *filename, long *p_fsize)
   return str;
 }
 
-size_t normalize_string(char **dest, char *src, size_t size)
-{
-  char *iter = *dest = malloc(size + 1);
-
-  while (*src) {
-    if (!isspace(*src))
-      *iter++ = *src;
-    ++src;
-  }
-  *iter = 0;
-  return (size_t)(iter - *dest);
-}
-
 TEST check_parser(char str[], long len, enum action expected)
 {
   static char errbuf[2048];
@@ -95,44 +82,6 @@ TEST check_parser(char str[], long len, enum action expected)
   FAILm(errbuf);
 }
 
-TEST check_print(char str[], long len)
-{
-  static char errbuf[2048];
-  _Bool       failed = 0;
-
-  struct cee_state *st      = cee_state_mk(10);
-  struct cee_json  *json    = NULL;
-  int               errline = -1;
-  // normalize JSON first
-  char  *normstr  = NULL;
-  size_t normlen  = normalize_string(&normstr, str, len);
-  char   *jsonstr = NULL;
-  ssize_t jsonlen = 0;
-
-
-  cee_json_parse(st, normstr, normlen, &json, true, &errline);
-  if (errline != -1) {
-    free(normstr);
-    SKIPm("Can't validate JSON");
-  }
-
-  jsonlen = cee_json_asprint(st, &jsonstr, json, CEE_JSON_FMT_COMPACT);
-
-  if (strcmp(normstr, jsonstr)) {
-    snprintf(errbuf, sizeof(errbuf), "\nExpected: %.*s\nGot: %.*s", 
-      (int)normlen, normstr, (int)jsonlen, jsonstr);
-    failed = 1;
-  }
-
-  if (normstr) free(normstr);
-  if (jsonstr) free(jsonstr);
-
-if (failed)
-  FAILm(errbuf);
-else
-  PASS();
-}
-
 SUITE(json_parsing)
 {
   char* jsonstr;
@@ -153,9 +102,7 @@ SUITE(json_parsing)
 
     greatest_set_test_suffix(g_suffixes[i]);
     RUN_TESTp(check_parser, jsonstr, jsonlen, expected);
-    if (ACTION_ACCEPT == expected) {
-      RUN_TESTp(check_print, jsonstr, jsonlen); // test encoding
-    }
+
     free(jsonstr);
   }
 }
@@ -170,7 +117,6 @@ SUITE(json_transform)
 
     greatest_set_test_suffix(g_suffixes[i]);
     RUN_TESTp(check_parser, jsonstr, jsonlen, ACTION_NONE);
-    RUN_TESTp(check_print, jsonstr, jsonlen);
 
     free(jsonstr);
   }
