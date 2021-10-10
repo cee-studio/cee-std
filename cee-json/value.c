@@ -261,7 +261,7 @@ void cee_json_array_remove(struct cee_json *j, int i) {
   struct cee_list *o = cee_json_to_array(j);
   if (!o)
     cee_segfault();
-  if (0 < = i && i < cee_list_size(o))
+  if (0 <= i && i < cee_list_size(o))
     cee_list_remove(o, i);
 }
 
