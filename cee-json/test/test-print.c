@@ -149,8 +149,8 @@ SUITE(json_parsing)
 {
   char* jsonstr;
   long  jsonlen;
-
-  for (int i=0; i < g_n_files; ++i) {
+  int i;
+  for (i=0; i < g_n_files; ++i) {
     if (g_suffixes[i][0] != 'y')
       continue;
 
@@ -171,8 +171,8 @@ SUITE(json_transform)
 {
   char *jsonstr;
   long  jsonlen;
-
-  for (int i=0; i < g_n_files; ++i) {
+  int i;
+  for (i=0; i < g_n_files; ++i) {
     jsonstr = load_whole_file(g_files[i], &jsonlen);
     
     greatest_set_test_suffix(g_suffixes[i]);
@@ -191,8 +191,8 @@ GREATEST_MAIN_DEFS();
 int main(int argc, char *argv[]) 
 {
   GREATEST_MAIN_BEGIN();
-
-  for (int i=0; i < argc; ++i) {
+  int i;
+  for (i=0; i < argc; ++i) {
     // we're assuming the files are after the "--" arg
     if (0 == strcmp("--", argv[i]) && (i+1 < argc)) {
       g_files   = argv + (i+1);
@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
   // create test suffixes for easy identification
   g_suffixes = malloc(g_n_files * sizeof(char *));
   char *start, *end;
-  for (int i=0; i < g_n_files; ++i) {
+  for (i=0; i < g_n_files; ++i) {
     if ( (start = strchr(g_files[i], '/')) )
       ++start;
     else 
