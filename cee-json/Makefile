@@ -9,7 +9,12 @@ HDR     = cee-json.h tokenizer.h
 STD_HDR = stdlib.h string.h errno.h sys/types.h sys/stat.h unistd.h stdio.h ctype.h
 OBJS    = $(SRC:%.c=$(OBJDIR)/%.o)
 
-CFLAGS= -std=c89 -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
+CFLAGS  := -std=c89 -fno-exceptions -g -I./ -I$(TOP)/ -I$(TOP)/cee-utils
+
+ifeq ($(LCOV),1)
+	CFLAGS  += --coverage
+	LDFLAGS += --coverage
+endif
 
 .PHONY: release clean test
 
@@ -42,6 +47,9 @@ $(OBJDIR):
 cee-json-one.c: $(TOP)/cee-one.c $(SRC)
 	$(call cee_json_amalgamation, $@)
 
+$(TOP)/cee-one.c:
+	$(MAKE) -C $(TOP) release
+
 release: all
 	$(call cee_json_amalgamation, cee-json.c,-P)
 	@mkdir -p release
@@ -49,7 +57,7 @@ release: all
 	@cp cee-json.h release
 
 test: all
-	$(MAKE) -C $(TOP) release
+	$(MAKE) -C $(TESTDIR) -f test.mk
 
 test_parse: test
 	$(MAKE) -C $(TESTDIR) -f test.mk test_parse

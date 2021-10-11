@@ -1,12 +1,17 @@
 TOP = ..
 CC ?= gcc
 
-OBJS = $(wildcard ../obj/*)
+OBJS = $(wildcard ../obj/*.o)
 
 SRC   = $(wildcard *.c)
 EXES  = $(SRC:%.c=%.out)
 
-CFLAGS= -fno-exceptions -g -I$(TOP)/ -I$(TOP)/cee-utils
+CFLAGS := -fno-exceptions -g -I$(TOP)/ -I$(TOP)/cee-utils
+
+ifeq ($(LCOV),1)
+	CFLAGS  += --coverage
+	LDFLAGS += --coverage
+endif
 
 # generic compilation
 %.out: %.c $(OBJS)
@@ -15,6 +20,6 @@ CFLAGS= -fno-exceptions -g -I$(TOP)/ -I$(TOP)/cee-utils
 all: $(EXES)
 
 clean:
-	rm -f *.out
+	rm -f *.out *.gcno *.gcda
 
 .PHONY : all clean
