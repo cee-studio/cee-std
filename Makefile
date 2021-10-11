@@ -63,6 +63,7 @@ release: all
 
 test: all
 	$(MAKE) -C $(TESTDIR) -f test.mk
+	$(MAKE) -C cee-json test
 
 echo:
 	@ echo "$(SRC)"
