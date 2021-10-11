@@ -11,7 +11,7 @@ TEST_TRANSFORM_DIR = test_transform
 PARSER_SUITE_EXE   = test-parser.out
 PRINT_SUITE_EXE    = test-print.out
 
-CFLAGS := -std=c11 -fno-exceptions -g -I../ -I$(TOP)/ -I$(TOP)/cee-utils
+CFLAGS := -std=c99 -fno-exceptions -g -I../ -I$(TOP)/ -I$(TOP)/cee-utils
 
 ifeq ($(LCOV),1)
 	CFLAGS  += --coverage
