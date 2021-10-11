@@ -4,3 +4,5 @@ tmp.c
 cee-one.c
 *.out
 cee-utils
+*.gcno
+*.gcda
