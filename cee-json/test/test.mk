@@ -1,7 +1,7 @@
 TOP = ../..
 CC ?= gcc
 
-OBJS = $(wildcard ../obj/*.o)
+OBJS = $(wildcard ../obj/*.o $(TOP)/obj/*.o)
 
 SRC   = $(wildcard *.c)
 EXES  = $(SRC:%.c=%.out)
@@ -19,8 +19,11 @@ ifeq ($(LCOV),1)
 endif
 
 # generic compilation
-%.out: %.c $(OBJS) $(TOP)/cee-one.c
-	$(CC) $(CFLAGS) -g -o $@ $^ $(TOP)/cee-utils/cJSON.c
+%.out: %.c $(OBJS) ../obj/cJSON.o
+	$(CC) $(CFLAGS) -g -o $@ $^
+
+../obj/cJSON.o: $(TOP)/cee-utils/cJSON.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 all: $(EXES)
 
