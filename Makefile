@@ -72,3 +72,4 @@ clean:
 	rm -rf cee-one.c cee.c tmp.c a.out
 	rm -rf release $(OBJDIR)
 	$(MAKE) -C $(TESTDIR) -f test.mk clean
+	$(MAKE) -C cee-json clean
