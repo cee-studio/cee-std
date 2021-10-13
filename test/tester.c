@@ -1,20 +1,74 @@
-
-#include "cee.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
 
-void foo (char * x) {
-  struct cee_state * st = cee_state_mk(10);
-  struct cee_str * s = cee_str_mk(st, "logfile %s", x);
-  printf("%p\n", s);
-  printf("%s\n", (char *)s);
-  
-  // optional 
-  // cee_del(s);
+#include "cee.h"
+#include "greatest.h"
+
+TEST check_string_against_original(char *str)
+{
+  struct cee_state *st = cee_state_mk(10);
+  struct cee_str *s = cee_str_mk(st, "%s", str);
+  ASSERT_STR_EQ(str, (char *)s);
   cee_del(st);
-  return;
+  PASS();
+}
+
+TEST check_string_concatenation(void)
+{
+  struct cee_state *st = cee_state_mk(10);
+  struct cee_str *s1, *s2, *s3;
+  s1 = cee_str_mk(st, "%d", 10);
+  ASSERT_STR_EQ("10", (char *)s1);
+  s2 = cee_str_mk(st, "%.1f", 10.3);
+  ASSERT_STR_EQ("10.3", (char *)s2);
+  s3 = cee_str_mk(st, "%s %s", s1, s2);
+  ASSERT_STR_EQ("10 10.3", (char *)s3);
+  cee_del(st);
+  PASS();
+}
+
+TEST check_list_append(void)
+{
+  struct cee_state *st = cee_state_mk(10);
+  struct cee_list *list = cee_list_mk(st, 10);
+  struct cee_str *s[] = { 
+    cee_str_mk(st, "%s", "1"),
+    cee_str_mk(st, "%s", "2"),
+    cee_str_mk(st, "%s", "3")
+  };
+  const unsigned arr_len = sizeof(s) / sizeof(struct cee_str*);
+
+  for (int i=0; i < arr_len; ++i) {
+    cee_list_append(&list, s[i]);
+  }
+  ASSERT(cee_list_size(list) == arr_len);
+
+  for (int i=0; i < cee_list_size(list); ++i) {
+    char num[32];
+    snprintf(num, sizeof(num), "%d", i+1);
+    ASSERT_STR_EQ(num, (char *)list->_[i]);
+  }
+  cee_del(st);
+  PASS();
+}
+
+TEST check_list_heterogenous(void)
+{
+  struct cee_state *st = cee_state_mk(10);
+  struct cee_list *list = cee_list_mk(st, 10);
+
+  /* heterogeneous list [ 10, 10.0, "10"] */
+  enum T { I_T, F_T, S_T };
+  cee_list_append(&list, cee_tagged_mk(st, I_T, cee_boxed_from_i32(st, 10)));
+  cee_list_append(&list, cee_tagged_mk(st, F_T, cee_boxed_from_float(st, 10.1f)));
+  cee_list_append(&list, cee_tagged_mk(st, S_T, cee_str_mk(st, "10")));
+  ASSERT_EQ(10, cee_boxed_to_i32(list->_[0]));
+  ASSERT_EQ(10.1f, cee_boxed_to_float(list->_[1]));
+  ASSERT_STR_EQ("10", (char *)list->_[2]);
+  cee_del(st);
+  PASS();
 }
 
 void * baz (struct cee_state *st, struct cee_env * outer, size_t amt, va_list ap) {
@@ -49,51 +103,31 @@ void f(void *ctx, void *key, void *value)
   printf ("key:%s->%d\n", k->_, cee_boxed_to_i32(v));
 }
 
-int main () {
-  /* test str */
+SUITE(cee_str)
+{
+  char *str_list[] = { "Hello World!", "Fish", "" , "\n\t" };
+  for (int i=0; i < sizeof(str_list)/sizeof(char*); ++i) {
+    RUN_TESTp(check_string_against_original, str_list[i]);
+  }
+  RUN_TEST(check_string_concatenation);
+}
+
+SUITE(cee_list)
+{
+  RUN_TEST(check_list_append);
+}
+
+GREATEST_MAIN_DEFS();
+
+int main(int argc, char *argv[]) 
+{
+  GREATEST_MAIN_BEGIN();
+
+  RUN_SUITE(cee_str);
+  RUN_SUITE(cee_list);
+
+#if 0
   struct cee_state * st = cee_state_mk(10);
-  foo((char *)"hello world");
-  struct cee_str * s, * s1, * s2;
-  
-  s = cee_str_mk(st, "the number ten: %d", 10);
-  printf("%s\n", (char *)s);
-  
-  s1 = cee_str_mk(st, "the number ten point three: %.1f", 10.3);
-  printf("%s\n", (char *)s1);
-  
-  s2 = cee_str_mk(st, "%s, %s", s, s1);
-  printf("%s\n", s2->_);
-  
-  /* test list */
-  struct cee_list *list = cee_list_mk(st, 10);
-  
-  cee_list_append(&list, s);
-  cee_list_append(&list, s1);
-  cee_list_append(&list, s2);
-  
-  printf("v.size %zu\n", cee_list_size(list));
-  int i;
-  for (i = 0; i < cee_list_size(list); i++)
-    printf ("%d:%s\n", i, (char *)list->_[i]);
-  
-  // optional
-  //cee_del(list);
-  
-  /* heterogeneous list [ 10, 10.0, "10"] */
-  enum T {
-    I_T,
-    F_T,
-    S_T,
-  };
-  
-  list = cee_list_mk(st, 10);
-  cee_list_append(&list, cee_tagged_mk(st, I_T, cee_boxed_from_i32(st, 10)));
-  cee_list_append(&list, cee_tagged_mk(st, F_T, cee_boxed_from_float(st, 10.1)));
-  cee_list_append(&list, cee_tagged_mk(st, S_T, cee_str_mk(st, "10")));
-  
-  // optional
-  //cee_del(list);
-  cee_state_add_gc_root(st, list);
   
   /* test set */
   struct cee_set * set1 = NULL;
@@ -228,5 +262,7 @@ int main () {
   
   cee_del(st);
   printf ("exit\n");
-  return 0;
+#endif
+
+  GREATEST_MAIN_END();
 }
