@@ -88,7 +88,7 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
     return rc;
   }
   else if (result)
-    cee_json_object_set_string(result, "error", (char*)sqlite3_errmsg(db));
+    cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
   return rc;
 }
 
@@ -107,12 +107,12 @@ cee_sqlite3_insert_or_update(struct cee_state *state,
   if (step == SQLITE_ROW) {
     step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->update_stmt, NULL, &result);
     if (step != SQLITE_DONE)
-      cee_json_object_set_string(result, "error", (char*)sqlite3_errmsg(db));
+      cee_json_object_set_str(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
   }
   else {
     step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->insert_stmt, NULL, &result);
     if (step != SQLITE_DONE)
-      cee_json_object_set_string(result, "error", (char*)sqlite3_errmsg(db));
+      cee_json_object_set_str(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
     else {
       int row_id = sqlite3_last_insert_rowid(db);
       cee_json_object_set_u64(result, "id", row_id);
@@ -138,10 +138,10 @@ cee_sqlite3_update(struct cee_state *state,
   if (step == SQLITE_ROW) {
     step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->update_stmt, NULL, &result);
     if (step != SQLITE_DONE)
-      cee_json_object_set_string(result, "error", (char*)sqlite3_errmsg(db));
+      cee_json_object_set_str(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
   }
   else
-    cee_json_object_set_string(result, "error", "the-record-does-not-exist");
+    cee_json_object_set_str(result, "error", "sqlite3:'%s' returns no record", stmts->select_stmt);
   sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
   return result;
 }
