@@ -313,8 +313,43 @@ bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how)
  * The following code is shamelessly stolen from the 
  * great work of antirez's stonky:
  * https://github.com/antirez/stonky/blob/7260d9de9c6ae60776125842643ada84cc7e5ec6/stonky.c#L309
+ * the LICENSE of this code belongs to Salvatore Sanfilippo <antirez at gmail dot com>
  *
  * It is modified to work with cee_json with minimum changes
+ *
+ * You can select things like this:
+ *
+ * cee_json *width = cee_json_select(json,".features.screens[*].width",4);
+ * cee_json *height = cee_json_select(json,".features.screens[4].*","height");
+ * cee_json *price = cee_json_select(json,".features.screens[4].price_*",
+ *                  price_type == EUR ? "eur" : "usd");
+ *
+ * You can use a ":<type>" specifier, usually at the end, in order to
+ * check the type of the final JSON object selected. If the type will not
+ * match, the function will return NULL. For instance the specifier:
+ *
+ *  ".foo.bar:s"
+ *
+ * Will not return NULL only if the root object has a foo field, that is
+ * an object with a bat field, that contains a string. This is the full
+ * list of selectors:
+ *
+ *  ".field", select the "field" of the current object.
+ *  "[1234]", select the specified index of the current array.
+ *  ":<type>", check if the currently selected type is of the specified type,
+ *             where the type is a single letter that can be:
+ *             "s" for string
+ *             "n" for number
+ *             "a" for array
+ *             "o" for object
+ *             "b" for boolean
+ *             "!" for null
+ *
+ * Selectors can be combined, and the special "*" can be used in order to
+ * fetch array indexes or field names from the arguments:
+ *
+ *      cee_json *myobj = cee_json_select(root,".properties[*].*", index, fieldname);
+ */
  */
 struct cee_json* cee_json_select(struct cee_json *o, char *fmt, ...) {
   enum next_selector_token {
