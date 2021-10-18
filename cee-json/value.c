@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdarg.h>
 #endif
 
 
@@ -53,7 +54,7 @@ struct cee_list * cee_json_to_array (struct cee_json *p) {
   return (p->t == CEE_JSON_ARRAY) ? p->value.array : NULL;
 }
 
-struct cee_str * cee_json_to_string (struct cee_json *p) {
+struct cee_str * cee_json_to_str (struct cee_json *p) {
   return (p->t == CEE_JSON_STRING) ? p->value.string : NULL;
 }
 
@@ -109,16 +110,16 @@ struct cee_json * cee_json_u64_mk (struct cee_state *st, uint64_t d) {
   return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_U64, p);
 }
 
-struct cee_json * cee_json_string_mk(struct cee_state *st, struct cee_str *s) {
+struct cee_json * cee_json_str_mk(struct cee_state *st, struct cee_str *s) {
   return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_STRING, s);
 }
 
-struct cee_json * cee_json_string_mkf(struct cee_state *st, const char *fmt, ...) {
+struct cee_json * cee_json_str_mkf(struct cee_state *st, const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   struct cee_str *s = cee_str_mkv(st, fmt, ap);
   va_end(ap);
-  return cee_json_string_mk(st, s);
+  return cee_json_str_mk(st, s);
 }
 
 struct cee_json * cee_json_array_mk(struct cee_state *st, int s) {
@@ -171,12 +172,26 @@ void cee_json_object_set_bool(struct cee_json * j, char * key, bool b) {
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_bool(b));
 }
 
-void cee_json_object_set_string (struct cee_json *j, char * key, char *str) {
+void cee_json_object_set_str (struct cee_json *j, char * key, char *str) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o) 
     cee_segfault();
   struct cee_state *st = cee_get_state(o);
-  cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_string_mk(st, cee_str_mk(st, "%s", str)));
+  cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_str_mk(st, cee_str_mk(st, "%s", str)));
+}
+
+void cee_json_object_set_strf (struct cee_json *j, char * key, const char *fmt, ...) {
+  va_list ap;
+  struct cee_map *o = cee_json_to_object(j);
+  if (!o)
+    cee_segfault();
+
+  struct cee_state *st = cee_get_state(o);
+  va_start(ap, fmt);
+  struct cee_str *v = cee_str_mkv(st, fmt, ap);
+  va_end(ap);
+
+  cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_str_mk(st, v));
 }
 
 void cee_json_object_set_double (struct cee_json *j, char *key, double real) {
@@ -235,12 +250,29 @@ void cee_json_array_append_bool (struct cee_json * j, bool b) {
   }
 }
 
-void cee_json_array_append_string (struct cee_json * j, char * x) {
+void cee_json_array_append_str (struct cee_json * j, char * x) {
   struct cee_list *o = cee_json_to_array(j);
   if (!o) 
     cee_segfault();
   struct cee_state *st = cee_get_state(o);
-  cee_list_append(&o, cee_json_string_mk(st, cee_str_mk(st, "%s", x)));
+  cee_list_append(&o, cee_json_str_mk(st, cee_str_mk(st, "%s", x)));
+  if (o != j->value.array) {
+    /*  free j->value.array */
+    j->value.array = o;
+  }
+}
+
+void cee_json_array_append_strf (struct cee_json *j, const char *fmt, ...) {
+  va_list ap;
+  struct cee_list *o = cee_json_to_array(j);
+  if (!o) 
+    cee_segfault();
+  struct cee_state *st = cee_get_state(o);
+  va_start(ap, fmt);
+  struct cee_str *v = cee_str_mkv(st, fmt, ap);
+  va_end(ap);
+    
+  cee_list_append(&o, cee_json_str_mk(st, v));
   if (o != j->value.array) {
     /*  free j->value.array */
     j->value.array = o;
@@ -349,7 +381,6 @@ bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how)
  * fetch array indexes or field names from the arguments:
  *
  *      cee_json *myobj = cee_json_select(root,".properties[*].*", index, fieldname);
- */
  */
 struct cee_json* cee_json_select(struct cee_json *o, char *fmt, ...) {
   enum next_selector_token {

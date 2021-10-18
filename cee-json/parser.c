@@ -73,7 +73,7 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           state=st_object_key_or_close_expected;
         }
         else if(c==tock_str)  {
-          top->_[1]=cee_json_string_mk(st, tock.str);
+          top->_[1]=cee_json_str_mk(st, tock.str);
           tock.str = NULL;
           state=TOPS;
           POP(sp);
@@ -128,7 +128,7 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
     case st_object_value_expected: {
         struct cee_map * obj = cee_json_to_object(top->_[1]);
         if(c==tock_str) {         
-          cee_map_add(obj, key, cee_json_string_mk(st, tock.str));
+          cee_map_add(obj, key, cee_json_str_mk(st, tock.str));
           tock.str = NULL;
           state=st_object_close_or_comma_expected;
         }
@@ -187,7 +187,7 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         struct cee_list * ar = cee_json_to_array(top->_[1]);
         
         if(c==tock_str)  {
-          cee_list_append(&ar, cee_json_string_mk(st, tock.str));
+          cee_list_append(&ar, cee_json_str_mk(st, tock.str));
           state=st_array_close_or_comma_expected;
         } 
         else if(c==tock_true) {

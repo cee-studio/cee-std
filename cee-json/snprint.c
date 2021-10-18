@@ -235,7 +235,7 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
         break;
       case CEE_JSON_STRING:
         {
-          char *str = (char *)cee_json_to_string(cur_json);
+          char *str = (char *)cee_json_to_str(cur_json);
           pad(&offset, buf, ccnt, f);
 	  /* TODO: escape str */
           str_append(buf, &offset, str, strlen(str));
