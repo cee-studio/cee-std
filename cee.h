@@ -212,23 +212,27 @@ extern struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list *
 
 /*
  * it removes an element at index and shift the rest elements
- * to lower indices
+ * to lower indices.
+ * if the list is NULL, return false
  */
 extern bool cee_list_remove(struct cee_list * v, int index);
 
 /*
  * returns the number of elements in the list
+ * if the list is null, return 0.
  */
-extern size_t cee_list_size(struct cee_list *);
+extern size_t cee_list_size(struct cee_list * v);
 
 /*
  * returns the capcity of the list
+ * if the list is null, return 0.
  */
 extern size_t cee_list_capacity (struct cee_list *);
 
 
 /*
  * applies f to each element of the list with cxt
+ * if the list is null, return immediately
  */
 extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, int idx, void * e));
   
@@ -318,10 +322,23 @@ extern struct cee_set * cee_set_mk_e (struct cee_state *s, enum cee_del_policy o
                                       int (*cmp)(const void *, const void *));
 
 extern void cee_set_add(struct cee_set * m, void * key);
+/*
+ * if the set is null, return NULL
+ */
 extern void * cee_set_find(struct cee_set * m, void * key);
+/*
+ * if the set is null, return NULL
+ */
 extern void * cee_set_remove(struct cee_set * m, void * key);
 extern void cee_set_clear (struct cee_set * m);
+/*
+ * return the number of elements in the set
+ * if the set is null, return 0
+ */
 extern size_t cee_set_size(struct cee_set * m);
+/*
+ * return true if the set is null or has no element
+ */
 extern bool cee_set_empty(struct cee_set * s);
 extern struct cee_list * cee_set_values(struct cee_set * m);
 extern struct cee_set * cee_set_union_sets (struct cee_set * s1, struct cee_set * s2);
@@ -337,15 +354,28 @@ struct cee_map {
 extern struct cee_map * cee_map_mk(struct cee_state * s, cee_cmp_fun cmp);
 extern struct cee_map * cee_map_mk_e(struct cee_state * s, enum cee_del_policy o[2], cee_cmp_fun cmp);
 
+/*
+ * return the number of key/value paris in the map
+ * if the map is null, return 0
+ */
 extern uintptr_t cee_map_size(struct cee_map *);
 extern void cee_map_add(struct cee_map * m, void * key, void * value);
+/*
+ * if the map is null, return NULL.
+ * if the key is found, return its value.
+ * otherwise, return NULL.
+ */
 extern void * cee_map_find(struct cee_map * m, void * key);
+/*
+ * if the map is null, return NULL
+ */
 extern void * cee_map_remove(struct cee_map *m, void * key);
 extern struct cee_list * cee_map_keys(struct cee_map *m);
 extern struct cee_list * cee_map_values(struct cee_map *m);
 
 /*
  * applies f to each (k,v) of the map m with ctx
+ * if the map is null, return immediately
  */
 extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, void *key, void *value));
 
