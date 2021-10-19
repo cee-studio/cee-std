@@ -95,11 +95,11 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         }
         else if(c==tock_number) {
           if (tock.type == NUMBER_IS_I64)
-            top->_[1] = cee_json_i64_mk (st, tock.number.i64);
+            top->_[1] = cee_json_i64_mk(st, tock.number.i64);
           else if (tock.type == NUMBER_IS_U64)
-            top->_[1] = cee_json_u64_mk (st, tock.number.u64);
+            top->_[1] = cee_json_u64_mk(st, tock.number.u64);
           else
-            top->_[1] = cee_json_double_mk (st, tock.number.real);
+            top->_[1] = cee_json_double_mk(st, tock.number.real);
           state=TOPS;
           POP(sp);
         }
@@ -204,9 +204,9 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         }
         else if(c==tock_number) {
           if (tock.type == NUMBER_IS_I64)
-            cee_list_append(&ar, cee_json_double_mk(st, tock.number.i64));
+            cee_list_append(&ar, cee_json_i64_mk(st, tock.number.i64));
           else if (tock.type == NUMBER_IS_U64)
-            cee_list_append(&ar, cee_json_double_mk(st, tock.number.u64));
+            cee_list_append(&ar, cee_json_u64_mk(st, tock.number.u64));
           else
             cee_list_append(&ar, cee_json_double_mk(st, tock.number.real));
           state=st_array_close_or_comma_expected;
