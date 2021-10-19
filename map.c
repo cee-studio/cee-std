@@ -99,6 +99,7 @@ struct cee_map * cee_map_mk(struct cee_state * st, int (*cmp) (const void *, con
 }
 
 uintptr_t cee_map_size(struct cee_map * m) {
+  if (!m) return 0;
   struct S(header) * b = FIND_HEADER(m);
   return b->size;
 }
@@ -234,6 +235,7 @@ static void S(apply_each) (void *ctx, const void *nodep, const VISIT which, cons
 void cee_map_iterate(struct cee_map *m, void *ctx,
                      void (*f)(void *ctx, void *key, void *value))
 {
+  if (!m) return;
   struct S(header) *b = FIND_HEADER(m);
   struct S(fn_ctx) fn_ctx = { .ctx = ctx, .f = f };
   musl_twalk(&fn_ctx, b->_[0], S(apply_each));
