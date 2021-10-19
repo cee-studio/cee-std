@@ -93,6 +93,12 @@ extern struct cee_json * cee_json_str_mk (struct cee_state *, struct cee_str * s
 extern struct cee_json * cee_json_str_mkf (struct cee_state *, const char *fmt, ...);
 extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
 
+/*
+ * return 1 if cee_json is an empty object or is an empty array
+ * return 0 otherwise
+ */
+extern int cee_json_empty(struct cee_json *);
+
 extern void cee_json_object_set (struct cee_json *, char *, struct cee_json *);
 extern void cee_json_object_set_bool (struct cee_json *, char *, bool);
 extern void cee_json_object_set_str (struct cee_json *, char *, char *);
@@ -223,6 +229,18 @@ struct cee_boxed * cee_json_to_boxed (struct cee_json *p) {
   else
     return NULL;
 }
+
+int cee_json_empty(struct cee_json *p) {
+  switch(p->t) {
+  case CEE_JSON_OBJECT:
+    return cee_map_size(p->value.object) == 0;
+  case CEE_JSON_ARRAY:
+    return cee_list_size(p->value.array) == 0;
+  default:
+    return 0;
+  }
+}
+
 
 double cee_json_to_double (struct cee_json *p) {
   if (p->t == CEE_JSON_DOUBLE)
@@ -681,11 +699,11 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         }
         else if(c==tock_number) {
           if (tock.type == NUMBER_IS_I64)
-            top->_[1] = cee_json_i64_mk (st, tock.number.i64);
+            top->_[1] = cee_json_i64_mk(st, tock.number.i64);
           else if (tock.type == NUMBER_IS_U64)
-            top->_[1] = cee_json_u64_mk (st, tock.number.u64);
+            top->_[1] = cee_json_u64_mk(st, tock.number.u64);
           else
-            top->_[1] = cee_json_double_mk (st, tock.number.real);
+            top->_[1] = cee_json_double_mk(st, tock.number.real);
           state=(enum state_type)(top->_[0]);
           do { result = (struct cee_tuple *)cee_stack_pop(sp); } while(0);
         }
@@ -790,9 +808,9 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         }
         else if(c==tock_number) {
           if (tock.type == NUMBER_IS_I64)
-            cee_list_append(&ar, cee_json_double_mk(st, tock.number.i64));
+            cee_list_append(&ar, cee_json_i64_mk(st, tock.number.i64));
           else if (tock.type == NUMBER_IS_U64)
-            cee_list_append(&ar, cee_json_double_mk(st, tock.number.u64));
+            cee_list_append(&ar, cee_json_u64_mk(st, tock.number.u64));
           else
             cee_list_append(&ar, cee_json_double_mk(st, tock.number.real));
           state=st_array_close_or_comma_expected;
