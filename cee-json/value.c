@@ -65,6 +65,18 @@ struct cee_boxed * cee_json_to_boxed (struct cee_json *p) {
     return NULL;
 }
 
+int cee_json_empty(struct cee_json *p) {
+  switch(p->t) {
+  case CEE_JSON_OBJECT:
+    return cee_map_size(p->value.object) == 0;
+  case CEE_JSON_ARRAY:
+    return cee_list_size(p->value.array) == 0;
+  default:
+    return 0;
+  }
+}
+
+
 double cee_json_to_double (struct cee_json *p) {
   if (p->t == CEE_JSON_DOUBLE)
     return cee_boxed_to_double(p->value.boxed);

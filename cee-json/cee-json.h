@@ -80,6 +80,12 @@ extern struct cee_json * cee_json_str_mk (struct cee_state *, struct cee_str * s
 extern struct cee_json * cee_json_str_mkf (struct cee_state *, const char *fmt, ...);
 extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
 
+/*
+ * return 1 if cee_json is an empty object or is an empty array
+ * return 0 otherwise
+ */
+extern int cee_json_empty(struct cee_json *);
+
 extern void cee_json_object_set (struct cee_json *, char *, struct cee_json *);
 extern void cee_json_object_set_bool (struct cee_json *, char *, bool);
 extern void cee_json_object_set_str (struct cee_json *, char *, char *);
