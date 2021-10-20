@@ -141,15 +141,15 @@ TEST check_map_find(struct generic list[], const unsigned n)
   PASS();
 }
 
-#if 0
-void map_iter_cb(void *ctx, void *p_key, void *p_value)
+
+static void map_iter_cb(void *ctx, void *p_key, void *p_value)
 {
   struct cee_str *key = p_key;
   struct cee_boxed *value = p_value;
   ASSERT(p_key != NULL);
   ASSERT(p_value != NULL);
+  ASSERT((void*)123 == ctx);
 }
-#endif
 
 TEST check_map_keys(struct generic list[], const unsigned n)
 {
@@ -163,10 +163,8 @@ TEST check_map_keys(struct generic list[], const unsigned n)
   keys = cee_map_keys(mp);
   ASSERT(keys != NULL);
   ASSERT_EQ(n, cee_list_size(keys));
-#if 0
   /* @todo allow returning error value for cee_map_iterate() */
-  cee_map_iterate(mp, NULL, &map_iter_cb);
-#endif
+  cee_map_iterate(mp, 123, &map_iter_cb);
   cee_del(st);
   PASS();
 }
@@ -321,6 +319,7 @@ SUITE(cee_map)
 
   RUN_TESTp(check_map_find, list, n_pairs);
   RUN_TEST(check_map_overwrite);
+  RUN_TESTp(check_map_keys, list, n_pairs);
 }
 
 SUITE(cee_stack)
