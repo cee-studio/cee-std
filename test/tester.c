@@ -12,6 +12,7 @@ struct generic {
   union {
     void *p;
     int   i;
+    float f;
   };
 };
 
@@ -178,7 +179,52 @@ TEST check_map_overwrite(void)
   PASS();
 }
 
-void * baz (struct cee_state *st, struct cee_env * outer, size_t amt, va_list ap) {
+TEST check_stack_push(void)
+{
+  struct cee_state *st = cee_state_mk(10);
+  struct cee_stack *sp = cee_stack_mk(st, 100);
+
+  cee_stack_push(sp, cee_str_mk(st, "1"));
+  cee_stack_push(sp, cee_str_mk(st, "2"));
+  cee_stack_push(sp, cee_str_mk(st, "3"));
+  ASSERT_STR_EQ("3", cee_stack_top(sp, 0));
+  ASSERT_STR_EQ("2", cee_stack_top(sp, 1));
+  ASSERT_STR_EQ("1", cee_stack_top(sp, 2));
+  cee_del(st);
+  PASS();
+}
+
+TEST check_dict_find(void)
+{
+  struct cee_state *st   = cee_state_mk(10);
+  struct cee_dict  *dict = cee_dict_mk(st, 100);
+  struct cee_str   *key;
+  
+  for (int i=0; i < 1000; ++i) {
+    cee_dict_add(dict, cee_str_mk(st, "%d", i)->_, cee_str_mk(st, "value %d", i));
+  }
+
+  key = cee_str_mk(st, "9");
+  ASSERT_STR_EQ("value 9", cee_dict_find(dict, key->_));
+  cee_del(st);
+  PASS();
+}
+
+TEST check_n_tuple_mk(void)
+{
+  struct cee_state *st   = cee_state_mk(10);
+  struct cee_n_tuple *t = 
+    cee_n_tuple_mk(st, 5, cee_str_mk(st, "1"), cee_str_mk(st, "2"), cee_str_mk(st, "3"), cee_str_mk(st, "4"), cee_str_mk(st, "5"));
+  
+  for (int i=0; i < 5; ++i) {
+    ASSERT_EQ(i+1, strtol(t->_[i], NULL, 10));
+  }
+  cee_del(st);
+  PASS();
+}
+
+void* baz(struct cee_state *st, struct cee_env *outer, size_t amt, va_list ap) 
+{
   int u = va_arg(ap, int), v = va_arg(ap, int), w = va_arg(ap, int);
 
   int m = cee_boxed_to_i32(cee_env_find(outer, "m"));
@@ -187,19 +233,48 @@ void * baz (struct cee_state *st, struct cee_env * outer, size_t amt, va_list ap
   int x = cee_boxed_to_i32(cee_env_find(outer, "x"));
   int y = cee_boxed_to_i32(cee_env_find(outer, "y"));
 
-  return cee_boxed_from_i32(st, (u+m+x) + v*n*y + w);
+  return cee_boxed_from_i32(st, (u+m+x) + v*n*y + w); // E
 }
 
-void * bar (struct cee_state *st, struct cee_env * outer, size_t amt, va_list ap) {
+void* bar(struct cee_state *st, struct cee_env *outer, size_t amt, va_list ap) 
+{
   int i = va_arg(ap, int), j = va_arg(ap, int), k = va_arg(ap, int);
 
   struct cee_map * vars = cee_map_mk(st, (cee_cmp_fun)strcmp);
-  cee_map_add(vars, cee_str_mk(st, "x"), cee_boxed_from_i32(st, 2));
-  cee_map_add(vars, cee_str_mk(st, "y"), cee_boxed_from_i32(st, 5));
+  cee_map_add(vars, cee_str_mk(st, "x"), cee_boxed_from_i32(st, 2)); // C
+  cee_map_add(vars, cee_str_mk(st, "y"), cee_boxed_from_i32(st, 5)); // D
   struct cee_env * e = cee_env_mk(st, outer, vars);
   struct cee_closure * c = cee_closure_mk(st, e, &baz);
 
-  return cee_boxed_from_i32(st, (i+j+k) * cee_boxed_to_i32(cee_closure_call(st, c, 3, 1, 2, 3)));
+  return cee_boxed_from_i32(st, (i+j+k) * cee_boxed_to_i32(cee_closure_call(st, c, 3, 1,2,3))); // F
+}
+
+TEST check_closure(void)
+{
+  /* analogous to the following JS script:
+   * var m = 2;                              // A
+   * var n = 1;                              // B
+   * function bar(i, j, k) {
+   *   var x = 2;                            // C
+   *   var y = 5;                            // D
+   *   function baz(u, v, w) {
+   *     return (u+m+x) + v*n*y + w;         // E
+   *   }
+   *   return (i+j+k) * baz(1, 2, 3);        // F
+   * }
+   * // should return 54
+   * bar(1, 1, 1);                           // G
+   */
+  struct cee_state *st   = cee_state_mk(10);
+  struct cee_map   *vars = cee_map_mk(st, (cee_cmp_fun)&strcmp);
+  cee_map_add(vars, cee_str_mk(st, "m"), cee_boxed_from_i32(st, 2)); // A
+  cee_map_add(vars, cee_str_mk(st, "n"), cee_boxed_from_i32(st, 1)); // B
+  struct cee_env     *e   = cee_env_mk(st, NULL, vars);
+  struct cee_closure *c   = cee_closure_mk(st, e, &bar);
+  struct cee_boxed   *ret = cee_closure_call(st, c, 3, 1,1,1);       // G
+  ASSERT_EQ(54, cee_boxed_to_i32(ret));
+  cee_del(st);
+  PASS();
 }
 
 SUITE(cee_str)
@@ -239,7 +314,27 @@ SUITE(cee_map)
   const unsigned n_pairs = sizeof(list)/sizeof(struct generic);
 
   RUN_TESTp(check_map_find, list, n_pairs);
-  RUN_TESTp(check_map_overwrite);
+  RUN_TEST(check_map_overwrite);
+}
+
+SUITE(cee_stack)
+{
+  RUN_TEST(check_stack_push);
+}
+
+SUITE(cee_dict)
+{
+  RUN_TEST(check_dict_find);
+}
+
+SUITE(cee_n_tuple)
+{
+  RUN_TEST(check_n_tuple_mk);
+}
+
+SUITE(cee_closure)
+{
+  RUN_TEST(check_closure);
 }
 
 GREATEST_MAIN_DEFS();
@@ -252,82 +347,10 @@ int main(int argc, char *argv[])
   RUN_SUITE(cee_list);
   RUN_SUITE(cee_set);
   RUN_SUITE(cee_map);
-
-#if 0
-  /* test stack */
-  struct cee_stack * sp = cee_stack_mk(st, 100);
-  cee_stack_push(sp, cee_str_mk(st, "1"));
-  cee_stack_push(sp, cee_str_mk(st, "2"));
-  cee_stack_push(sp, cee_str_mk(st, "3"));
-  printf ("%s\n", (char*)cee_stack_top(sp, 0));
-  
-  // optional
-  // cee_del(sp);
-  cee_state_add_gc_root(st, sp);
-  
-  /* test diction */
-  struct cee_dict * dict = cee_dict_mk(st, 100);
-  
-  for (i = 0; i < 1000; i++)
-    cee_dict_add(dict, cee_str_mk(st, "%d", i)->_, cee_str_mk(st, "value %d", i));
-
-  struct cee_str * key = cee_str_mk(st, "9");
-  printf ("%s\n", (char*)cee_dict_find(dict, key->_));
-  
-  // optional
-  // cee_del(key);
-  // cee_del(dict);
-  
-  struct cee_n_tuple * t5 = 
-    cee_n_tuple_mk(st, 5, cee_str_mk(st, "1"), cee_str_mk(st, "2"), cee_str_mk(st, "3"), 
-                cee_str_mk(st, "4"), cee_str_mk(st, "5"));
-  
-  for (i = 0; i < 5; i++)
-    printf("%d, %s\n", i, (char*)t5->_[i]);
-  
-  // cee_del(t5);
-  printf("t5:%p\n", t5);
-  cee_state_add_gc_root(st, t5);
-  printf("%zu\n", cee_set_size(st->roots));
-  
-  struct cee_list * roots = cee_set_values(st->roots);
-  for (i = 0; i < cee_list_size(roots); i++) {
-    printf ("%d:%p\n", i, roots->_[i]);
-  }
-  
-  struct cee_map * vars = cee_map_mk(st, (cee_cmp_fun)strcmp);
-  cee_map_add(vars, cee_str_mk(st, "m"), cee_boxed_from_i32(st, 2));
-  cee_map_add(vars, cee_str_mk(st, "n"), cee_boxed_from_i32(st, 1));
-  struct cee_env *e = cee_env_mk(st, NULL, vars);
-  struct cee_closure *c = cee_closure_mk(st, e, &bar);
-  printf ("bar result:%d\n", cee_boxed_to_i32(cee_closure_call(st, c, 3, 1, 1, 1)));
-  
-  // optional
-  cee_state_gc(st);
-  
-  cee_state_remove_gc_root(st, t5);
-  printf("%zu\n", cee_set_size(st->roots));
-  cee_state_gc(st);
-  
-  cee_state_remove_gc_root(st, mp);
-  printf("%zu\n", cee_set_size(st->roots));
-  cee_state_gc(st);
-  
-  cee_state_remove_gc_root(st, list);
-  printf("%zu\n", cee_set_size(st->roots));
-  cee_state_gc(st);
-  
-  cee_state_remove_gc_root(st, sp);
-  printf("%zu\n", cee_set_size(st->roots));
-  cee_state_gc(st);
-  
-  cee_state_remove_gc_root(st, set1);
-  printf("%zu\n", cee_set_size(st->roots));
-  cee_state_gc(st);
-  
-  cee_del(st);
-  printf ("exit\n");
-#endif
+  RUN_SUITE(cee_stack);
+  RUN_SUITE(cee_dict);
+  RUN_SUITE(cee_n_tuple);
+  RUN_SUITE(cee_closure);
 
   GREATEST_MAIN_END();
 }
