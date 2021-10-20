@@ -7,4 +7,4 @@ cee-utils
 *.gcno
 *.gcda
 coverage.info
-out
+lcov-out

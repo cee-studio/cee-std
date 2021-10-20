@@ -70,7 +70,7 @@ test: all
 lcov:
 	$(MAKE) LCOV=1 test
 	lcov --capture --directory . --output-file coverage.info
-	genhtml coverage.info --output-directory out
+	genhtml coverage.info --output-directory lcov-out
 
 echo:
 	@ echo "$(SRC)"
@@ -80,3 +80,4 @@ clean:
 	rm -rf $(OBJDIR)
 	$(MAKE) -C $(TESTDIR) -f test.mk clean
 	$(MAKE) -C cee-json clean
+	rm -rf lcov-out
