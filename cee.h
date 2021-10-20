@@ -596,15 +596,23 @@ extern uint16_t cee_get_rc (void *);
 extern void cee_segfault() __attribute__((noreturn));
 
 struct cee_state {
-  /* arbitrary number of contexts */
-  struct cee_map   * contexts;
   struct cee_stack * stack;  /* the stack */
-  struct cee_sect  * trace_tail;
+  /* arbitrary number of contexts */
   /* all memory blocks are reachables from the roots */
-  /* are considered alive */
+  /* are considered alive in gc */
+  struct cee_map   * contexts; /* TODO: should be a stack of contexts to support nested lexical scope */
+
+
   struct cee_set   * roots; 
-  /* the mark value for the next iteration */
+
+  /* the mark value for the next mark/sweep iteration */
   int                next_mark;
+
+  /* all memory blocks ever allocated with this state.
+   * it is used to find them to free in the invocation 
+   * of cee_del(cee_state *)
+   */
+  struct cee_sect  * trace_tail;
 };
 /*
  * @param n:the size of stack, which is used for parsing
