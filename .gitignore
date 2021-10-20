@@ -6,3 +6,5 @@ cee-one.c
 cee-utils
 *.gcno
 *.gcda
+coverage.info
+out

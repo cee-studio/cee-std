@@ -67,5 +67,5 @@ test_print: test
 
 clean:
 	rm -rf a.c cee-json-one.c
-	rm -rf release $(OBJDIR)
+	rm -rf $(OBJDIR)
 	$(MAKE) -C $(TESTDIR) -f test.mk clean

@@ -60,16 +60,23 @@ release: all
 	@mkdir -p release
 	@mv cee.c  release
 	@cp cee.h  release
+	$(MAKE) -C cee-json release
 
 test: all
 	$(MAKE) -C $(TESTDIR) -f test.mk
-	$(MAKE) -C cee-json test
+	$(TESTDIR)/tester.out
+	$(MAKE) -C cee-json test_parse test_print
+
+lcov:
+	$(MAKE) LCOV=1 test
+	lcov --capture --directory . --output-file coverage.info
+	genhtml coverage.info --output-directory out
 
 echo:
 	@ echo "$(SRC)"
 
 clean:
 	rm -rf cee-one.c cee.c tmp.c a.out
-	rm -rf release $(OBJDIR)
+	rm -rf $(OBJDIR)
 	$(MAKE) -C $(TESTDIR) -f test.mk clean
 	$(MAKE) -C cee-json clean

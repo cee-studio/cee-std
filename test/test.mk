@@ -6,7 +6,7 @@ OBJS = $(wildcard ../obj/*.o)
 SRC   = $(wildcard *.c)
 EXES  = $(SRC:%.c=%.out)
 
-CFLAGS := -fno-exceptions -g -I$(TOP)/ -I$(TOP)/cee-utils
+CFLAGS := -std=c99 -fno-exceptions -g -I$(TOP)/ -I$(TOP)/cee-utils
 
 ifeq ($(LCOV),1)
 	CFLAGS  += --coverage
