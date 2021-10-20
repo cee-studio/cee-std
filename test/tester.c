@@ -70,13 +70,18 @@ TEST check_list_heterogenous(void)
   struct cee_state *st = cee_state_mk(10);
   struct cee_list *list = cee_list_mk(st, 10);
 
-  /* heterogeneous list [ 10, 10.0, "10"] */
+  /* heterogeneous list [ 10, 10.1, "10"] */
   cee_list_append(&list, cee_tagged_mk(st, INT32, cee_boxed_from_i32(st, 10)));
   cee_list_append(&list, cee_tagged_mk(st, FLOAT, cee_boxed_from_float(st, 10.1f)));
   cee_list_append(&list, cee_tagged_mk(st, STRING, cee_str_mk(st, "10")));
-  ASSERT_EQ(10, cee_boxed_to_i32(list->_[0]));
-  ASSERT_EQ(10.1f, cee_boxed_to_float(list->_[1]));
-  ASSERT_STR_EQ("10", (char*)list->_[2]);
+  struct cee_tagged *tv = list->_[0];
+  ASSERT_EQ(INT32, tv->tag);
+  ASSERT_EQ(10, cee_boxed_to_i32(tv->ptr.boxed));
+  tv = list->_[1];
+  ASSERT_EQ(FLOAT, tv->tag);
+  ASSERT_EQ(10.1f, cee_boxed_to_float(tv->ptr.boxed));
+  tv = list->_[2];
+  ASSERT_STR_EQ("10", (char*)tv->ptr.str);
   cee_del(st);
   PASS();
 }
@@ -290,6 +295,7 @@ SUITE(cee_str)
 SUITE(cee_list)
 {
   RUN_TEST(check_list_append);
+  RUN_TEST(check_list_heterogenous);
 }
 
 SUITE(cee_set)
