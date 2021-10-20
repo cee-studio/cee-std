@@ -20,10 +20,16 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
   switch (ta) {
     case CEE_TRACE_DEL_FOLLOW: 
     {
-      /* following this tracing chain but not the relations */
+      /* 
+       * This path will be invoked by cee_del(cee_state *).
+       * Following this trace chain but not the points-to relation 
+       * started from roots and contexts.
+       */
       struct cee_sect * tail = m->_.trace_tail;
       while (tail != &m->cs) {
-        cee_trace(tail + 1, CEE_TRACE_DEL_NO_FOLLOW);
+        /* cee_trace should call S(de_chain) to remove tail from the chain */
+        cee_trace(tail + 1, CEE_TRACE_DEL_NO_FOLLOW); 
+        /* m->_.trace_tail should point to a new tail */
         tail = m->_.trace_tail;
       }
       free(m);
@@ -37,7 +43,7 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
     }
     case CEE_TRACE_MARK:
     default:
-    {
+    { /* this will be invoked by gc */
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->_.roots, ta);
       cee_trace(m->_.stack, ta);
@@ -83,18 +89,33 @@ struct cee_state * cee_state_mk(size_t n) {
   return &h->_;
 }
   
+
+/*
+ * add a struct to the roots, so it will survive cee_state_gc.
+ * but it will not survive cee_del(cee_state *).
+ */
 void cee_state_add_gc_root(struct cee_state * s, void * key) {
   cee_set_add(s->roots, key);
 }
-  
+
+/*
+ * remove a struct from the roots, so it will be collected by cee_state_gc.
+ */
 void cee_state_remove_gc_root(struct cee_state * s, void * key) {
   cee_set_remove(s->roots, key);
 }
-  
+
+/*
+ * add a struct to the contexts, so it will survive cee_state_gc.
+ * but it will not survive cee_del(cee_state *).
+ */
 void cee_state_add_context (struct cee_state * s, char * key, void * val) {
   cee_map_add(s->contexts, key, val);
 }
-  
+
+/*
+ * remove a struct from the contexts, so it will be collected by cee_state_gc.
+ */
 void cee_state_remove_context (struct cee_state * s, char * key) {
   cee_map_remove(s->contexts, key);
 }

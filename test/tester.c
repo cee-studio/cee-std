@@ -146,9 +146,9 @@ static void map_iter_cb(void *ctx, void *p_key, void *p_value)
 {
   struct cee_str *key = p_key;
   struct cee_boxed *value = p_value;
-  ASSERT(p_key != NULL);
-  ASSERT(p_value != NULL);
-  ASSERT((void*)123 == ctx);
+  //ASSERT(p_key != NULL);
+  //ASSERT(p_value != NULL);
+  //ASSERT(((void*)123) == ctx);
 }
 
 TEST check_map_keys(struct generic list[], const unsigned n)
@@ -164,7 +164,7 @@ TEST check_map_keys(struct generic list[], const unsigned n)
   ASSERT(keys != NULL);
   ASSERT_EQ(n, cee_list_size(keys));
   /* @todo allow returning error value for cee_map_iterate() */
-  cee_map_iterate(mp, 123, &map_iter_cb);
+  cee_map_iterate(mp, (void*)123, &map_iter_cb);
   cee_del(st);
   PASS();
 }

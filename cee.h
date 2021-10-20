@@ -73,8 +73,8 @@ struct cee_sect {
   uint16_t in_degree;           /* the number of cee objects points to this object */
   /* begin of gc fields */
   struct cee_state * state;     /* the gc state under which this block is allocated */
-  struct cee_sect * trace_next; /* used for chaining cee::_::data to be traced */
-  struct cee_sect * trace_prev; /* used for chaining cee::_::data to be traced */
+  struct cee_sect * trace_next; /* used for chaining struct cee_sect to be traced */
+  struct cee_sect * trace_prev; /* used for chaining struct cee_sect to be traced */
   /* end of gc fields */
   uintptr_t mem_block_size;     /* the size of a memory block enclosing this struct */
   void *cmp;                    /* compare two memory blocks */
