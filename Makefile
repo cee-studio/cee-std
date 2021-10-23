@@ -64,7 +64,7 @@ release: all
 
 test: all
 	$(MAKE) -C $(TESTDIR) -f test.mk
-	$(TESTDIR)/tester.out
+	$(TESTDIR)/test-func.out
 	$(MAKE) -C cee-json test_parse test_print
 
 lcov:
