@@ -40,6 +40,17 @@ sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts)
   return db;
 }
 
+sqlite3* cee_sqlite3_drop_all_tables(char *dbname) {
+  char *stmt = "PRAGMA writable_schema = 1;\n"
+    "delete from sqlite_master where type in ('table', 'index', 'trigger');\n"
+    "PRAGMA writable_schema = 0;\n";
+
+  sqlite3 *db = cee_sqlite3_init_db(dbname, stmt);
+  if (db)
+    sqlite3_close(db);
+}
+
+
 int cee_sqlite3_bind_run_sql(struct cee_state *state,
                              sqlite3 *db,
                              struct cee_sqlite3_bind_info *info,

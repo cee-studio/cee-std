@@ -10,6 +10,8 @@
 #include "cee-json.h"
 
 extern sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts);
+extern void cee_sqlite3_drop_all_tables(char *dbname);
+
 enum cee_sqlite3_type {
   CEE_SQLITE3_INT,
   CEE_SQLITE3_INT64,
