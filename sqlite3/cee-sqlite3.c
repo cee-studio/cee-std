@@ -156,3 +156,74 @@ cee_sqlite3_update(struct cee_state *state,
   sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
   return result;
 }
+
+
+/*
+ * returned value is a JSON array
+ */
+struct cee_json*
+cee_sqlite3_select(struct cee_state *state,
+		   sqlite3 *db,
+		   struct cee_sqlite3_bind_info *info,
+		   struct cee_sqlite3_bind_data *data,
+		   char *sql)
+{
+  sqlite3_stmt *stmt = NULL;
+  struct cee_json *array = cee_json_array_mk(state, 1);
+  struct cee_json *status = NULL;
+  int rc = cee_sqlite3_bind_run_sql(state, db, info, data, sql, &stmt, &status);
+  while (rc != SQLITE_DONE) {
+    struct cee_json *obj = cee_json_object_mk(state);
+    cee_json_array_append(array, obj);
+    
+    int i, num_cols = sqlite3_column_count(stmt);
+    for (i = 0; i < num_cols; i++) {
+      char *name = (char *)sqlite3_column_name(stmt, i);
+      switch(sqlite3_column_type(stmt, i)) {
+      case SQLITE_TEXT:
+	cee_json_object_set_str(obj, name, (char *)sqlite3_column_text(stmt, i));
+	break;
+      case SQLITE_INTEGER:
+	cee_json_object_set_i64(obj, name, (double)sqlite3_column_int(stmt, i));
+	break;
+      default:
+	fprintf(stderr, "uhandled name %s\n", name);
+	break;
+      }
+    }
+    rc = sqlite3_step(stmt);
+  }
+  sqlite3_finalize(stmt);
+  return array;
+}
+
+
+struct cee_json*
+cee_sqlite3_select_or_insert(struct cee_state *state,
+                             sqlite3 *db,
+                             struct cee_sqlite3_bind_info *info,
+                             struct cee_sqlite3_bind_data *data,
+                             struct cee_sqlite3_stmts *stmts)
+{
+  sqlite3_stmt *sql_stmt;
+  struct cee_json *array = cee_sqlite3_select(state, db, info, data, stmts->select_stmt);
+  
+  if (cee_json_select(array, "[0]"))
+    return array;
+  
+  struct cee_json *result = cee_json_object_mk(state);
+  sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL);
+  int step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->insert_stmt, NULL, &result);
+  if (cee_json_select(result, ".error"))
+    goto clean_up;
+  else if (step != SQLITE_DONE)
+    cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
+  else {
+    int row_id = sqlite3_last_insert_rowid(db);
+    cee_json_object_set_u64(result, "last_insert_rowid", row_id);
+  }
+
+ clean_up:
+  sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
+  return result;
+}

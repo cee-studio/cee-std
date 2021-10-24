@@ -72,4 +72,26 @@ cee_sqlite3_update(struct cee_state *state,
                    struct cee_sqlite3_bind_data *data,
                    struct cee_sqlite3_stmts *stmts);
 
+
+/*
+ * the returned value is a json_array
+ */
+extern struct cee_json*
+cee_sqlite3_select(struct cee_state *state,
+		   sqlite3 *db,
+		   struct cee_sqlite3_bind_info *info,
+		   struct cee_sqlite3_bind_data *data,
+		   char *sql);
+
+/*
+ * the returned value is a json_array if select succeeds,
+ * or a json_object with last_insert_rowid set.
+ */
+extern struct cee_json*
+cee_sqlite3_select_or_insert(struct cee_state *state,
+                             sqlite3 *db,
+                             struct cee_sqlite3_bind_info *info,
+                             struct cee_sqlite3_bind_data *data,
+                             struct cee_sqlite3_stmts *stmts);
+
 #endif
