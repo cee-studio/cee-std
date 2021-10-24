@@ -1,8 +1,6 @@
 TOP = ..
 CC ?= gcc
 
-OBJS = $(wildcard ../obj/*.o)
-
 SRC   = $(wildcard *.c)
 EXES  = $(SRC:%.c=%.out)
 
@@ -14,7 +12,7 @@ ifeq ($(LCOV),1)
 endif
 
 # generic compilation
-%.out: %.c $(OBJS)
+%.out: %.c
 	$(CC) $(CFLAGS) -g -o $@ $^
 
 all: $(EXES)

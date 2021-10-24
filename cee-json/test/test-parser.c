@@ -6,7 +6,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include "cee-json.h"
+#include "release/cee.c"
+#include "release/cee-json.c"
 #include "greatest.h"
 
 

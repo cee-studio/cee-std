@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "cee.h"
+#include "release/cee.c"
 #include "greatest.h"
 
 struct generic {

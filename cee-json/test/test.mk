@@ -1,8 +1,6 @@
 TOP = ../..
 CC ?= gcc
 
-OBJS = $(wildcard ../obj/*.o $(TOP)/obj/*.o)
-
 SRC   = $(wildcard *.c)
 EXES  = $(SRC:%.c=%.out)
 

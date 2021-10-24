@@ -2,7 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "cee-json.h"
+#include "release/cee.c"
+#include "release/cee-json.c"
 
 int main () {
   struct cee_state *state = cee_state_mk(100);
