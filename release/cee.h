@@ -73,8 +73,8 @@ struct cee_sect {
   uint16_t in_degree;           /* the number of cee objects points to this object */
   /* begin of gc fields */
   struct cee_state * state;     /* the gc state under which this block is allocated */
-  struct cee_sect * trace_next; /* used for chaining cee::_::data to be traced */
-  struct cee_sect * trace_prev; /* used for chaining cee::_::data to be traced */
+  struct cee_sect * trace_next; /* used for chaining struct cee_sect to be traced */
+  struct cee_sect * trace_prev; /* used for chaining struct cee_sect to be traced */
   /* end of gc fields */
   uintptr_t mem_block_size;     /* the size of a memory block enclosing this struct */
   void *cmp;                    /* compare two memory blocks */
@@ -102,6 +102,11 @@ struct cee_block {
  *         can be freed by cee_del
  */
 extern void * cee_block_mk (struct cee_state * s, size_t n);
+
+/*
+ * @param init_f: a function to initialize the allocated block
+ */
+void * cee_block_mk_e (struct cee_state *s, size_t n, void *cxt, void (*init_f)(void *cxt, void *block));
 
 /*
  * C string is an array of chars, it may or may not be terminated by '\0'.
@@ -596,22 +601,40 @@ extern uint16_t cee_get_rc (void *);
 extern void cee_segfault() __attribute__((noreturn));
 
 struct cee_state {
-  /* arbitrary number of contexts */
-  struct cee_map   * contexts;
   struct cee_stack * stack;  /* the stack */
-  struct cee_sect  * trace_tail;
+  /* arbitrary number of contexts */
   /* all memory blocks are reachables from the roots */
-  /* are considered alive */
+  /* are considered alive in gc */
+  struct cee_map   * contexts; /* TODO: should be a stack of contexts to support nested lexical scope */
+
+
   struct cee_set   * roots; 
-  /* the mark value for the next iteration */
+
+  /* the mark value for the next mark/sweep iteration */
   int                next_mark;
+
+  /* all memory blocks ever allocated with this state.
+   * it is used to find them to free in the invocation 
+   * of cee_del(cee_state *)
+   */
+  struct cee_sect  * trace_tail;
 };
 /*
  * @param n:the size of stack, which is used for parsing
  * json and js
  */
 extern struct cee_state * cee_state_mk(size_t n);
+/*
+ * add a cee_* pointer to the gc root so it can be
+ * reachable from the root, and survive the next 
+ * cee_state_gc call
+ */
 extern void cee_state_add_gc_root(struct cee_state *, void *);
+/*
+ * remove a cee_* pointer from the gc root so it will
+ * not be reachable from the root, and be collected (freed)
+ * by the next cee_state_gc call
+ */
 extern void cee_state_remove_gc_root(struct cee_state *, void *);
 extern void cee_state_gc(struct cee_state *);
 extern void cee_state_add_context(struct cee_state *, char * key, void * val);
