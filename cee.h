@@ -104,6 +104,11 @@ struct cee_block {
 extern void * cee_block_mk (struct cee_state * s, size_t n);
 
 /*
+ * @param init_f: a function to initialize the allocated block
+ */
+void * cee_block_mk_e (struct cee_state *s, size_t n, void *cxt, void (*init_f)(void *cxt, void *block));
+
+/*
  * C string is an array of chars, it may or may not be terminated by '\0'.
  * 
  * if it's not terminated by null strlen will read memory out of its bounds.

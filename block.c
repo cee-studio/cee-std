@@ -40,6 +40,9 @@ static void S(trace) (void * p, enum cee_trace_action ta) {
 }
     
 static void S(mark) (void * p) {
+  /* we don't know anything about this block 
+   * do nothing now. 
+   */
 };
 
 void * cee_block_mk (struct cee_state * s, size_t n) {
@@ -60,4 +63,14 @@ void * cee_block_mk (struct cee_state * s, size_t n) {
   m->capacity = n;
   
   return (struct cee_block *)(m->_);
+}
+
+/*
+ * @param init_f: a function to initialize the allocated block
+ */
+void * cee_block_mk_e (struct cee_state *s, size_t n, void *cxt, void (*init_f)(void *cxt, void *block))
+{
+  void *block = cee_block_mk(s, n);
+  init_f(cxt, block);
+  return block;
 }
