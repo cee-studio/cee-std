@@ -320,12 +320,16 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
 }
 
 
+/*
+ * the memory allocated by this function is tracked by cee_state
+ */
 ssize_t
-cee_json_asprint(struct cee_state *st, char **buf_p, struct cee_json *j, 
-		 enum cee_json_fmt f)
+cee_json_asprint(struct cee_state *st, char **buf_p, size_t *buf_size_p, struct cee_json *j, 
+                 enum cee_json_fmt f)
 {
   size_t buf_size = cee_json_snprint(st, NULL, 0, j, f) + 1/*\0*/;
-  char *buf = malloc(buf_size);
+  char *buf = cee_block_mk(st, buf_size);
+  if (buf_size_p) *buf_size_p = buf_size;
   *buf_p = buf;
   return cee_json_snprint(st, buf, buf_size, j, f);
 }

@@ -76,7 +76,7 @@ char* _check_cee_json(char str[], long len)
   cee_json_parse(st, str, len, &json, true, &errline);
   if (errline != -1) return NULL;
 
-  cee_json_asprint(st, &jsonstr, json, CEE_JSON_FMT_COMPACT);
+  cee_json_asprint(st, &jsonstr, NULL, json, CEE_JSON_FMT_COMPACT);
   return jsonstr;
 }
 

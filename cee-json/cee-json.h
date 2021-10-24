@@ -122,8 +122,12 @@ extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
 				 size_t size, struct cee_json *json,
 				 enum cee_json_fmt);
 
-extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p,
-				 struct cee_json *json, enum cee_json_fmt);
+/*
+ * buf_p points to a memory block that is tracked by cee_state
+ * if buf_len is not NULL, it contains the size of the memory block
+ */
+extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p, size_t *buf_size_p,
+                                 struct cee_json *json, enum cee_json_fmt);
 
 extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);

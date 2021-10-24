@@ -20,6 +20,7 @@ int main () {
     return 0;
   }
 
-  cee_json_asprint(state, &buf, result, 0);
+  cee_json_asprint(state, &buf, NULL, result, 0);
   fprintf(stdout, "%s\n", buf);
+  cee_del(state);
 }
