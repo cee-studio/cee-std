@@ -167,10 +167,9 @@ cee_sqlite3_select(struct cee_state *state,
 		   sqlite3 *db,
 		   struct cee_sqlite3_bind_info *info,
 		   struct cee_sqlite3_bind_data *data,
-		   struct cee_sqlite3_stmt_strs *stmts)
+		   char *sql)
 {
   sqlite3_stmt *stmt = NULL;
-  char *sql = stmts->select_stmt;
   struct cee_json *array = cee_json_array_mk(state, 1);
   struct cee_json *status = NULL;
   int rc = cee_sqlite3_bind_run_sql(state, db, info, data, sql, &stmt, &status);
@@ -200,6 +199,19 @@ cee_sqlite3_select(struct cee_state *state,
 }
 
 
+/*
+ * returned value is a JSON array
+ */
+struct cee_json*
+cee_sqlite3_select_wrapper(struct cee_state *state,
+			   sqlite3 *db,
+			   struct cee_sqlite3_bind_info *info,
+			   struct cee_sqlite3_bind_data *data,
+			   struct cee_sqlite3_stmt_strs *stmts)
+{
+  return cee_sqlite3_select(state, db, info, data, stmts->select_stmt);
+}
+
 struct cee_json*
 cee_sqlite3_select_or_insert(struct cee_state *state,
                              sqlite3 *db,
@@ -208,7 +220,7 @@ cee_sqlite3_select_or_insert(struct cee_state *state,
                              struct cee_sqlite3_stmt_strs *stmts)
 {
   sqlite3_stmt *sql_stmt;
-  struct cee_json *array = cee_sqlite3_select(state, db, info, data, stmts);
+  struct cee_json *array = cee_sqlite3_select(state, db, info, data, stmts->select_stmt);
   
   if (cee_json_select(array, "[0]"))
     return array;

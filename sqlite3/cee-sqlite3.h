@@ -76,16 +76,26 @@ cee_sqlite3_update(struct cee_state *state,
                    struct cee_sqlite3_bind_data *data,
                    struct cee_sqlite3_stmt_strs *stmts);
 
-
+  
 /*
  * the returned value is a json_array
  */
-extern struct cee_json*
+struct cee_json*
 cee_sqlite3_select(struct cee_state *state,
 		   sqlite3 *db,
 		   struct cee_sqlite3_bind_info *info,
 		   struct cee_sqlite3_bind_data *data,
-		   struct cee_sqlite3_stmt_strs *stmts);
+		   char *sql);
+
+/*
+ * this is used to pass to generic_opcode function
+ */
+extern struct cee_json*
+cee_sqlite3_select_wrapper(struct cee_state *state,
+			   sqlite3 *db,
+			   struct cee_sqlite3_bind_info *info,
+			   struct cee_sqlite3_bind_data *data,
+			   struct cee_sqlite3_stmt_strs *stmts);
 
 /*
  * the returned value is a json_array if select succeeds,
