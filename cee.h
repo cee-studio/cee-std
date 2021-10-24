@@ -619,7 +619,17 @@ struct cee_state {
  * json and js
  */
 extern struct cee_state * cee_state_mk(size_t n);
+/*
+ * add a cee_* pointer to the gc root so it can be
+ * reachable from the root, and survive the next 
+ * cee_state_gc call
+ */
 extern void cee_state_add_gc_root(struct cee_state *, void *);
+/*
+ * remove a cee_* pointer from the gc root so it will
+ * not be reachable from the root, and be collected (freed)
+ * by the next cee_state_gc call
+ */
 extern void cee_state_remove_gc_root(struct cee_state *, void *);
 extern void cee_state_gc(struct cee_state *);
 extern void cee_state_add_context(struct cee_state *, char * key, void * val);
