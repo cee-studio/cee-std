@@ -6,6 +6,8 @@
 #include "release/cee.c"
 #include "greatest.h"
 
+#define N_APPENDS 5
+
 struct generic {
   enum { UNDEF=0, INT32, STRING, FLOAT } type;
   void *key;
@@ -17,6 +19,8 @@ struct generic {
 };
 
 float f_rand(float max_val) { return ((float)rand() / (float)RAND_MAX) * max_val; }
+
+typedef enum greatest_test_res (*add_check_fn)(struct cee_state *st, unsigned n_append, void **p_root);
 
 TEST add_list(struct cee_state *st, unsigned n_append, void **p_root)
 {
@@ -98,39 +102,52 @@ TEST add_dict(struct cee_state *st, unsigned n_append, void **p_root)
   PASS();
 }
 
-TEST state_cleanup(struct cee_state *st, void *roots[], unsigned n_roots)
+TEST check_garbage_collector(struct cee_state *st, void *roots[], unsigned n_roots)
 {
   for (unsigned i=0; i < n_roots; ++i) {
     cee_state_gc(st);
     cee_state_remove_gc_root(st, roots[i]);
   }
-  cee_del(st);
   PASS();
 }
 
-SUITE(cee_state)
+SUITE(garbage_collector)
 {
   struct cee_state *st = cee_state_mk(10);
-  void *roots[5]={};
-  unsigned n_roots = sizeof(roots) / sizeof(void*);
+  /* simply add new tests to the list */
+  add_check_fn test_list[] = { add_list, add_set, add_map, add_stack, add_dict };
+#define N_TESTS (sizeof(test_list) / sizeof(add_check_fn))
 
-  RUN_TESTp(add_list, st, 100, &roots[0]);
-  RUN_TESTp(add_set, st, 100, &roots[1]);
-  RUN_TESTp(add_map, st, 100, &roots[2]);
-  RUN_TESTp(add_stack, st, 100, &roots[3]);
-  RUN_TESTp(add_dict, st, 100, &roots[4]);
+  /* shuffle tests */
+  for (unsigned i=0; i < N_TESTS; ++i) {
+    int idx = rand() % N_TESTS, idy = rand() % N_TESTS;
+    add_check_fn tmp = test_list[idx];
+    test_list[idx]   = test_list[idy];
+    test_list[idy]   = tmp;
+  }
 
-  RUN_TESTp(state_cleanup, st, roots, n_roots);
+  void *roots[N_TESTS] = {};
+  for (unsigned i=0; i < N_TESTS; ++i) {
+    RUN_TESTp(test_list[i], st, N_APPENDS, &roots[i]);
+  }
+  RUN_TESTp(check_garbage_collector, st, roots, N_TESTS);
+  cee_del(st);
+#undef N_TESTS
 }
 
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char *argv[]) 
 {
+  int seed = time(NULL);
+  srand(seed);
+
   GREATEST_MAIN_BEGIN();
 
-  RUN_SUITE(cee_state);
+  RUN_SUITE(garbage_collector);
 
   GREATEST_MAIN_END();
+
+  fprintf(stderr, "%s SEED: %d", argv[0], seed);
 }
 
