@@ -152,6 +152,13 @@ struct cee_json * cee_json_object_kv(struct cee_state *st, char *key, struct cee
   return j;
 }
 
+bool cee_json_object_replace(struct cee_json *j, char *old_key, char *new_key) {
+  struct cee_map *o = cee_json_to_object(j);
+  if (!o)
+    return false;
+  return cee_map_replace(o, old_key, new_key);
+}
+
 struct cee_json* cee_json_object_get(struct cee_json *j, char *key)
 {
   struct cee_map *o = cee_json_to_object(j);
