@@ -370,7 +370,12 @@ extern struct cee_map * cee_map_mk_e(struct cee_state * s, enum cee_del_policy o
  * if the map is null, return 0
  */
 extern uintptr_t cee_map_size(struct cee_map *);
-extern void cee_map_add(struct cee_map * m, void * key, void * value);
+/*
+ * if the key does not exist, add a new key-value pair to the map
+ * if the key exist, replace the old value with the new value and return 
+ * the old value
+ */
+extern void* cee_map_add(struct cee_map * m, void * key, void * value);
 /*
  * if the map is null, return NULL.
  * if the key is found, return its value.

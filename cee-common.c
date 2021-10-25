@@ -46,6 +46,10 @@ void cee_del_ref(void *p) {
   */
   if (cs->retained) return;
   
+  /* none points to me, let's remove
+   * the references to all blocks pointed by
+   * me
+   */
   if (!cs->in_degree) cs->trace(p, CEE_TRACE_DEL_FOLLOW);
 }
 

@@ -379,7 +379,12 @@ extern struct cee_map * cee_map_mk_e(struct cee_state * s, enum cee_del_policy o
  * if the map is null, return 0
  */
 extern uintptr_t cee_map_size(struct cee_map *);
-extern void cee_map_add(struct cee_map * m, void * key, void * value);
+/*
+ * if the key does not exist, add a new key-value pair to the map
+ * if the key exist, replace the old value with the new value and return 
+ * the old value
+ */
+extern void* cee_map_add(struct cee_map * m, void * key, void * value);
 /*
  * if the map is null, return NULL.
  * if the key is found, return its value.
@@ -1171,6 +1176,10 @@ void cee_del_ref(void *p) {
   */
   if (cs->retained) return;
 
+  /* none points to me, let's remove
+   * the reference to all blocks pointed by
+   * me 
+   */
   if (!cs->in_degree) cs->trace(p, CEE_TRACE_DEL_FOLLOW);
 }
 
@@ -2107,8 +2116,14 @@ void * cee_dict_find(struct cee_dict * d, char * key) {
 struct _cee_map_header {
   int (*cmp)(const void *l, const void *r);
   uintptr_t size;
-  enum cee_del_policy key_del_policy;
-  enum cee_del_policy val_del_policy;
+  union {
+    struct {
+      enum cee_del_policy key;
+      enum cee_del_policy val;
+    } _;
+    enum cee_del_policy a[2];
+  } del_policies;
+
   enum cee_trace_action ta;
   struct cee_sect cs;
   void * _[1];
@@ -2243,8 +2258,8 @@ struct cee_map * cee_map_mk_e (struct cee_state * st, enum cee_del_policy o[2],
   m->cs.cmp_stop_at_null = 0;
   m->cs.n_product = 2; /* key, value */
 
-  m->key_del_policy = o[0];
-  m->val_del_policy = o[1];
+  m->del_policies._.key = o[0];
+  m->del_policies._.val = o[1];
   m->_[0] = 0;
   return (void *)m->_;
 }
@@ -2260,15 +2275,11 @@ uintptr_t cee_map_size(struct cee_map * m) {
   return b->size;
 }
 
-void cee_map_add(struct cee_map * m, void * key, void * value) {
+void* cee_map_add(struct cee_map * m, void * key, void * value) {
   struct _cee_map_header * b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
 
-  enum cee_del_policy d[2];
-  d[0] = b->key_del_policy;
-  d[1] = b->val_del_policy;
-
   struct cee_tuple *t, *t1 = NULL, **oldp;
-  t = cee_tuple_mk_e(b->cs.state, d, key, value);
+  t = cee_tuple_mk_e(b->cs.state, b->del_policies.a, key, value);
   oldp = musl_tsearch(b, t, b->_, _cee_map_cmp);
 
   if (oldp == NULL)
@@ -2277,13 +2288,14 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
     t1 = *oldp;
     void *old_value = t1->_[1];
     t1->_[1] = value; /* detach old value  and capture value */
-    cee_decr_indegree(d[1], old_value); /* decrease the rc of old value */
+    cee_decr_indegree(b->del_policies._.val, old_value); /* decrease the rc of old value */
     cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); /* do nothing for t[1] */
     cee_del(t);
+    return old_value;
   }
   else
     b->size ++;
-  return;
+  return NULL;
 }
 
 void * cee_map_find(struct cee_map * m, void * key) {
@@ -2298,18 +2310,23 @@ void * cee_map_find(struct cee_map * m, void * key) {
   }
 }
 
-void * cee_map_remove(struct cee_map * m, void * key) {
+void * cee_map_remove(struct cee_map * m, void *key) {
   struct _cee_map_header *b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
-  void **oldp = musl_tdelete(b, key, b->_, _cee_map_cmp);
-  if (oldp == NULL)
+  struct cee_tuple t = { key, 0 };
+  struct cee_tuple **pp = musl_tfind(b, &t, b->_, _cee_map_cmp);
+  if (pp == NULL)
     return NULL;
   else {
     b->size --;
-    struct cee_tuple *ret = *oldp;
-    cee_del(ret);
-    cee_decr_indegree(b->key_del_policy, ret->_[0]);
-    cee_decr_indegree(b->val_del_policy, ret->_[1]);
-    return ret->_[1];
+    struct cee_tuple *old_t = *pp;
+    musl_tdelete(b, &t, b->_, _cee_map_cmp);
+    void *old_value = old_t->_[1];
+    cee_decr_indegree(b->del_policies._.key, old_t->_[0]); /* decrease the rc of key */
+    cee_decr_indegree(b->del_policies._.val, old_t->_[1]); /* decrease the rc of val */
+    cee_tuple_update_del_policy(old_t, 0, CEE_DP_NOOP); /* do nothing for t[0] */
+    cee_tuple_update_del_policy(old_t, 1, CEE_DP_NOOP); /* do nothing for t[1] */
+    cee_del(old_t);
+    return old_value;
   }
 }
 

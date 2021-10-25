@@ -4,11 +4,11 @@ CC ?= gcc
 SRC   = $(wildcard *.c)
 EXES  = $(SRC:%.c=%.out)
 
-CFLAGS := -std=c99 -fno-exceptions -g -I$(TOP)/ -I$(TOP)/cee-utils
+CFLAGS := -std=c99 -fno-exceptions -g -I$(TOP)/ -I$(TOP)/cee-utils -static
 
 ifeq ($(LCOV),1)
 	CFLAGS  += --coverage
-	LDFLAGS += --coverage
+	LDFLAGS += --coverage -static
 endif
 
 # generic compilation

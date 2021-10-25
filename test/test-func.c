@@ -141,6 +141,23 @@ TEST check_map_find(struct generic list[], const unsigned n)
   PASS();
 }
 
+TEST check_map_remove(struct generic list[], const unsigned n)
+{
+  struct cee_state *st = cee_state_mk(10);
+  struct cee_map *mp = cee_map_mk(st, (cee_cmp_fun)&strcmp);
+  struct cee_boxed *t;
+
+  for (unsigned i=0; i < n; ++i) {
+    cee_map_add(mp, cee_str_mk(st, list[i].key), cee_boxed_from_i32(st, list[i].i));
+  }
+  for (unsigned i=0; i < n; ++i) {
+    t = cee_map_remove(mp, list[i].key);
+    ASSERT(t != NULL);
+  }
+  cee_del(st);
+  PASS();
+}
+
 
 static void map_iter_cb(void *ctx, void *p_key, void *p_value)
 {
@@ -318,6 +335,7 @@ SUITE(cee_map)
   const unsigned n_pairs = sizeof(list)/sizeof(struct generic);
 
   RUN_TESTp(check_map_find, list, n_pairs);
+  RUN_TESTp(check_map_remove, list, n_pairs);
   RUN_TEST(check_map_overwrite);
   RUN_TESTp(check_map_keys, list, n_pairs);
 }
