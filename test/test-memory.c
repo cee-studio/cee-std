@@ -6,7 +6,7 @@
 #include "release/cee.c"
 #include "greatest.h"
 
-#define N_APPENDS 5
+#define N_APPENDS 1000
 
 struct generic {
   enum { UNDEF=0, INT32, STRING, FLOAT } type;
@@ -18,11 +18,13 @@ struct generic {
   };
 };
 
-float f_rand(float max_val) { return ((float)rand() / (float)RAND_MAX) * max_val; }
+typedef void (*add_n_check_fn)(struct cee_state *st, unsigned n_append, void **p_root);
 
-typedef enum greatest_test_res (*add_check_fn)(struct cee_state *st, unsigned n_append, void **p_root);
+float f_rand(float max_val) { 
+  return ((float)rand() / (float)RAND_MAX) * max_val; 
+}
 
-TEST add_list(struct cee_state *st, unsigned n_append, void **p_root)
+void add_n_list(struct cee_state *st, unsigned n_append, void **p_root)
 {
   struct cee_list *list = cee_list_mk(st, 10);
   for (unsigned i=0; i < n_append; ++i) {
@@ -35,10 +37,9 @@ TEST add_list(struct cee_state *st, unsigned n_append, void **p_root)
   }
   cee_state_add_gc_root(st, list);
   *p_root = list;
-  PASS();
 }
 
-TEST add_set(struct cee_state *st, unsigned n_append, void **p_root)
+void add_n_set(struct cee_state *st, unsigned n_append, void **p_root)
 {
   struct cee_set *set = cee_set_mk(st, (cee_cmp_fun)&strcmp);
   for (unsigned i=0; i < n_append; ++i) {
@@ -46,10 +47,9 @@ TEST add_set(struct cee_state *st, unsigned n_append, void **p_root)
   }
   cee_state_add_gc_root(st, set);
   *p_root = set;
-  PASS();
 }
 
-TEST add_map(struct cee_state *st, unsigned n_append, void **p_root)
+void add_n_map(struct cee_state *st, unsigned n_append, void **p_root)
 {
   struct cee_map *map = cee_map_mk(st, (cee_cmp_fun)&strcmp);
   for (unsigned i=0; i < n_append; ++i) {
@@ -64,10 +64,9 @@ TEST add_map(struct cee_state *st, unsigned n_append, void **p_root)
   }
   cee_state_add_gc_root(st, map);
   *p_root = map;
-  PASS();
 }
 
-TEST add_stack(struct cee_state *st, unsigned n_append, void **p_root)
+void add_n_stack(struct cee_state *st, unsigned n_append, void **p_root)
 {
   struct cee_stack *s = cee_stack_mk(st, 100);
   for (unsigned i=0; i < n_append; ++i) {
@@ -81,10 +80,9 @@ TEST add_stack(struct cee_state *st, unsigned n_append, void **p_root)
   }
   cee_state_add_gc_root(st, s);
   *p_root = s;
-  PASS();
 }
 
-TEST add_dict(struct cee_state *st, unsigned n_append, void **p_root)
+void add_n_dict(struct cee_state *st, unsigned n_append, void **p_root)
 {
   struct cee_dict *dict = cee_dict_mk(st, 100);
   for (unsigned i=0; i < n_append; ++i) {
@@ -99,40 +97,39 @@ TEST add_dict(struct cee_state *st, unsigned n_append, void **p_root)
   }
   cee_state_add_gc_root(st, dict);
   *p_root = dict;
-  PASS();
 }
 
-TEST check_garbage_collector(struct cee_state *st, void *roots[], unsigned n_roots)
+TEST add_all__then_run_gc(const int n_appends)
 {
-  for (unsigned i=0; i < n_roots; ++i) {
-    cee_state_gc(st);
-    cee_state_remove_gc_root(st, roots[i]);
-  }
-  PASS();
-}
-
-SUITE(garbage_collector)
-{
-  struct cee_state *st = cee_state_mk(10);
   /* simply add new tests to the list */
-  add_check_fn test_list[] = { add_list, add_set, add_map, add_stack, add_dict };
-#define N_TESTS (sizeof(test_list) / sizeof(add_check_fn))
-
+  add_n_check_fn test_list[] = { add_n_list, add_n_set, add_n_map, add_n_stack, add_n_dict };
+#define N_TESTS (sizeof(test_list) / sizeof(add_n_check_fn))
   /* shuffle tests */
   for (unsigned i=0; i < N_TESTS; ++i) {
     int idx = rand() % N_TESTS, idy = rand() % N_TESTS;
-    add_check_fn tmp = test_list[idx];
+    add_n_check_fn tmp = test_list[idx];
     test_list[idx]   = test_list[idy];
     test_list[idy]   = tmp;
   }
 
+  struct cee_state *st = cee_state_mk(10);
   void *roots[N_TESTS] = {};
   for (unsigned i=0; i < N_TESTS; ++i) {
-    RUN_TESTp(test_list[i], st, N_APPENDS, &roots[i]);
+    test_list[i](st, n_appends, &roots[i]);
   }
-  RUN_TESTp(check_garbage_collector, st, roots, N_TESTS);
+
+  for (unsigned i=0; i < N_TESTS; ++i) {
+    cee_state_gc(st);
+    cee_state_remove_gc_root(st, roots[i]);
+  }
   cee_del(st);
+  PASS();
 #undef N_TESTS
+}
+
+SUITE(garbage_collector)
+{
+  RUN_TESTp(add_all__then_run_gc, N_APPENDS);
 }
 
 GREATEST_MAIN_DEFS();
