@@ -106,6 +106,7 @@ extern void cee_json_object_set_strf (struct cee_json *, char *, const char *fmt
 extern void cee_json_object_set_double (struct cee_json *, char *, double);
 extern void cee_json_object_set_i64 (struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_json *, char *, uint64_t);
+extern bool cee_json_object_replace (struct cee_json *, char *old_key, char *new_key);
 
 
 extern struct cee_json* cee_json_object_get(struct cee_json *, char *key);
@@ -319,6 +320,13 @@ struct cee_json * cee_json_object_kv(struct cee_state *st, char *key, struct cee
   struct cee_map * m = cee_json_to_object(j);
   cee_json_object_set (j, key, value);
   return j;
+}
+
+bool cee_json_object_replace(struct cee_json *j, char *old_key, char *new_key) {
+  struct cee_map *o = cee_json_to_object(j);
+  if (!o)
+    return false;
+  return cee_map_replace(o, old_key, new_key);
 }
 
 struct cee_json* cee_json_object_get(struct cee_json *j, char *key)
