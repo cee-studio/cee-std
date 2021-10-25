@@ -63,11 +63,11 @@ cee_sqlite3_bind_run_sql(struct cee_state *state,
                          struct cee_json **ret);
 
 extern struct cee_json*
-cee_sqlite3_insert_or_update(struct cee_state *state,
-                             sqlite3 *db,
-                             struct cee_sqlite3_bind_info *info,
-                             struct cee_sqlite3_bind_data *data,
-                             struct cee_sqlite3_stmt_strs *stmts);
+cee_sqlite3_insert(struct cee_state *state,
+		   sqlite3 *db,
+		   struct cee_sqlite3_bind_info *info,
+		   struct cee_sqlite3_bind_data *data,
+		   struct cee_sqlite3_stmt_strs *stmts);
 
 extern struct cee_json*
 cee_sqlite3_update(struct cee_state *state,
@@ -75,6 +75,13 @@ cee_sqlite3_update(struct cee_state *state,
                    struct cee_sqlite3_bind_info *info,
                    struct cee_sqlite3_bind_data *data,
                    struct cee_sqlite3_stmt_strs *stmts);
+
+extern struct cee_json*
+cee_sqlite3_update_or_insert(struct cee_state *state,
+                             sqlite3 *db,
+                             struct cee_sqlite3_bind_info *info,
+                             struct cee_sqlite3_bind_data *data,
+                             struct cee_sqlite3_stmt_strs *stmts);
 
   
 /*
