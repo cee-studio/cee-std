@@ -127,7 +127,7 @@ cee_sqlite3_update_or_insert(struct cee_state *state,
       cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
     else {
       int row_id = sqlite3_last_insert_rowid(db);
-      cee_json_object_set_u64(result, "last_insert_rowid", row_id);
+      cee_json_object_set_i64(result, "last_insert_rowid", row_id);
     }
   }
   sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
@@ -150,7 +150,7 @@ cee_sqlite3_insert(struct cee_state *state,
     cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
   else {
     int row_id = sqlite3_last_insert_rowid(db);
-    cee_json_object_set_u64(result, "last_insert_rowid", row_id);
+    cee_json_object_set_i64(result, "last_insert_rowid", row_id);
   }
   sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
   return result;
@@ -257,7 +257,7 @@ cee_sqlite3_select_or_insert(struct cee_state *state,
     cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
   else {
     int row_id = sqlite3_last_insert_rowid(db);
-    cee_json_object_set_u64(result, "last_insert_rowid", row_id);
+    cee_json_object_set_i64(result, "last_insert_rowid", row_id);
   }
 
   sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
