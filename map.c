@@ -157,6 +157,16 @@ void * cee_map_remove(struct cee_map * m, void * key) {
   }
 }
 
+bool cee_map_replace(struct cee_map *m, void *old_key, void *new_key) {
+  void *v = cee_map_remove(m, old_key);
+  if (v) {
+    cee_map_add(m, new_key, v);
+    return true;
+  }
+  else
+    return false;
+}
+
 static void S(get_key) (void * ctx, const void *nodep, const VISIT which, const int depth) {
   struct cee_tuple * p;
   switch (which) 

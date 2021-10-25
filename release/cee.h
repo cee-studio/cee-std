@@ -185,6 +185,12 @@ extern struct cee_str * cee_str_add (struct cee_str * str, char);
  */
 extern struct cee_str * cee_str_catf (struct cee_str *, const char * fmt, ...);
 extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
+
+
+/*
+ * replace the existing string with a new string
+ */
+extern struct cee_str * cee_str_replace (struct cee_str *, const char *fmt, ...);
   
 /* an auto expandable list */
 struct cee_list {
@@ -371,6 +377,12 @@ extern void cee_map_add(struct cee_map * m, void * key, void * value);
  * otherwise, return NULL.
  */
 extern void * cee_map_find(struct cee_map * m, void * key);
+
+/*
+ * replace the old_key with the new key
+ */
+extern bool cee_map_replace(struct cee_map *m, void *old_key, void *new_key);
+
 /*
  * if the map is null, return NULL
  */

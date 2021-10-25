@@ -199,3 +199,25 @@ struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
 struct cee_str * cee_str_ncat (struct cee_str * str, char * s, size_t slen) {
   return NULL;
 }
+
+struct cee_str* cee_str_replace(struct cee_str *str, const char *fmt, ...) {
+  struct S(header) * b = FIND_HEADER(str);
+  if (!fmt)
+    return str;
+
+  va_list ap;
+  va_start(ap, fmt);
+  size_t s = vsnprintf(NULL, 0, fmt, ap);
+  s ++; /* including the null terminator */
+
+  va_start(ap, fmt);
+  if (s < b->capacity) {
+    vsnprintf(b->_, s, fmt, ap);
+    return str;
+  }
+  else {
+    struct S(header) *b1 = S(resize)(b, s);
+    vsnprintf(b1->_, s, fmt, ap);
+    return (struct cee_str *)(b1->_);
+  }
+}
