@@ -104,7 +104,7 @@ uintptr_t cee_map_size(struct cee_map * m) {
   return b->size;
 }
 
-void cee_map_add(struct cee_map * m, void * key, void * value) {
+void* cee_map_add(struct cee_map * m, void * key, void * value) {
   struct S(header) * b = FIND_HEADER(m);
 
   enum cee_del_policy d[2];
@@ -124,10 +124,11 @@ void cee_map_add(struct cee_map * m, void * key, void * value) {
     cee_decr_indegree(d[1], old_value); /* decrease the rc of old value */
     cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); /* do nothing for t[1] */
     cee_del(t);
+    return old_value;
   }
   else
     b->size ++;
-  return;
+  return NULL;
 }
 
 void * cee_map_find(struct cee_map * m, void * key) {
