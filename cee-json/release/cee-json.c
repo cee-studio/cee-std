@@ -326,7 +326,12 @@ bool cee_json_object_replace(struct cee_json *j, char *old_key, char *new_key) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     return false;
-  return cee_map_replace(o, old_key, new_key);
+  struct cee_state *st = cee_get_state(o);
+  struct cee_str *old_str = cee_str_mk(st, "%s", old_key);
+  struct cee_str *new_str = cee_str_mk(st, "%s", new_key);
+  bool t = cee_map_replace(o, old_str, new_str);
+  cee_del(old_str);
+  return t;
 }
 
 struct cee_json* cee_json_object_get(struct cee_json *j, char *key)
