@@ -29,13 +29,6 @@ struct cee_sqlite3_bind_info_data {
   void *value;
 };
 
-struct cee_sqlite3_bind_info {
-  char *var_name; /* name for the binding variable */
-  char *col_name; /* db column name */
-  char *ext_name; /* external name */
-  enum cee_sqlite3_type type;
-};
-
 /*
  * the value of binding data
  */
@@ -46,6 +39,15 @@ struct cee_sqlite3_bind_data {
   size_t size;
   int has_value;
 };
+
+struct cee_sqlite3_bind_info {
+  char *var_name; /* name for the binding variable */
+  char *col_name; /* db column name */
+  char *ext_name; /* external name */
+  enum cee_sqlite3_type type;
+  struct cee_sqlite3_bind_data default_value; /* use if external data is not provided */
+};
+
 
 struct cee_sqlite3_stmt_strs {
   char *select_stmt;

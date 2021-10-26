@@ -67,6 +67,7 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
 
   int idx = 0;
   struct cee_json *result = NULL;
+  struct cee_sqlite3_bind_data *data_p = NULL;
 
   if (ret && *ret)
     result = *ret;
@@ -76,21 +77,25 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
       for(int i = 0; info[i].var_name; i++) {
         idx = sqlite3_bind_parameter_index(sql_stmt, info[i].var_name);
         if (idx <= 0) continue;
-	if (!data[i].has_value) continue;
+	if (data[i].has_value)
+	  data_p = data+i;
+	else
+	  data_p = &(info[i].default_value);
+
         switch(info[i].type) 
         {
-          case CEE_SQLITE3_INT:
-            sqlite3_bind_int(sql_stmt, idx, data[i].i);
-            break;
-          case CEE_SQLITE3_INT64:
-            sqlite3_bind_int64(sql_stmt, idx, data[i].i64);
-            break;
-          case CEE_SQLITE3_TEXT:
-            sqlite3_bind_text(sql_stmt, idx, data[i].value, data[i].size == 0 ? -1: data[i].size, SQLITE_STATIC);
-            break;
-          case CEE_SQLITE3_BLOB:
-            sqlite3_bind_blob(sql_stmt, idx, data[i].value, data[i].size, SQLITE_STATIC);
-            break;
+	case CEE_SQLITE3_INT:
+	  sqlite3_bind_int(sql_stmt, idx, data_p->i);
+	  break;
+	case CEE_SQLITE3_INT64:
+	  sqlite3_bind_int64(sql_stmt, idx, data_p->i64);
+	  break;
+	case CEE_SQLITE3_TEXT:
+	  sqlite3_bind_text(sql_stmt, idx, data_p->value, data_p->size == 0 ? -1: data_p->size, SQLITE_STATIC);
+	  break;
+	case CEE_SQLITE3_BLOB:
+	  sqlite3_bind_blob(sql_stmt, idx, data_p->value, data_p->size, SQLITE_STATIC);
+	  break;
         }
       }
     }
