@@ -79,8 +79,10 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
         if (idx <= 0) continue;
 	if (data[i].has_value)
 	  data_p = data+i;
+	else if (info[i].data.has_value)
+	  data_p = &(info[i].data);
 	else
-	  data_p = &(info[i].default_value);
+	  continue;
 
         switch(info[i].type) 
         {

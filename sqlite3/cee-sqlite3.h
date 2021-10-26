@@ -45,7 +45,7 @@ struct cee_sqlite3_bind_info {
   char *col_name; /* db column name */
   char *ext_name; /* external name */
   enum cee_sqlite3_type type;
-  struct cee_sqlite3_bind_data default_value; /* use if external data is not provided */
+  struct cee_sqlite3_bind_data data; /* default data is used if external data is not provided */
 };
 
 
