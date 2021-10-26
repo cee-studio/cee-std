@@ -37,7 +37,14 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
     }
     case CEE_TRACE_DEL_NO_FOLLOW: 
     {
-      /* TODO detach the this state from all memory blocks */
+      /* 
+       * Not sure how this is possible. Most likely
+       * this is a dead path as we cannot create a state
+       * from other states.
+       *
+       * TODO detach the this state from all 
+       * memory blocks allocated by this state 
+       */
       free(m);
       break;
     }
