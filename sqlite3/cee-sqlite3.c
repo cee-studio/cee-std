@@ -77,27 +77,27 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
       for(int i = 0; info[i].var_name; i++) {
         idx = sqlite3_bind_parameter_index(sql_stmt, info[i].var_name);
         if (idx <= 0) continue;
-	if (data[i].has_value)
-	  data_p = data+i;
-	else if (info[i].data.has_value)
-	  data_p = &(info[i].data);
-	else
-	  continue;
+        if (data && data[i].has_value)
+          data_p = data+i;
+        else if (info[i].data.has_value)
+          data_p = &(info[i].data);
+        else
+          continue;
 
         switch(info[i].type) 
         {
-	case CEE_SQLITE3_INT:
-	  sqlite3_bind_int(sql_stmt, idx, data_p->i);
-	  break;
-	case CEE_SQLITE3_INT64:
-	  sqlite3_bind_int64(sql_stmt, idx, data_p->i64);
-	  break;
-	case CEE_SQLITE3_TEXT:
-	  sqlite3_bind_text(sql_stmt, idx, data_p->value, data_p->size == 0 ? -1: data_p->size, SQLITE_STATIC);
-	  break;
-	case CEE_SQLITE3_BLOB:
-	  sqlite3_bind_blob(sql_stmt, idx, data_p->value, data_p->size, SQLITE_STATIC);
-	  break;
+            case CEE_SQLITE3_INT:
+                sqlite3_bind_int(sql_stmt, idx, data_p->i);
+                break;
+            case CEE_SQLITE3_INT64:
+                sqlite3_bind_int64(sql_stmt, idx, data_p->i64);
+                break;
+            case CEE_SQLITE3_TEXT:
+                sqlite3_bind_text(sql_stmt, idx, data_p->value, data_p->size == 0 ? -1: data_p->size, SQLITE_STATIC);
+                break;
+            case CEE_SQLITE3_BLOB:
+                sqlite3_bind_blob(sql_stmt, idx, data_p->value, data_p->size, SQLITE_STATIC);
+                break;
         }
       }
     }
@@ -143,10 +143,10 @@ cee_sqlite3_update_or_insert(struct cee_state *state,
 
 struct cee_json*
 cee_sqlite3_insert(struct cee_state *state,
-		   sqlite3 *db,
-		   struct cee_sqlite3_bind_info *info,
-		   struct cee_sqlite3_bind_data *data,
-		   struct cee_sqlite3_stmt_strs *stmts)
+       sqlite3 *db,
+       struct cee_sqlite3_bind_info *info,
+       struct cee_sqlite3_bind_data *data,
+       struct cee_sqlite3_stmt_strs *stmts)
 {
   sqlite3_stmt *sql_stmt;
   int step;
@@ -193,10 +193,10 @@ cee_sqlite3_update(struct cee_state *state,
  */
 struct cee_json*
 cee_sqlite3_select(struct cee_state *state,
-		   sqlite3 *db,
-		   struct cee_sqlite3_bind_info *info,
-		   struct cee_sqlite3_bind_data *data,
-		   char *sql)
+                   sqlite3 *db,
+                   struct cee_sqlite3_bind_info *info,
+                   struct cee_sqlite3_bind_data *data,
+                   char *sql)
 {
   sqlite3_stmt *stmt = NULL;
   struct cee_json *array = cee_json_array_mk(state, 1);
@@ -211,14 +211,14 @@ cee_sqlite3_select(struct cee_state *state,
       char *name = (char *)sqlite3_column_name(stmt, i);
       switch(sqlite3_column_type(stmt, i)) {
       case SQLITE_TEXT:
-	cee_json_object_set_str(obj, name, (char *)sqlite3_column_text(stmt, i));
-	break;
+  cee_json_object_set_str(obj, name, (char *)sqlite3_column_text(stmt, i));
+  break;
       case SQLITE_INTEGER:
-	cee_json_object_set_i64(obj, name, (double)sqlite3_column_int(stmt, i));
-	break;
+  cee_json_object_set_i64(obj, name, (double)sqlite3_column_int(stmt, i));
+  break;
       default:
-	fprintf(stderr, "uhandled name %s\n", name);
-	break;
+  fprintf(stderr, "uhandled name %s\n", name);
+  break;
       }
     }
     rc = sqlite3_step(stmt);
@@ -233,10 +233,10 @@ cee_sqlite3_select(struct cee_state *state,
  */
 struct cee_json*
 cee_sqlite3_select_wrapper(struct cee_state *state,
-			   sqlite3 *db,
-			   struct cee_sqlite3_bind_info *info,
-			   struct cee_sqlite3_bind_data *data,
-			   struct cee_sqlite3_stmt_strs *stmts)
+                           sqlite3 *db,
+                           struct cee_sqlite3_bind_info *info,
+                           struct cee_sqlite3_bind_data *data,
+                           struct cee_sqlite3_stmt_strs *stmts)
 {
   return cee_sqlite3_select(state, db, info, data, stmts->select_stmt);
 }
@@ -348,16 +348,16 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
  */
 struct cee_json*
 cee_sqlite3_generic_opcode(struct cee_state *st,
-			   sqlite3 *db,
-			   struct cee_json *json,
-			   struct cee_sqlite3_bind_info *info,
-			   struct cee_sqlite3_bind_data *data,
-			   struct cee_sqlite3_stmt_strs *stmts,
-			   struct cee_json* (*f)(struct cee_state *st,
-						 sqlite3 *db,
-						 struct cee_sqlite3_bind_info *info,
-						 struct cee_sqlite3_bind_data *data,
-						 struct cee_sqlite3_stmt_strs *stmts))
+         sqlite3 *db,
+         struct cee_json *json,
+         struct cee_sqlite3_bind_info *info,
+         struct cee_sqlite3_bind_data *data,
+         struct cee_sqlite3_stmt_strs *stmts,
+         struct cee_json* (*f)(struct cee_state *st,
+             sqlite3 *db,
+             struct cee_sqlite3_bind_info *info,
+             struct cee_sqlite3_bind_data *data,
+             struct cee_sqlite3_stmt_strs *stmts))
 {
   struct _combo aaa =
     { .state = st, .json_in = json, .stmts = stmts,
@@ -368,15 +368,15 @@ cee_sqlite3_generic_opcode(struct cee_state *st,
   aaa.unused = cee_json_array_mk(st, 10);
   aaa.used = cee_json_array_mk(st, 10);
   cee_json_object_iterate(json, &aaa, populate_opcode);
-  
+
   struct cee_json *result = f (st, db, info, data, stmts);
   cee_json_object_set(result, "used_keys", aaa.used);
 
   if (cee_json_select(aaa.unused, "[0]"))
     cee_json_object_set(result, "unused_keys", aaa.unused);
-  
+
   if (cee_json_select(aaa.errors, "[0]"))
     cee_json_object_set(result, "error", aaa.errors);
-  
+
   return result;
 }
