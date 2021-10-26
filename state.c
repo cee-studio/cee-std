@@ -50,7 +50,11 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
     }
     case CEE_TRACE_MARK:
     default:
-    { /* this will be invoked by gc */
+    { /* 
+       * this will be only invoked by cee_state_gc 
+       * mark all blocks that are reachable thru
+       * roots, stack, and contexts
+       */
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->_.roots, ta);
       cee_trace(m->_.stack, ta);
@@ -63,6 +67,9 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
 static void S(sweep) (void * v, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(v);
   struct cee_sect * head  = &m->cs;
+  /* find all blocks that are not reachable
+     in the mark cycle and delete them
+   */
   while (head != NULL) {
     struct cee_sect * next = head->trace_next;
     if (head->gc_mark != ta - CEE_TRACE_MARK)
@@ -134,7 +141,11 @@ void * cee_state_get_context (struct cee_state * s, char * key) {
 void cee_state_gc (struct cee_state * s) {
   struct S(header) * h = FIND_HEADER(s);
   int mark = CEE_TRACE_MARK + s->next_mark;
-  
+
+  /*
+   * mark all blocks that are reachable thru
+   * roots/contexts
+   */
   cee_trace(s, (enum cee_trace_action)mark);
   S(sweep)(s, (enum cee_trace_action) mark);
   
