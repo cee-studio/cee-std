@@ -210,15 +210,25 @@ cee_sqlite3_select(struct cee_state *state,
     for (i = 0; i < num_cols; i++) {
       char *name = (char *)sqlite3_column_name(stmt, i);
       switch(sqlite3_column_type(stmt, i)) {
-      case SQLITE_TEXT:
-  cee_json_object_set_str(obj, name, (char *)sqlite3_column_text(stmt, i));
-  break;
       case SQLITE_INTEGER:
-  cee_json_object_set_i64(obj, name, (double)sqlite3_column_int(stmt, i));
-  break;
-      default:
-  fprintf(stderr, "uhandled name %s\n", name);
-  break;
+        cee_json_object_set_i64(obj, name, sqlite3_column_int(stmt, i));
+        break;
+      case SQLITE_FLOAT:
+        cee_json_object_set_double(obj, name, sqlite3_column_int(stmt, i));
+        break;
+      case SQLITE_TEXT:
+        cee_json_object_set_str(obj, name, (char*)sqlite3_column_text(stmt, i));
+        break;
+      case SQLITE_NULL:
+        cee_json_object_set(obj, name, cee_json_null());
+        break;
+      case SQLITE_BLOB: {
+          size_t bytes = sqlite3_column_bytes(stmt, i);
+          const void *data = sqlite3_column_blob(stmt, i);
+          struct cee_json *blob = cee_json_blob_mk (state, data, bytes);
+          cee_json_object_set(obj, name, blob);
+        }
+        break;
       }
     }
     rc = sqlite3_step(stmt);

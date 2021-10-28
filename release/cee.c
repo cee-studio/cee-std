@@ -1177,8 +1177,8 @@ void cee_del_ref(void *p) {
   if (cs->retained) return;
 
   /* none points to me, let's remove
-   * the reference to all blocks pointed by
-   * me 
+   * the references to all blocks pointed by
+   * me
    */
   if (!cs->in_degree) cs->trace(p, CEE_TRACE_DEL_FOLLOW);
 }
@@ -4107,13 +4107,24 @@ static void _cee_state_trace (void * v, enum cee_trace_action ta) {
     }
     case CEE_TRACE_DEL_NO_FOLLOW:
     {
-      /* TODO detach the this state from all memory blocks */
+      /* 
+       * Not sure how this is possible. Most likely
+       * this is a dead path as we cannot create a state
+       * from other states.
+       *
+       * TODO detach the this state from all 
+       * memory blocks allocated by this state 
+       */
       free(m);
       break;
     }
     case CEE_TRACE_MARK:
     default:
-    { /* this will be invoked by gc */
+    { /* 
+       * this will be only invoked by cee_state_gc 
+       * mark all blocks that are reachable thru
+       * roots, stack, and contexts
+       */
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       cee_trace(m->_.roots, ta);
       cee_trace(m->_.stack, ta);
@@ -4126,6 +4137,9 @@ static void _cee_state_trace (void * v, enum cee_trace_action ta) {
 static void _cee_state_sweep (void * v, enum cee_trace_action ta) {
   struct _cee_state_header * m = (struct _cee_state_header *)((void *)((char *)(v) - (__builtin_offsetof(struct _cee_state_header, _))));
   struct cee_sect * head = &m->cs;
+  /* find all blocks that are not reachable
+     in the mark cycle and delete them
+   */
   while (head != NULL) {
     struct cee_sect * next = head->trace_next;
     if (head->gc_mark != ta - CEE_TRACE_MARK)
@@ -4198,6 +4212,10 @@ void cee_state_gc (struct cee_state * s) {
   struct _cee_state_header * h = (struct _cee_state_header *)((void *)((char *)(s) - (__builtin_offsetof(struct _cee_state_header, _))));
   int mark = CEE_TRACE_MARK + s->next_mark;
 
+  /*
+   * mark all blocks that are reachable thru
+   * roots/contexts
+   */
   cee_trace(s, (enum cee_trace_action)mark);
   _cee_state_sweep(s, (enum cee_trace_action) mark);
 

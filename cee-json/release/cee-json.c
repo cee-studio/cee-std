@@ -31,6 +31,7 @@ enum cee_json_type {
   CEE_JSON_I64,          /**<  64-bit signed int */
   CEE_JSON_U64,          /**<  64-bit unsigned int */
   CEE_JSON_STRING,       /**<  string value */
+  CEE_JSON_BLOB,         /**<  blob value, it should be printed as base64 */
   CEE_JSON_OBJECT,       /**<  object value  */
   CEE_JSON_ARRAY         /**<  array value */
 };
@@ -43,6 +44,7 @@ struct cee_json {
     struct cee_singleton * boolean;
     struct cee_boxed     * boxed;
     struct cee_str       * string;
+    struct cee_block     * blob;
     struct cee_list      * array;
     struct cee_map       * object;
   } value;
@@ -73,6 +75,8 @@ extern struct cee_list * cee_json_to_array (struct cee_json *);
 extern struct cee_map * cee_json_to_object (struct cee_json *);
 extern struct cee_boxed * cee_json_to_boxed (struct cee_json *);
 extern struct cee_str* cee_json_to_str (struct cee_json *);
+extern struct cee_block* cee_json_to_blob (struct cee_json *);
+
 extern double cee_json_to_double (struct cee_json *);
 extern int64_t cee_json_to_i64 (struct cee_json*);
 extern uint64_t cee_json_to_u64 (struct cee_json*);
@@ -91,6 +95,7 @@ extern struct cee_json * cee_json_i64_mk(struct cee_state *, int64_t);
 extern struct cee_json * cee_json_u64_mk(struct cee_state *, uint64_t);
 extern struct cee_json * cee_json_str_mk (struct cee_state *, struct cee_str * s);
 extern struct cee_json * cee_json_str_mkf (struct cee_state *, const char *fmt, ...);
+extern struct cee_json * cee_json_blob_mk (struct cee_state *, const void *src, size_t bytes);
 extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
 
 /*
@@ -235,6 +240,15 @@ struct cee_boxed * cee_json_to_boxed (struct cee_json *p) {
     return NULL;
 }
 
+struct cee_block* cee_json_to_blob (struct cee_json *p) {
+  if (p->t == CEE_JSON_BLOB)
+    return p->value.blob;
+  else
+    return NULL;
+}
+
+
+
 int cee_json_empty(struct cee_json *p) {
   switch(p->t) {
   case CEE_JSON_OBJECT:
@@ -320,6 +334,13 @@ struct cee_json * cee_json_object_kv(struct cee_state *st, char *key, struct cee
   struct cee_map * m = cee_json_to_object(j);
   cee_json_object_set (j, key, value);
   return j;
+}
+
+struct cee_json* cee_json_blob_mk(struct cee_state *st, const void *src, size_t bytes) {
+  struct cee_block *m = cee_block_mk(st, bytes);
+  memcpy(m->_, src, bytes);
+  struct cee_tagged *t = cee_tagged_mk (st, CEE_JSON_BLOB, m);
+  return (struct cee_json*)t;
 }
 
 bool cee_json_object_replace(struct cee_json *j, char *old_key, char *new_key) {
@@ -1115,6 +1136,17 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
           char *str = (char *)cee_json_to_str(cur_json);
           pad(&offset, buf, ccnt, f);
 
+          str_append(buf, &offset, str, strlen(str));
+          if (ccnt->more_siblings)
+            delimiter(&offset, buf, f, ccnt, ',');
+          cee_del(cee_stack_pop(sp));
+        }
+        break;
+      case CEE_JSON_BLOB:
+        {
+
+          char *str = "error:blob is not handled in print";
+          pad(&offset, buf, ccnt, f);
           str_append(buf, &offset, str, strlen(str));
           if (ccnt->more_siblings)
             delimiter(&offset, buf, f, ccnt, ',');

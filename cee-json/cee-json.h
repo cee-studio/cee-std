@@ -18,6 +18,7 @@ enum cee_json_type {
   CEE_JSON_I64,          /**<  64-bit signed int */
   CEE_JSON_U64,          /**<  64-bit unsigned int */
   CEE_JSON_STRING,       /**<  string value */
+  CEE_JSON_BLOB,         /**<  blob value, it should be printed as base64 */
   CEE_JSON_OBJECT,       /**<  object value  */
   CEE_JSON_ARRAY         /**<  array value */
 };
@@ -30,6 +31,7 @@ struct cee_json {
     struct cee_singleton * boolean;
     struct cee_boxed     * boxed;
     struct cee_str       * string;
+    struct cee_block     * blob;
     struct cee_list      * array;
     struct cee_map       * object;
   } value;
@@ -60,6 +62,8 @@ extern struct cee_list * cee_json_to_array (struct cee_json *);
 extern struct cee_map * cee_json_to_object (struct cee_json *);
 extern struct cee_boxed * cee_json_to_boxed (struct cee_json *);
 extern struct cee_str* cee_json_to_str (struct cee_json *);
+extern struct cee_block* cee_json_to_blob (struct cee_json *);
+
 extern double cee_json_to_double (struct cee_json *);
 extern int64_t cee_json_to_i64 (struct cee_json*);
 extern uint64_t cee_json_to_u64 (struct cee_json*);
@@ -78,6 +82,7 @@ extern struct cee_json * cee_json_i64_mk(struct cee_state *, int64_t);
 extern struct cee_json * cee_json_u64_mk(struct cee_state *, uint64_t);
 extern struct cee_json * cee_json_str_mk (struct cee_state *, struct cee_str * s);
 extern struct cee_json * cee_json_str_mkf (struct cee_state *, const char *fmt, ...);
+extern struct cee_json * cee_json_blob_mk (struct cee_state *, const void *src, size_t bytes);
 extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
 
 /*

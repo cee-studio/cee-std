@@ -237,7 +237,18 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
         {
           char *str = (char *)cee_json_to_str(cur_json);
           pad(&offset, buf, ccnt, f);
-	  /* TODO: escape str */
+          /* TODO: escape str */
+          str_append(buf, &offset, str, strlen(str));
+          if (ccnt->more_siblings)
+            delimiter(&offset, buf, f, ccnt, ',');
+          cee_del(cee_stack_pop(sp));
+        }
+        break;
+      case CEE_JSON_BLOB:
+        {
+          /* TODO: encode as base64 */
+          char *str = "error:blob is not handled in print";
+          pad(&offset, buf, ccnt, f);
           str_append(buf, &offset, str, strlen(str));
           if (ccnt->more_siblings)
             delimiter(&offset, buf, f, ccnt, ',');

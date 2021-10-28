@@ -65,6 +65,15 @@ struct cee_boxed * cee_json_to_boxed (struct cee_json *p) {
     return NULL;
 }
 
+struct cee_block* cee_json_to_blob (struct cee_json *p) {
+  if (p->t == CEE_JSON_BLOB)
+    return p->value.blob;
+  else
+    return NULL;
+}
+
+
+
 int cee_json_empty(struct cee_json *p) {
   switch(p->t) {
   case CEE_JSON_OBJECT:
@@ -150,6 +159,13 @@ struct cee_json * cee_json_object_kv(struct cee_state *st, char *key, struct cee
   struct cee_map * m = cee_json_to_object(j);
   cee_json_object_set (j, key, value);
   return j;
+}
+
+struct cee_json* cee_json_blob_mk(struct cee_state *st, const void *src, size_t bytes) {
+  struct cee_block *m = cee_block_mk(st, bytes);
+  memcpy(m->_, src, bytes);
+  struct cee_tagged *t = cee_tagged_mk (st, CEE_JSON_BLOB, m);
+  return (struct cee_json*)t;
 }
 
 bool cee_json_object_replace(struct cee_json *j, char *old_key, char *new_key) {
