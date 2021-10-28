@@ -211,10 +211,10 @@ cee_sqlite3_select(struct cee_state *state,
       char *name = (char *)sqlite3_column_name(stmt, i);
       switch(sqlite3_column_type(stmt, i)) {
       case SQLITE_INTEGER:
-        cee_json_object_set_i64(obj, name, sqlite3_column_int(stmt, i));
+        cee_json_object_set_i64(obj, name, sqlite3_column_int64(stmt, i));
         break;
       case SQLITE_FLOAT:
-        cee_json_object_set_double(obj, name, sqlite3_column_int(stmt, i));
+        cee_json_object_set_double(obj, name, sqlite3_column_double(stmt, i));
         break;
       case SQLITE_TEXT:
         cee_json_object_set_str(obj, name, (char*)sqlite3_column_text(stmt, i));
