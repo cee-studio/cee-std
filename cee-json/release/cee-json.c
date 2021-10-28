@@ -351,6 +351,7 @@ void cee_json_object_remove(struct cee_json *j, char *key)
 }
 
 void cee_json_object_set(struct cee_json *j, char *key, struct cee_json *v) {
+  if (!j) return;
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
@@ -358,7 +359,8 @@ void cee_json_object_set(struct cee_json *j, char *key, struct cee_json *v) {
   cee_map_add(o, cee_str_mk(st, "%s", key), v);
 }
 
-void cee_json_object_set_bool(struct cee_json * j, char * key, bool b) {
+void cee_json_object_set_bool(struct cee_json *j, char *key, bool b) {
+  if (!j) return;
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
@@ -366,7 +368,8 @@ void cee_json_object_set_bool(struct cee_json * j, char * key, bool b) {
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_bool(b));
 }
 
-void cee_json_object_set_str (struct cee_json *j, char * key, char *str) {
+void cee_json_object_set_str (struct cee_json *j, char *key, char *str) {
+  if (!j) return;
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
@@ -374,7 +377,8 @@ void cee_json_object_set_str (struct cee_json *j, char * key, char *str) {
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_str_mk(st, cee_str_mk(st, "%s", str)));
 }
 
-void cee_json_object_set_strf (struct cee_json *j, char * key, const char *fmt, ...) {
+void cee_json_object_set_strf (struct cee_json *j, char *key, const char *fmt, ...) {
+  if (!j) return;
   va_list ap;
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
@@ -389,6 +393,7 @@ void cee_json_object_set_strf (struct cee_json *j, char * key, const char *fmt, 
 }
 
 void cee_json_object_set_double (struct cee_json *j, char *key, double real) {
+  if (!j) return;
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
@@ -397,6 +402,7 @@ void cee_json_object_set_double (struct cee_json *j, char *key, double real) {
 }
 
 void cee_json_object_set_i64 (struct cee_json *j, char *key, int64_t real) {
+  if (!j) return;
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
@@ -404,7 +410,8 @@ void cee_json_object_set_i64 (struct cee_json *j, char *key, int64_t real) {
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_i64_mk(st, real));
 }
 
-void cee_json_object_set_u64 (struct cee_json * j, char * key, uint64_t real) {
+void cee_json_object_set_u64 (struct cee_json *j, char *key, uint64_t real) {
+  if (!j) return;
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     cee_segfault();
