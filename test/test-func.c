@@ -2,6 +2,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <float.h>
 
 #include "release/cee.c"
 #include "greatest.h"
@@ -17,7 +19,75 @@ struct generic {
 };
 
 
-TEST check_string_against_original(char *str)
+TEST boxed__compare_values_by_type(void)
+{
+  struct cee_state *st = cee_state_mk(10);
+
+  ASSERT_EQ(INT8_MAX, cee_boxed_to_i8(cee_boxed_from_i8(st, INT8_MAX)));
+  ASSERT_EQ(INT8_MIN, cee_boxed_to_i8(cee_boxed_from_i8(st, INT8_MIN)));
+  ASSERT_EQ(INT16_MAX, cee_boxed_to_i16(cee_boxed_from_i16(st, INT16_MAX)));
+  ASSERT_EQ(INT16_MIN, cee_boxed_to_i16(cee_boxed_from_i16(st, INT16_MIN)));
+  ASSERT_EQ(INT32_MAX, cee_boxed_to_i32(cee_boxed_from_i32(st, INT32_MAX)));
+  ASSERT_EQ(INT32_MIN, cee_boxed_to_i32(cee_boxed_from_i32(st, INT32_MIN)));
+  ASSERT_EQ(INT64_MAX, cee_boxed_to_i64(cee_boxed_from_i64(st, INT64_MAX)));
+  ASSERT_EQ(INT64_MIN, cee_boxed_to_i64(cee_boxed_from_i64(st, INT64_MIN)));
+
+  ASSERT_EQ(UINT8_MAX, cee_boxed_to_u8(cee_boxed_from_u8(st, UINT8_MAX)));
+  ASSERT_EQ(UINT16_MAX, cee_boxed_to_u16(cee_boxed_from_u16(st, UINT16_MAX)));
+  ASSERT_EQ(UINT32_MAX, cee_boxed_to_u32(cee_boxed_from_u32(st, UINT32_MAX)));
+  ASSERT_EQ(UINT64_MAX, cee_boxed_to_u64(cee_boxed_from_u64(st, UINT64_MAX)));
+
+  ASSERT_EQ(DBL_MAX, cee_boxed_to_double(cee_boxed_from_double(st, DBL_MAX)));
+  ASSERT_EQ(DBL_MIN, cee_boxed_to_double(cee_boxed_from_double(st, DBL_MIN)));
+  ASSERT_EQ(FLT_MAX, cee_boxed_to_float(cee_boxed_from_float(st, FLT_MAX)));
+  ASSERT_EQ(FLT_MIN, cee_boxed_to_float(cee_boxed_from_float(st, FLT_MIN)));
+
+  cee_del(st);
+  PASS();
+}
+
+TEST boxed__print_values_by_type(void)
+{
+  struct cee_state *st = cee_state_mk(10);
+  char buf[256], expect[256];
+
+  snprintf(expect, sizeof(expect), "%"PRId8, INT8_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_i8(st, INT8_MAX));
+  ASSERT_STR_EQ(expect, buf);
+  snprintf(expect, sizeof(expect), "%"PRId16, INT16_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_i16(st, INT16_MAX));
+  ASSERT_STR_EQ(expect, buf);
+  snprintf(expect, sizeof(expect), "%"PRId32, INT32_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_i32(st, INT32_MAX));
+  ASSERT_STR_EQ(expect, buf);
+  snprintf(expect, sizeof(expect), "%"PRId64, INT64_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_i64(st, INT64_MAX));
+  ASSERT_STR_EQ(expect, buf);
+
+  snprintf(expect, sizeof(expect), "%"PRIu8, UINT8_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_u8(st, UINT8_MAX));
+  ASSERT_STR_EQ(expect, buf);
+  snprintf(expect, sizeof(expect), "%"PRIu16, UINT16_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_u16(st, UINT16_MAX));
+  ASSERT_STR_EQ(expect, buf);
+  snprintf(expect, sizeof(expect), "%"PRIu32, UINT32_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_u32(st, UINT32_MAX));
+  ASSERT_STR_EQ(expect, buf);
+  snprintf(expect, sizeof(expect), "%"PRIu64, UINT64_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_u64(st, UINT64_MAX));
+  ASSERT_STR_EQ(expect, buf);
+
+  snprintf(expect, sizeof(expect), "%lg", DBL_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_double(st, DBL_MAX));
+  ASSERT_STR_EQ(expect, buf);
+  snprintf(expect, sizeof(expect), "%g", FLT_MAX);
+  cee_boxed_snprint(buf, sizeof(buf), cee_boxed_from_float(st, FLT_MAX));
+  ASSERT_STR_EQ(expect, buf);
+  cee_del(st);
+  PASS();
+}
+
+TEST str__compare_initialized_against_original(char *str)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_str *s = cee_str_mk(st, "%s", str);
@@ -26,7 +96,7 @@ TEST check_string_against_original(char *str)
   PASS();
 }
 
-TEST check_string_concatenation(void)
+TEST str__concatenate_strings(void)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_str *s1, *s2, *s3;
@@ -40,7 +110,7 @@ TEST check_string_concatenation(void)
   PASS();
 }
 
-TEST check_list_append(void)
+TEST list__persistent_element_values_and_position(void)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_list *list = cee_list_mk(st, 10);
@@ -65,7 +135,7 @@ TEST check_list_append(void)
   PASS();
 }
 
-TEST check_list_heterogenous(void)
+TEST list__retrieve_heterogeneous_elements(void)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_list *list = cee_list_mk(st, 10);
@@ -86,23 +156,7 @@ TEST check_list_heterogenous(void)
   PASS();
 }
 
-TEST check_set_find(char *str)
-{
-  struct cee_state *st = cee_state_mk(10);
-  struct cee_set *set = cee_set_mk(st, (cee_cmp_fun)&strcmp);
-  char *p;
-
-  cee_set_add(set, cee_str_mk(st, str));
-  p = cee_set_find(set, str);
-  ASSERT_STR_EQ(str, p);
-  cee_set_remove(set, cee_str_mk(st, str));
-  p = cee_set_find(set, str);
-  ASSERT(p == NULL);
-  cee_del(st);
-  PASS();
-}
-
-TEST check_set_values(char *str_list[], const unsigned n_str)
+TEST set__find_element_by_value(char *str_list[], const unsigned n_str)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_set *set = cee_set_mk(st, (cee_cmp_fun)&strcmp);
@@ -124,7 +178,7 @@ TEST check_set_values(char *str_list[], const unsigned n_str)
   PASS();
 }
 
-TEST check_map_find(struct generic list[], const unsigned n)
+TEST map__find_element_by_key(struct generic list[], const unsigned n)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_map *mp = cee_map_mk(st, (cee_cmp_fun)&strcmp);
@@ -141,7 +195,7 @@ TEST check_map_find(struct generic list[], const unsigned n)
   PASS();
 }
 
-TEST check_map_remove(struct generic list[], const unsigned n)
+TEST map__remove_element(struct generic list[], const unsigned n)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_map *mp = cee_map_mk(st, (cee_cmp_fun)&strcmp);
@@ -168,7 +222,7 @@ static void map_iter_cb(void *ctx, void *p_key, void *p_value)
   //ASSERT(((void*)123) == ctx);
 }
 
-TEST check_map_keys(struct generic list[], const unsigned n)
+TEST map__iterate_by_keys(struct generic list[], const unsigned n)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_map *mp = cee_map_mk(st, (cee_cmp_fun)&strcmp);
@@ -186,7 +240,7 @@ TEST check_map_keys(struct generic list[], const unsigned n)
   PASS();
 }
 
-TEST check_map_overwrite(void)
+TEST map__overwrite_element_value(void)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_map *mp = cee_map_mk(st, (cee_cmp_fun)&strcmp);
@@ -199,7 +253,7 @@ TEST check_map_overwrite(void)
   PASS();
 }
 
-TEST check_stack_push(void)
+TEST stack__retrieve_pushed_elements(void)
 {
   struct cee_state *st = cee_state_mk(10);
   struct cee_stack *sp = cee_stack_mk(st, 100);
@@ -214,7 +268,7 @@ TEST check_stack_push(void)
   PASS();
 }
 
-TEST check_dict_find(void)
+TEST dict__find_element_by_key(void)
 {
   struct cee_state *st   = cee_state_mk(10);
   struct cee_dict  *dict = cee_dict_mk(st, 100);
@@ -230,7 +284,7 @@ TEST check_dict_find(void)
   PASS();
 }
 
-TEST check_n_tuple_mk(void)
+TEST n_tuple__check_initializer(void)
 {
   struct cee_state *st   = cee_state_mk(10);
   struct cee_n_tuple *t = 
@@ -269,7 +323,7 @@ void* bar(struct cee_state *st, struct cee_env *outer, size_t amt, va_list ap)
   return cee_boxed_from_i32(st, (i+j+k) * cee_boxed_to_i32(cee_closure_call(st, c, 3, 1,2,3))); // F
 }
 
-TEST check_closure(void)
+TEST closure__check_persistent_state(void)
 {
   /* analogous to the following JS script:
    * var m = 2;                              // A
@@ -297,20 +351,26 @@ TEST check_closure(void)
   PASS();
 }
 
+SUITE(cee_boxed)
+{
+  RUN_TEST(boxed__compare_values_by_type);
+  RUN_TEST(boxed__print_values_by_type);
+}
+
 SUITE(cee_str)
 {
   char *str_list[] = { "Hello World!", "Fish", "" , "\n\t" };
 
   for (unsigned i=0; i < sizeof(str_list)/sizeof(char*); ++i) {
-    RUN_TESTp(check_string_against_original, str_list[i]);
+    RUN_TESTp(str__compare_initialized_against_original, str_list[i]);
   }
-  RUN_TEST(check_string_concatenation);
+  RUN_TEST(str__concatenate_strings);
 }
 
 SUITE(cee_list)
 {
-  RUN_TEST(check_list_append);
-  RUN_TEST(check_list_heterogenous);
+  RUN_TEST(list__persistent_element_values_and_position);
+  RUN_TEST(list__retrieve_heterogeneous_elements);
 }
 
 SUITE(cee_set)
@@ -318,10 +378,7 @@ SUITE(cee_set)
   char *str_list[] = { "Hello World!", "Fish", "" , "\n\t" };
   const unsigned n_str = sizeof(str_list)/sizeof(char*);
 
-  for (unsigned i=0; i < n_str; ++i) {
-    RUN_TESTp(check_set_find, str_list[i]);
-  }
-  RUN_TESTp(check_set_values, str_list, n_str);
+  RUN_TESTp(set__find_element_by_value, str_list, n_str);
 }
 
 SUITE(cee_map)
@@ -334,30 +391,30 @@ SUITE(cee_map)
   };
   const unsigned n_pairs = sizeof(list)/sizeof(struct generic);
 
-  RUN_TESTp(check_map_find, list, n_pairs);
-  RUN_TESTp(check_map_remove, list, n_pairs);
-  RUN_TEST(check_map_overwrite);
-  RUN_TESTp(check_map_keys, list, n_pairs);
+  RUN_TESTp(map__find_element_by_key, list, n_pairs);
+  RUN_TESTp(map__remove_element, list, n_pairs);
+  RUN_TESTp(map__iterate_by_keys, list, n_pairs);
+  RUN_TEST(map__overwrite_element_value);
 }
 
 SUITE(cee_stack)
 {
-  RUN_TEST(check_stack_push);
+  RUN_TEST(stack__retrieve_pushed_elements);
 }
 
 SUITE(cee_dict)
 {
-  RUN_TEST(check_dict_find);
+  RUN_TEST(dict__find_element_by_key);
 }
 
 SUITE(cee_n_tuple)
 {
-  RUN_TEST(check_n_tuple_mk);
+  RUN_TEST(n_tuple__check_initializer);
 }
 
 SUITE(cee_closure)
 {
-  RUN_TEST(check_closure);
+  RUN_TEST(closure__check_persistent_state);
 }
 
 GREATEST_MAIN_DEFS();
@@ -366,6 +423,7 @@ int main(int argc, char *argv[])
 {
   GREATEST_MAIN_BEGIN();
 
+  RUN_SUITE(cee_boxed);
   RUN_SUITE(cee_str);
   RUN_SUITE(cee_list);
   RUN_SUITE(cee_set);
