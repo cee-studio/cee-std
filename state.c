@@ -79,7 +79,6 @@ static void S(sweep) (void * v, enum cee_trace_action ta) {
 }
 
 static int S(cmp) (const void * v1, const void * v2) {
-  printf("%p %p\n", v1, v2);
   if (v1 < v2)
     return -1;
   else if (v1 == v2)

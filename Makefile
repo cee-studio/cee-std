@@ -34,6 +34,8 @@ define cee_amalgamation
 	@rm -f tmp.c
 endef
 
+COMMIT_SHA = $(shell git log -n 1 --pretty=format:\"%H\")
+
 .PHONY: release clean distclean
 
 # generic compilation
@@ -69,11 +71,15 @@ test: all
 	$(MAKE) -C cee-json test_parse test_print
 
 lcov:
-	$(MAKE) LCOV=1 test
-	lcov --capture --directory . --output-file coverage.info
-	genhtml coverage.info --output-directory lcov-out
+	$(MAKE) LCOV=1 release
+	lcov --directory . --zerocounters -q
+	$(MAKE) LCOV=1 -k test
+	lcov --directory . -c -o /tmp/cee-std_test.info
+	lcov --remove /tmp/cee-std_test.info "*/test/*" "*/cee-utils/*" -o /tmp/cee-std_coverage.info
+	genhtml /tmp/cee-std_coverage.info --legend --title  "commit $(COMMIT_SHA)" --output-directory lcov-out
 
 echo:
+	@ echo $(COMMIT_SHA)
 	@ echo "$(SRC)"
 
 clean:
@@ -81,4 +87,5 @@ clean:
 	rm -rf $(OBJDIR)
 	$(MAKE) -C $(TESTDIR) -f test.mk clean
 	$(MAKE) -C cee-json clean
-	rm -rf lcov-out
+	rm -rf lcov-out /tmp/cee-std_*.info
+	lcov --zerocounters --directory .

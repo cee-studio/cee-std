@@ -243,19 +243,27 @@ size_t cee_boxed_snprint (char * buf, size_t size, struct cee_boxed * x) {
     case cee_primitive_f32:
       s = snprintf(buf, size, "%g", h->_[0].f32);
       break;
-    case cee_primitive_i64:
-      s = snprintf(buf, size, "%"PRId64, h->_[0].i64);
-      break;
-    case cee_primitive_u32:
-    case cee_primitive_u16:
-    case cee_primitive_u8:
-      s = snprintf(buf, size, "%"PRIu32, h->_[0].u32);
-      break;
     case cee_primitive_u64:
       s = snprintf(buf, size, "%"PRIu64, h->_[0].u64);
       break;
+    case cee_primitive_u32:
+      s = snprintf(buf, size, "%"PRIu32, h->_[0].u32);
+      break;
+    case cee_primitive_u16:
+      s = snprintf(buf, size, "%"PRIu16, h->_[0].u16);
+      break;
+    case cee_primitive_u8:
+      s = snprintf(buf, size, "%"PRIu8, h->_[0].u8);
+      break;
+    case cee_primitive_i64:
+      s = snprintf(buf, size, "%"PRId64, h->_[0].i64);
+      break;
     case cee_primitive_i32:
+      s = snprintf(buf, size, "%"PRId32, h->_[0].i32);
+      break;
     case cee_primitive_i16:
+      s = snprintf(buf, size, "%"PRId16, h->_[0].i16);
+      break;
     case cee_primitive_i8:
       s = snprintf(buf, size, "%"PRId8, h->_[0].i8);
       break;

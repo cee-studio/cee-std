@@ -103,6 +103,6 @@ void * cee_dict_find(struct cee_dict * d, char * key) {
   n.data = NULL;
   if (musl_hsearch_r(n, FIND, &np, m->_))
     return np->data;
-  printf ("%s\n", strerror(errno));
+  fprintf(stderr, "%s\n", strerror(errno));
   return NULL;
 }
