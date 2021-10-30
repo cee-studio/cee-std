@@ -1,5 +1,7 @@
 #include "cee-sqlite3.h"
+#define _GNU_SOURCE
 #include <string.h>
+#include <ctype.h>
 
 sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts)
 {
@@ -51,6 +53,28 @@ void cee_sqlite3_drop_all_tables(char *dbname) {
     sqlite3_close(db);
 }
 
+enum stmt_type {
+  SELECT = 0,
+  INSERT,
+  UPDATE,
+  DELETE
+};
+
+static enum stmt_type get_stmt_type(const char *stmt) {
+  const char *p = stmt;
+  while (isspace(*p)) p++;
+  char *loc; ;
+  if ((loc = strcasestr(p, "select")) == p)
+    return SELECT;
+  else if ((loc = strcasestr(p, "insert")) == p)
+    return INSERT;
+  else if ((loc = strcasestr(p, "update")) == p)
+    return UPDATE;
+  else if ((loc = strcasestr(p, "delete")) == p)
+    return DELETE;
+  cee_segfault();
+}
+
 
 int cee_sqlite3_bind_run_sql(struct cee_state *state,
                              sqlite3 *db,
@@ -61,6 +85,8 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
                              struct cee_json **ret)
 {
   sqlite3_stmt *sql_stmt;
+  enum stmt_type stmt_type = get_stmt_type(sql);
+
   int rc = sqlite3_prepare_v2(db, sql, -1, &sql_stmt, 0);
   if (sql_stmt_pp)
     *sql_stmt_pp = sql_stmt;
@@ -76,31 +102,56 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
     if (info) {
       for(int i = 0; info[i].var_name; i++) {
         idx = sqlite3_bind_parameter_index(sql_stmt, info[i].var_name);
-        if (idx <= 0) continue;
+        if (idx <= 0)
+          continue;
+
         if (data && data[i].has_value)
           data_p = data+i;
         else if (info[i].data.has_value)
           data_p = &(info[i].data);
+        else if (stmt_type == INSERT && info[i].not_null) {
+          switch(info[i].type)
+            {
+            case CEE_SQLITE3_INT:
+              sqlite3_bind_int(sql_stmt, idx, 0);
+              break;
+            case CEE_SQLITE3_INT64:
+              sqlite3_bind_int64(sql_stmt, idx, 0);
+              break;
+            case CEE_SQLITE3_TEXT:
+              sqlite3_bind_text(sql_stmt, idx, "", 0, SQLITE_STATIC);
+              break;
+            case CEE_SQLITE3_BLOB:
+              sqlite3_bind_blob(sql_stmt, idx, "", 0, SQLITE_STATIC);
+              break;
+            default:
+              cee_segfault();
+              break;
+            }
+        }
         else
           continue;
 
         switch(info[i].type) 
-        {
-            case CEE_SQLITE3_INT:
-                sqlite3_bind_int(sql_stmt, idx, data_p->i);
-                break;
-            case CEE_SQLITE3_INT64:
-                sqlite3_bind_int64(sql_stmt, idx, data_p->i64);
-                break;
-            case CEE_SQLITE3_TEXT:
-                sqlite3_bind_text(sql_stmt, idx, data_p->value, 
-                                  data_p->size == 0 ? -1: data_p->size, SQLITE_STATIC);
-                break;
-            case CEE_SQLITE3_BLOB:
-                sqlite3_bind_blob(sql_stmt, idx, data_p->value, 
-                                  data_p->size, SQLITE_STATIC);
-                break;
-        }
+          {
+          case CEE_SQLITE3_INT:
+            sqlite3_bind_int(sql_stmt, idx, data_p->i);
+            break;
+          case CEE_SQLITE3_INT64:
+            sqlite3_bind_int64(sql_stmt, idx, data_p->i64);
+            break;
+          case CEE_SQLITE3_TEXT:
+            sqlite3_bind_text(sql_stmt, idx, data_p->value, 
+                              data_p->size == 0 ? -1: data_p->size, SQLITE_STATIC);
+            break;
+          case CEE_SQLITE3_BLOB:
+            sqlite3_bind_blob(sql_stmt, idx, data_p->value, 
+                              data_p->size, SQLITE_STATIC);
+            break;
+          default:
+            cee_segfault();
+            break;
+          }
       }
     }
     rc = sqlite3_step(sql_stmt);
@@ -269,10 +320,10 @@ cee_sqlite3_select_or_insert(struct cee_state *state,
 {
   sqlite3_stmt *sql_stmt;
   struct cee_json *array = cee_sqlite3_select(state, db, info, data, stmts->select_stmt);
-  
+
   if (cee_json_select(array, "[0]"))
     return array;
-  
+
   struct cee_json *result = cee_json_object_mk(state);
   sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL);
   int step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->insert_stmt, NULL, &result);

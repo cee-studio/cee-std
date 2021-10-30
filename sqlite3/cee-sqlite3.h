@@ -47,6 +47,20 @@ struct cee_sqlite3_bind_info {
   enum cee_sqlite3_type type;
   struct cee_sqlite3_bind_data data; /* default data is used if external data is not provided */
   bool no_update; /* dont update this field if it's true */
+  /* 
+   * this field will only affect insert
+   *
+   * this field cannot be null. if it's true
+   * the default value will be used if 
+   * data.has_value is false.
+   *
+   * default values:
+   *
+   * int: 0
+   * text: ""
+   * blob: size 0
+   */
+  bool not_null;  
 };
 
 
@@ -57,7 +71,8 @@ struct cee_sqlite3_stmt_strs {
   char *delete_stmt;
   char *update_stmt; /* this has a higher precedence over update_stmt_x */
 
-  /* a template of the following form is used to 
+  /* 
+   * a template of the following form is used to 
    *  compose stmt_x:
    *
    * update table set %s where ...;
