@@ -93,10 +93,12 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
                 sqlite3_bind_int64(sql_stmt, idx, data_p->i64);
                 break;
             case CEE_SQLITE3_TEXT:
-                sqlite3_bind_text(sql_stmt, idx, data_p->value, data_p->size == 0 ? -1: data_p->size, SQLITE_STATIC);
+                sqlite3_bind_text(sql_stmt, idx, data_p->value, 
+                                  data_p->size == 0 ? -1: data_p->size, SQLITE_STATIC);
                 break;
             case CEE_SQLITE3_BLOB:
-                sqlite3_bind_blob(sql_stmt, idx, data_p->value, data_p->size, SQLITE_STATIC);
+                sqlite3_bind_blob(sql_stmt, idx, data_p->value, 
+                                  data_p->size, SQLITE_STATIC);
                 break;
         }
       }
@@ -107,7 +109,8 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
     return rc;
   }
   else if (result)
-    cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
+    cee_json_object_set_strf(result, "error", "sqlite3:'%s' %s", 
+                             sql, sqlite3_errmsg(db));
   return rc;
 }
 
@@ -127,12 +130,14 @@ cee_sqlite3_update_or_insert(struct cee_state *state,
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
     step = cee_sqlite3_bind_run_sql(state, db, info, data, update, NULL, &result);
     if (step != SQLITE_DONE)
-      cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
+      cee_json_object_set_strf(result, "error", "sqlite3:'s' -> %s",
+                               update, sqlite3_errmsg(db));
   }
   else {
     step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->insert_stmt, NULL, &result);
     if (step != SQLITE_DONE)
-      cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
+      cee_json_object_set_strf(result, "error", "sqlite3:'%s' -> %s",
+                               stmts->insert_stmt, sqlite3_errmsg(db));
     else {
       int row_id = sqlite3_last_insert_rowid(db);
       cee_json_object_set_i64(result, "last_insert_rowid", row_id);
@@ -155,7 +160,8 @@ cee_sqlite3_insert(struct cee_state *state,
   sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL);
   step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->insert_stmt, NULL, &result);
   if (step != SQLITE_DONE)
-    cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
+    cee_json_object_set_strf(result, "error", "sqlite3:'%s' -> %s",
+                             stmts->insert_stmt, sqlite3_errmsg(db));
   else {
     int row_id = sqlite3_last_insert_rowid(db);
     cee_json_object_set_i64(result, "last_insert_rowid", row_id);
@@ -181,7 +187,8 @@ cee_sqlite3_update(struct cee_state *state,
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
     step = cee_sqlite3_bind_run_sql(state, db, info, data, update, NULL, &result);
     if (step != SQLITE_DONE)
-      cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
+      cee_json_object_set_strf(result, "error", "sqlite3:'%s' -> %s",
+                               update, sqlite3_errmsg(db));
   }
   else
     cee_json_object_set_strf(result, "error", "sqlite3:'%s' returns no record", stmts->select_stmt);
@@ -273,7 +280,8 @@ cee_sqlite3_select_or_insert(struct cee_state *state,
     /* do nothing */
   }
   else if (step != SQLITE_DONE)
-    cee_json_object_set_strf(result, "error", "sqlite3:%s", sqlite3_errmsg(db));
+    cee_json_object_set_strf(result, "error", "sqlite3:'%s' -> %s",
+                             stmts->insert_stmt, sqlite3_errmsg(db));
   else {
     int row_id = sqlite3_last_insert_rowid(db);
     cee_json_object_set_i64(result, "last_insert_rowid", row_id);
@@ -349,12 +357,12 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
           break;
       }
       if (p->update_set
-	  && !info[i].no_update
-	  && (data[i].has_value || info[i].data.has_value)) {
-	if (strlen(p->update_set->_) == 0)
-	  p->update_set = cee_str_catf(p->update_set, "%s=%s", info[i].col_name, info[i].var_name);
-	else
-	  p->update_set = cee_str_catf(p->update_set, ",%s=%s", info[i].col_name, info[i].var_name);
+          && !info[i].no_update
+          && (data[i].has_value || info[i].data.has_value)) {
+        if (strlen(p->update_set->_) == 0)
+          p->update_set = cee_str_catf(p->update_set, "%s=%s", info[i].col_name, info[i].var_name);
+        else
+          p->update_set = cee_str_catf(p->update_set, ",%s=%s", info[i].col_name, info[i].var_name);
       }
       return;
     }
