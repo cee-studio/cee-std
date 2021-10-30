@@ -1575,19 +1575,27 @@ size_t cee_boxed_snprint (char * buf, size_t size, struct cee_boxed * x) {
     case cee_primitive_f32:
       s = snprintf(buf, size, "%g", h->_[0].f32);
       break;
-    case cee_primitive_i64:
-      s = snprintf(buf, size, "%"PRId64, h->_[0].i64);
-      break;
-    case cee_primitive_u32:
-    case cee_primitive_u16:
-    case cee_primitive_u8:
-      s = snprintf(buf, size, "%"PRIu32, h->_[0].u32);
-      break;
     case cee_primitive_u64:
       s = snprintf(buf, size, "%"PRIu64, h->_[0].u64);
       break;
+    case cee_primitive_u32:
+      s = snprintf(buf, size, "%"PRIu32, h->_[0].u32);
+      break;
+    case cee_primitive_u16:
+      s = snprintf(buf, size, "%"PRIu16, h->_[0].u16);
+      break;
+    case cee_primitive_u8:
+      s = snprintf(buf, size, "%"PRIu8, h->_[0].u8);
+      break;
+    case cee_primitive_i64:
+      s = snprintf(buf, size, "%"PRId64, h->_[0].i64);
+      break;
     case cee_primitive_i32:
+      s = snprintf(buf, size, "%"PRId32, h->_[0].i32);
+      break;
     case cee_primitive_i16:
+      s = snprintf(buf, size, "%"PRId16, h->_[0].i16);
+      break;
     case cee_primitive_i8:
       s = snprintf(buf, size, "%"PRId8, h->_[0].i8);
       break;
@@ -1757,6 +1765,9 @@ static struct _cee_str_header * _cee_str_resize(struct _cee_str_header * h, size
   return ret;
 }
 
+
+
+
 static void _cee_str_trace (void * p, enum cee_trace_action ta) {
   struct _cee_str_header * m = (struct _cee_str_header *)((void *)((char *)(p) - (__builtin_offsetof(struct _cee_str_header, _))));
   switch (ta) {
@@ -1898,7 +1909,7 @@ struct cee_str * cee_str_add(struct cee_str * str, char c) {
     return (struct cee_str *)(b->_);
   }
   else {
-    struct _cee_str_header * b1 = _cee_str_resize(b, b->cs.mem_block_size + 64);
+    struct _cee_str_header * b1 = _cee_str_resize(b, (2 * ((b->cs.mem_block_size) > (64) ? (b->cs.mem_block_size): (64))));
     b1->capacity = b->capacity + 64;
     b1->_[b->capacity] = c;
     b1->_[b->capacity+1] = '\0';
@@ -1924,7 +1935,7 @@ struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
     return str;
   }
   else {
-    struct _cee_str_header * b1 = _cee_str_resize(b, slen + s);
+    struct _cee_str_header * b1 = _cee_str_resize(b, (2 * ((b->cs.mem_block_size) > (s) ? (b->cs.mem_block_size): (s))));
     vsnprintf(b1->_ + slen, s, fmt, ap);
     return (struct cee_str *)(b1->_);
   }
@@ -1950,7 +1961,7 @@ struct cee_str* cee_str_replace(struct cee_str *str, const char *fmt, ...) {
     return str;
   }
   else {
-    struct _cee_str_header *b1 = _cee_str_resize(b, s);
+    struct _cee_str_header *b1 = _cee_str_resize(b, (2 * ((b->cs.mem_block_size) > (s) ? (b->cs.mem_block_size): (s))));
     vsnprintf(b1->_, s, fmt, ap);
     return (struct cee_str *)(b1->_);
   }
@@ -2108,7 +2119,7 @@ void * cee_dict_find(struct cee_dict * d, char * key) {
   n.data = NULL;
   if (musl_hsearch_r(n, FIND, &np, m->_))
     return np->data;
-  printf ("%s\n", strerror(errno));
+  fprintf(stderr, "%s\n", strerror(errno));
   return NULL;
 }
 
@@ -4149,7 +4160,6 @@ static void _cee_state_sweep (void * v, enum cee_trace_action ta) {
 }
 
 static int _cee_state_cmp (const void * v1, const void * v2) {
-  printf("%p %p\n", v1, v2);
   if (v1 < v2)
     return -1;
   else if (v1 == v2)

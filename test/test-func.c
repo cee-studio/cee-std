@@ -106,6 +106,12 @@ TEST str__concatenate_strings(void)
   ASSERT_STR_EQ("10.3", (char *)s2);
   s3 = cee_str_mk(st, "%s %s", s1, s2);
   ASSERT_STR_EQ("10 10.3", (char *)s3);
+
+  s1 = cee_str_mk(st, "");
+  int i = 0;
+  for (i = 0; i < 10; i++)
+    s1 = cee_str_catf(s1, "%s = %s", "abc", "defg");
+
   cee_del(st);
   PASS();
 }

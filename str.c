@@ -23,6 +23,9 @@ struct S(header) {
 
 #include "cee-resize.h"
 
+#undef _CEE_NEWSIZE
+#define _CEE_NEWSIZE(c, extra)    (2 * ((c) > (extra) ? (c): (extra)))
+
 static void S(trace) (void * p, enum cee_trace_action ta) {
   struct S(header) * m = FIND_HEADER(p);
   switch (ta) {
@@ -164,7 +167,7 @@ struct cee_str * cee_str_add(struct cee_str * str, char c) {
     return (struct cee_str *)(b->_);
   } 
   else {
-    struct S(header) * b1 = S(resize)(b, b->cs.mem_block_size + CEE_BLOCK);
+    struct S(header) * b1 = S(resize)(b, _CEE_NEWSIZE(b->cs.mem_block_size, CEE_BLOCK));
     b1->capacity = b->capacity + CEE_BLOCK;
     b1->_[b->capacity] = c;
     b1->_[b->capacity+1] = '\0';
@@ -190,7 +193,7 @@ struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
     return str;
   }
   else {
-    struct S(header) * b1 = S(resize)(b, slen + s);
+    struct S(header) * b1 = S(resize)(b, _CEE_NEWSIZE(b->cs.mem_block_size, s));
     vsnprintf(b1->_ + slen, s, fmt, ap);
     return (struct cee_str *)(b1->_);
   }
@@ -216,8 +219,10 @@ struct cee_str* cee_str_replace(struct cee_str *str, const char *fmt, ...) {
     return str;
   }
   else {
-    struct S(header) *b1 = S(resize)(b, s);
+    struct S(header) *b1 = S(resize)(b, _CEE_NEWSIZE(b->cs.mem_block_size, s));
     vsnprintf(b1->_, s, fmt, ap);
     return (struct cee_str *)(b1->_);
   }
 }
+
+#undef _CEE_NEWSIZE
