@@ -46,6 +46,7 @@ struct cee_sqlite3_bind_info {
   char *ext_name; /* external name */
   enum cee_sqlite3_type type;
   struct cee_sqlite3_bind_data data; /* default data is used if external data is not provided */
+  bool no_update; /* dont update this field if it's true */
 };
 
 
@@ -56,7 +57,11 @@ struct cee_sqlite3_stmt_strs {
   char *delete_stmt;
   char *update_stmt; /* this has a higher precedence over update_stmt_x */
 
-  /* template is used to compose stmt_x */
+  /* a template of the following form is used to 
+   *  compose stmt_x:
+   *
+   * update table set %s where ...;
+   */
   char *update_template;
   char *update_stmt_x;
 

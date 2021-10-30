@@ -309,6 +309,8 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
   struct cee_json *error;
 
   for (i = 0; info[i].var_name; i++) {
+    if (info[i].no_update) continue;
+
     if (strcmp(key->_, info[i].col_name) == 0) {
       switch (info[i].type) {
         case CEE_SQLITE3_INT:
@@ -348,7 +350,7 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
         }
           break;
       }
-      if (data[i].has_value && p->update_set) {
+      if (p->update_set && (data[i].has_value || info[i].data.has_value)) {
         if (strlen(p->update_set->_) == 0)
           cee_str_catf(p->update_set, "%s=%s", info[i].col_name, info[i].var_name);
         else
