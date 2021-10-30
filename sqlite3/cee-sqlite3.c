@@ -352,9 +352,9 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
 	  && !info[i].no_update
 	  && (data[i].has_value || info[i].data.has_value)) {
 	if (strlen(p->update_set->_) == 0)
-	  cee_str_catf(p->update_set, "%s=%s", info[i].col_name, info[i].var_name);
+	  p->update_set = cee_str_catf(p->update_set, "%s=%s", info[i].col_name, info[i].var_name);
 	else
-	  cee_str_catf(p->update_set, ",%s=%s", info[i].col_name, info[i].var_name);
+	  p->update_set = cee_str_catf(p->update_set, ",%s=%s", info[i].col_name, info[i].var_name);
       }
       return;
     }
