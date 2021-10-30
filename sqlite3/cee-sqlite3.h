@@ -50,10 +50,16 @@ struct cee_sqlite3_bind_info {
 
 
 struct cee_sqlite3_stmt_strs {
+  char *table_name;
   char *select_stmt;
-  char *update_stmt;
   char *insert_stmt;
   char *delete_stmt;
+  char *update_stmt; /* this has a higher precedence over update_stmt_x */
+
+  /* template is used to compose stmt_x */
+  char *update_template;
+  char *update_stmt_x;
+
 };
 
 extern int
