@@ -410,14 +410,16 @@ cee_sqlite3_generic_opcode(struct cee_state *st,
     stmts->update_stmt_x = (char*)cee_str_mk(st, stmts->update_template, aaa.update_set);
   
   struct cee_json *result = f (st, db, info, data, stmts);
-  cee_json_object_set(result, "used_keys", aaa.used);
+  struct cee_json *debug = cee_json_object_mk(st);
+  cee_json_object_set(result, "debug", debug);
+  cee_json_object_set(debug, "used_keys", aaa.used);
 
   if (stmts->update_template) {
     stmts->update_stmt_x = NULL;
   }
   
   if (cee_json_select(aaa.unused, "[0]"))
-    cee_json_object_set(result, "unused_keys", aaa.unused);
+    cee_json_object_set(debug, "unused_keys", aaa.unused);
 
   if (cee_json_select(aaa.errors, "[0]"))
     cee_json_object_set(result, "error", aaa.errors);
