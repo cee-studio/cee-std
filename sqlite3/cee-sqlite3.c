@@ -128,6 +128,7 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
               cee_segfault();
               break;
             }
+          continue;
         }
         else
           continue;
