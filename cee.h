@@ -194,6 +194,7 @@ extern struct cee_str * cee_str_replace (struct cee_str *, const char *fmt, ...)
   
 /* an auto expandable list */
 struct cee_list {
+  /* this should be redesigned to be able to keep the different addresss caused by resizing */
   void * _[1]; /* an array of `void *`s */
 };
 
@@ -246,6 +247,13 @@ extern size_t cee_list_capacity (struct cee_list *);
  * if the list is null, return immediately
  */
 extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, int idx, void * e));
+
+/*
+ * make a shadow copy of input list
+ */
+extern struct cee_list* cee_list_clone (struct cee_list *);
+
+extern void cee_list_merge (struct cee_list **dest, struct cee_list *src);
   
 struct cee_tuple {
   void * _[2];
@@ -351,8 +359,13 @@ extern size_t cee_set_size(struct cee_set * m);
  * return true if the set is null or has no element
  */
 extern bool cee_set_empty(struct cee_set * s);
-extern struct cee_list * cee_set_values(struct cee_set * m);
+extern struct cee_list * cee_set_values (struct cee_set * m);
 extern struct cee_set * cee_set_union_sets (struct cee_set * s1, struct cee_set * s2);
+
+extern void cee_set_iterate (struct cee_set *s, void *ctx,
+			     void (*f)(void *ctx, void *value));
+
+extern struct cee_set* cee_set_clone (struct cee_set *s);
 
 struct cee_map {
   void * _;
@@ -402,16 +415,16 @@ extern struct cee_list * cee_map_values(struct cee_map *m);
 extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, void *key, void *value));
 
 /*
- * clone a new map
+ * create a shadow copy
  */
 extern struct cee_map* cee_map_clone(struct cee_map *m);
 
 /*
  *
- * merge m2 to m1
+ * add all k/v pairs from src to dest
  *
  */
-extern void cee_map_merge(struct cee_map *m1, struct cee_map *m2);
+extern void cee_map_merge(struct cee_map *dest, struct cee_map *src);
 
 
 /*

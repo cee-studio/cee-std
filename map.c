@@ -259,3 +259,32 @@ void cee_map_iterate(struct cee_map *m, void *ctx,
   musl_twalk(&fn_ctx, b->_[0], S(apply_each));
   return;
 }
+
+
+static void S(_add_kv)(void *ctx, void *key, void *value)
+{
+  struct cee_map *map = ctx;
+  cee_map_add(map, key, value);
+}
+
+/*
+ * create a shadow clone of cee_map
+ * the key/value pairs will not be cloned.
+ */
+struct cee_map* cee_map_clone(struct cee_map *old_map)
+{
+  struct cee_state *st = cee_get_state(old_map);
+  struct S(header) * b = FIND_HEADER(old_map);
+  struct cee_map *new_map = cee_map_mk_e(st, b->del_policies.a, b->cmp);
+  cee_map_iterate(old_map, new_map, S(_add_kv));
+  return new_map;
+}
+
+/*
+ * add all key/value pairs of the src to the dest
+ * and keep the src intact
+ */
+void cee_map_merge(struct cee_map *dest, struct cee_map *src)
+{
+  cee_map_iterate(src, dest, S(_add_kv));
+}

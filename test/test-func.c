@@ -184,6 +184,31 @@ TEST set__find_element_by_value(char *str_list[], const unsigned n_str)
   PASS();
 }
 
+
+static void set_iter(void *cxt, void *v)
+{
+  struct cee_str *str = cxt;
+  cee_str_catf(str, "%s", v);
+}
+
+TEST set__iterate(char *str_list[], const unsigned n_str)
+{
+  struct cee_state *st = cee_state_mk(10);
+  struct cee_set *set = cee_set_mk(st, (cee_cmp_fun)&strcmp);
+  struct cee_list *set_values;
+  char *p;
+
+  for (unsigned i=0; i < n_str; ++i)
+    cee_set_add(set, cee_str_mk(st, str_list[i]));
+
+  struct cee_str *str = cee_str_mk(st, "");
+
+  cee_set_iterate(set, str, set_iter);
+  ASSERT_STR_EQ(str->_, "Fish\n\tHello World!");
+  cee_del(st);
+  PASS();
+}
+
 TEST map__find_element_by_key(struct generic list[], const unsigned n)
 {
   struct cee_state *st = cee_state_mk(10);
@@ -385,6 +410,7 @@ SUITE(cee_set)
   const unsigned n_str = sizeof(str_list)/sizeof(char*);
 
   RUN_TESTp(set__find_element_by_value, str_list, n_str);
+  RUN_TESTp(set__iterate, str_list, n_str);
 }
 
 SUITE(cee_map)

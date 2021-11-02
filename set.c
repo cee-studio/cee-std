@@ -212,3 +212,62 @@ struct cee_set * cee_set_union_set (struct cee_state * s, struct cee_set * s1, s
     cee_segfault();
   return NULL;
 }
+
+
+/*
+ * internal structure for cee_set_iterate
+ */
+struct S(fn_ctx) {
+  void *ctx;
+  void (*f)(void *ctx, void *value);
+};
+
+/*
+ * helper function for cee_map_iterate
+ */
+static void S(apply_each) (void *ctx, const void *nodep, const VISIT which, const int depth) {
+  void *p;
+  struct S(fn_ctx) * fn_ctx_p = ctx;
+  switch(which)
+  {
+  case preorder:
+  case leaf:
+    p = *(void **)nodep;
+    fn_ctx_p->f(fn_ctx_p->ctx, p);
+    break;
+  default:
+    break;
+  }
+}
+
+void cee_set_iterate (struct cee_set *s, void *ctx,
+		      void (*f)(void *ctx, void *value))
+{
+  /* treat null as empty set */
+  if (!s) return;
+  
+  struct S(header) * h = FIND_HEADER(s);
+  struct S(fn_ctx) fn_ctx = { .ctx = ctx, .f = f };
+  musl_twalk(&fn_ctx, h->_[0], S(apply_each));
+  return;
+}
+
+
+static void S(_add_v)(void *cxt, void *v)
+{
+  struct cee_set *set = cxt;
+  cee_set_add(set, v);
+}
+
+/*
+ * make a shadow copy of old_set
+ */
+struct cee_set* cee_set_clone (struct cee_set *old_set)
+{
+  struct cee_state *st = cee_get_state(old_set);
+
+  struct S(header) *h = FIND_HEADER(old_set);
+  struct cee_set *new_set = cee_set_mk_e(st, h->del_policy, h->cmp);
+  cee_set_iterate (old_set, new_set, S(_add_v));
+  return new_set;
+}
