@@ -14,6 +14,10 @@
  */
 
 extern sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts);
+
+#define cee_sqlite3_begin_transaction(db)  sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL)
+#define cee_sqlite3_end_transaction(db)    sqlite3_exec(db, "end transaction;", NULL, NULL, NULL)
+
 extern void cee_sqlite3_drop_all_tables(char *dbname);
 
 enum cee_sqlite3_type {
