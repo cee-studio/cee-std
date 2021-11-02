@@ -374,9 +374,8 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
     if (strcmp(key->_, info[i].col_name) == 0) {
       switch (info[i].type) {
         case CEE_SQLITE3_INT:
-          if (value->t == CEE_JSON_I64) {
+          if (cee_json_to_int(value, &data[i].i)) {
             cee_json_array_append_strf(p->used,"%s", info[i].col_name);
-            cee_json_to_int(value, &data[i].i);
             data[i].has_value = 1;
           }
           else
@@ -384,9 +383,8 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
                                        info[i].col_name);
           break;
         case CEE_SQLITE3_INT64:
-          if (value->t == CEE_JSON_I64) {
+          if (cee_json_to_i64(value, &data[i].i64)) {
             cee_json_array_append_strf(p->used,"%s", info[i].col_name);
-            cee_json_to_i64(value, &data[i].i64);
             data[i].has_value = 1;
           }
           else
@@ -394,9 +392,8 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
                                        info[i].col_name);
           break;
         case CEE_SQLITE3_TEXT:
-          if (value->t == CEE_JSON_STRING) {
+          if ((data[i].value = cee_json_to_str(value)->_)) {
             cee_json_array_append_strf(p->used,"%s", info[i].col_name);
-            data[i].value = cee_json_to_str(value)->_;
             data[i].has_value = 1;
           }
           else
