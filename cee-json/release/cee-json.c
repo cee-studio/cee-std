@@ -113,6 +113,7 @@ extern void cee_json_object_set_i64 (struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_json *, char *, uint64_t);
 extern bool cee_json_object_replace (struct cee_json *, char *old_key, char *new_key);
 
+extern void cee_json_object_set_error(struct cee_json *o, const char *fmt, ...);
 
 extern struct cee_json* cee_json_object_get(struct cee_json *, char *key);
 /* remove a key from a json object */
@@ -133,6 +134,7 @@ extern void cee_json_array_append_u64 (struct cee_json *, uint64_t);
 /* remove an element from a json array */
 extern void cee_json_array_remove (struct cee_json *, int index);
 
+extern size_t cee_json_array_length (struct cee_json *);
 extern struct cee_json* cee_json_array_get(struct cee_json *, int);
 extern void cee_json_array_iterate (struct cee_json *, void *ctx,
 				    void (*f)(void *ctx, int index, struct cee_json *val));
@@ -371,6 +373,23 @@ void cee_json_object_remove(struct cee_json *j, char *key)
   cee_map_remove(o, key);
 }
 
+void cee_json_object_set_error(struct cee_json *o, const char *fmt, ...) {
+  if (!o) return;
+  if (o->t != CEE_JSON_OBJECT)
+    cee_segfault();
+  if (cee_json_select(o, ".error"))
+    /* don't overwrite the previous error */
+    return;
+
+  struct cee_state *state = cee_get_state(o->value.object);
+  va_list ap;
+  va_start(ap, fmt);
+  struct cee_str *str = cee_str_mkv(state, fmt, ap);
+  va_end(ap);
+  cee_json_object_set(o, "error", cee_json_str_mk(state, str));
+}
+
+
 void cee_json_object_set(struct cee_json *j, char *key, struct cee_json *v) {
   if (!j) return;
   struct cee_map *o = cee_json_to_object(j);
@@ -499,6 +518,13 @@ void cee_json_array_append_strf (struct cee_json *j, const char *fmt, ...) {
     /*  free j->value.array */
     j->value.array = o;
   }
+}
+
+size_t cee_json_array_length(struct cee_json *j) {
+  struct cee_list *o = cee_json_to_array(j);
+  if (!o)
+    cee_segfault();
+  return cee_list_size(o);
 }
 
 struct cee_json* cee_json_array_get (struct cee_json *j, int i) {
