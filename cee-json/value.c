@@ -95,6 +95,15 @@ bool cee_json_to_double (struct cee_json *p, double *r) {
     return false;
 }
 
+bool cee_json_to_int (struct cee_json *p, int *r) {
+  if (p->t == CEE_JSON_I64) {
+    *r = (int)cee_boxed_to_i64(p->value.boxed);
+    return true;
+  }
+  else
+    return false;
+}
+
 bool cee_json_to_i64 (struct cee_json *p, int64_t *r) {
   if (p->t == CEE_JSON_I64) {
     *r = cee_boxed_to_i64(p->value.boxed);
