@@ -196,6 +196,23 @@ void cee_json_object_remove(struct cee_json *j, char *key)
   cee_map_remove(o, key);
 }
 
+void cee_json_object_set_error(struct cee_json *o, const char *fmt, ...) {
+  if (!o) return;
+  if (o->t != CEE_JSON_OBJECT)
+    cee_segfault();
+  if (cee_json_select(o, ".error"))
+    /* don't overwrite the previous error */
+    return;
+
+  struct cee_state *state = cee_get_state(o->value.object);
+  va_list ap;
+  va_start(ap, fmt);
+  struct cee_str *str = cee_str_mkv(state, fmt, ap);
+  va_end(ap);
+  cee_json_object_set(o, "error", cee_json_str_mk(state, str));
+}
+
+
 void cee_json_object_set(struct cee_json *j, char *key, struct cee_json *v) {
   if (!j) return;
   struct cee_map *o = cee_json_to_object(j);
