@@ -179,6 +179,7 @@ cee_sqlite3_update_or_insert(struct cee_state *state,
   step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->select_stmt, NULL, &result);
   if (step == SQLITE_ROW) {
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
+    if (!update) cee_segfault();
     step = cee_sqlite3_bind_run_sql(state, db, info, data, update, NULL, &result);
     if (step != SQLITE_DONE)
       cee_json_object_set_strf(result, "error", "sqlite3:'s' -> %s",
@@ -236,6 +237,7 @@ cee_sqlite3_update(struct cee_state *state,
   step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->select_stmt, NULL, &result);
   if (step == SQLITE_ROW) {
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
+    if (!update) cee_segfault();
     step = cee_sqlite3_bind_run_sql(state, db, info, data, update, NULL, &result);
     if (step != SQLITE_DONE)
       cee_json_object_set_strf(result, "error", "sqlite3:'%s' -> %s",
