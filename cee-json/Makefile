@@ -28,7 +28,7 @@ define cee_json_amalgamation
 	@for ii in $(HDR); do cat $$ii >> $(1); echo " " >> $(1); done
 	@echo "#define CEE_JSON_AMALGAMATION" > tmp.c
 	@for ii in $(SRC); do echo '#include "'$$ii'"' >> tmp.c; done  
-	$(CC) -E $(2) -nostdinc tmp.c >> $(1)
+	$(CC) -E -CC $(2) -nostdinc tmp.c >> $(1)
 	@echo "#endif" >> $(1)
 	@rm -f tmp.c
 endef

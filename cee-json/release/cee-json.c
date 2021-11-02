@@ -217,7 +217,7 @@ struct cee_json * cee_list_to_json(struct cee_list *v) {
 
 struct cee_json * cee_map_to_json(struct cee_map *v) {
   struct cee_state *st = cee_get_state(v);
-
+  /* TODO: check v use strcmp as the comparison function */
   return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_OBJECT, v);
 }
 
@@ -456,7 +456,7 @@ void cee_json_array_append (struct cee_json * j, struct cee_json *v) {
     cee_segfault();
   cee_list_append(&o, v);
   if (o != j->value.array) {
-
+    /*  free j->value.array */
     j->value.array = o;
   }
 }
@@ -467,7 +467,7 @@ void cee_json_array_append_bool (struct cee_json * j, bool b) {
     cee_segfault();
   cee_list_append(&o, cee_json_bool(b));
   if (o != j->value.array) {
-
+    /*  free j->value.array */
     j->value.array = o;
   }
 }
@@ -479,7 +479,7 @@ void cee_json_array_append_str (struct cee_json * j, char * x) {
   struct cee_state *st = cee_get_state(o);
   cee_list_append(&o, cee_json_str_mk(st, cee_str_mk(st, "%s", x)));
   if (o != j->value.array) {
-
+    /*  free j->value.array */
     j->value.array = o;
   }
 }
@@ -496,7 +496,7 @@ void cee_json_array_append_strf (struct cee_json *j, const char *fmt, ...) {
 
   cee_list_append(&o, cee_json_str_mk(st, v));
   if (o != j->value.array) {
-
+    /*  free j->value.array */
     j->value.array = o;
   }
 }
@@ -529,9 +529,9 @@ void cee_json_array_iterate (struct cee_json *j, void *ctx,
   cee_list_iterate(o, ctx, (fnt)f);
 };
 
-
-
-
+/*
+ * this function assume the file pointer points to the begin of a file
+ */
 struct cee_json * cee_json_load_from_file (struct cee_state * st,
                                            FILE * f, bool force_eof,
                                            int * error_at_line) {
@@ -546,7 +546,7 @@ struct cee_json * cee_json_load_from_file (struct cee_state * st,
   int line = 0;
   struct cee_json * j;
   if (!cee_json_parse(st, b, size, &j, true, &line)) {
-
+    /*  report error */
   }
   return j;
 }
@@ -561,31 +561,74 @@ bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how)
   }
   return true;
 }
+
+
+/*
+ * The following code is shamelessly stolen from the 
+ * great work of antirez's stonky:
+ * https://github.com/antirez/stonky/blob/7260d9de9c6ae60776125842643ada84cc7e5ec6/stonky.c#L309
+ * the LICENSE of this code belongs to Salvatore Sanfilippo <antirez at gmail dot com>
+ *
+ * It is modified to work with cee_json with minimum changes
+ *
+ * You can select things like this:
+ *
+ * cee_json *width = cee_json_select(json,".features.screens[*].width",4);
+ * cee_json *height = cee_json_select(json,".features.screens[4].*","height");
+ * cee_json *price = cee_json_select(json,".features.screens[4].price_*",
+ *                  price_type == EUR ? "eur" : "usd");
+ *
+ * You can use a ":<type>" specifier, usually at the end, in order to
+ * check the type of the final JSON object selected. If the type will not
+ * match, the function will return NULL. For instance the specifier:
+ *
+ *  ".foo.bar:s"
+ *
+ * Will not return NULL only if the root object has a foo field, that is
+ * an object with a bat field, that contains a string. This is the full
+ * list of selectors:
+ *
+ *  ".field", select the "field" of the current object.
+ *  "[1234]", select the specified index of the current array.
+ *  ":<type>", check if the currently selected type is of the specified type,
+ *             where the type is a single letter that can be:
+ *             "s" for string
+ *             "n" for number
+ *             "a" for array
+ *             "o" for object
+ *             "b" for boolean
+ *             "!" for null
+ *
+ * Selectors can be combined, and the special "*" can be used in order to
+ * fetch array indexes or field names from the arguments:
+ *
+ *      cee_json *myobj = cee_json_select(root,".properties[*].*", index, fieldname);
+ */
 struct cee_json* cee_json_select(struct cee_json *o, char *fmt, ...) {
   enum next_selector_token {
     JSEL_INVALID = 0,
-    JSEL_OBJ = 1,
-    JSEL_ARRAY = 2,
-    JSEL_TYPECHECK = 3,
+    JSEL_OBJ = 1, /* "." */
+    JSEL_ARRAY = 2, /* "[" */
+    JSEL_TYPECHECK = 3, /* ":" */
     JSEL_MAX_TOKEN = 256
-  } next = JSEL_INVALID;
-  char token[JSEL_MAX_TOKEN+1];
-  int tlen;
+  } next = JSEL_INVALID; /* Type of the next selector. */
+  char token[JSEL_MAX_TOKEN+1]; /* Current token. */
+  int tlen; /* Current length of the token. */
   va_list ap;
 
   va_start(ap,fmt);
   const char *p = fmt;
   tlen = 0;
   while(1) {
-
-
+    /* Our four special chars (plus the end of the string) signal the
+     * end of the previous token and the start of the next one. */
     if (tlen && (*p == '\0' || strchr(".[]:",*p))) {
       token[tlen] = '\0';
       if (next == JSEL_INVALID) {
  goto notfound;
       } else if (next == JSEL_ARRAY) {
  if (o->t != CEE_JSON_ARRAY) goto notfound;
- int idx = atoi(token);
+ int idx = atoi(token); /* cee_json API index is int. */
  if ((o = cee_json_array_get(o,idx)) == NULL)
    goto notfound;
       } else if (next == JSEL_OBJ) {
@@ -601,23 +644,23 @@ struct cee_json* cee_json_select(struct cee_json *o, char *fmt, ...) {
  if (token[0] == '!' && o->t != CEE_JSON_NULL) goto notfound;
       }
     } else if (next != JSEL_INVALID) {
-
-
-
-
+      /* Otherwise accumulate characters in the current token, note that
+       * the above check for JSEL_NEXT_INVALID prevents us from
+       * accumulating at the start of the fmt string if no token was
+       * yet selected. */
       if (*p != '*') {
  token[tlen] = *p++;
  tlen++;
  if (tlen > JSEL_MAX_TOKEN) goto notfound;
  continue;
       } else {
-
-
-
-
-
-
-
+ /* The "*" character is special: if we are in the context
+	 * of an array, we read an integer from the variable argument
+	 * list, then concatenate it to the current string.
+	 *
+	 * If the context is an object, we read a string pointer
+	 * from the variable argument string and concatenate the
+	 * string to the current token. */
  int len;
  char buf[64];
  char *s;
@@ -631,7 +674,7 @@ struct cee_json* cee_json_select(struct cee_json *o, char *fmt, ...) {
  } else {
    goto notfound;
  }
-
+ /* Common path. */
  if (tlen+len > JSEL_MAX_TOKEN) goto notfound;
  memcpy(token+tlen,buf,len);
  tlen += len;
@@ -639,15 +682,15 @@ struct cee_json* cee_json_select(struct cee_json *o, char *fmt, ...) {
  continue;
       }
     }
-
-    if (*p == ']') p++;
+    /* Select the next token type according to its type specifier. */
+    if (*p == ']') p++; /* Skip closing "]", it's just useless syntax. */
     if (*p == '\0') break;
     else if (*p == '.') next = JSEL_OBJ;
     else if (*p == '[') next = JSEL_ARRAY;
     else if (*p == ':') next = JSEL_TYPECHECK;
     else goto notfound;
-    tlen = 0;
-    p++;
+    tlen = 0; /* A new token starts. */
+    p++; /* Token starts at next character. */
   }
 
 cleanup:
@@ -658,6 +701,9 @@ notfound:
   o = NULL;
   goto cleanup;
 }
+/* cee_json parser
+   C reimplementation of cppcms's json.cpp
+*/
 enum state_type {
   st_init = 0,
   st_object_or_array_or_value_expected = 0 ,
@@ -906,6 +952,16 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
   *error_at_line=tock.line;
   return false;
 }
+/* JSON snprint
+   C reimplementation of cppcms's json.cpp
+*/
+
+
+
+
+
+
+
 struct counter {
   uintptr_t next;
   struct cee_list * array;
@@ -981,7 +1037,7 @@ static void delimiter (uintptr_t * offp, char * buf, enum cee_json_fmt f,
   uintptr_t offset = *offp;
   if (!f) {
     if (buf) buf[offset] = c;
-    offset ++;
+    offset ++; /*  only count one */
     *offp = offset;
     return;
   }
@@ -1055,7 +1111,7 @@ static void str_append(char * out, uintptr_t *offp, char *begin, unsigned len) {
       }
     };
     if(addon) {
-
+      /* a.append(last,i-last); */
       if (out) memcpy(out+offset, last, i-last);
       offset += i-last;
 
@@ -1075,9 +1131,9 @@ static void str_append(char * out, uintptr_t *offp, char *begin, unsigned len) {
   *offp = offset;
 }
 
-
-
-
+/*
+ * compute how many bytes are needed to serialize cee_json as a string
+ */
 ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct cee_json *j,
      enum cee_json_fmt f) {
   struct cee_tuple * cur;
@@ -1135,7 +1191,7 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
         {
           char *str = (char *)cee_json_to_str(cur_json);
           pad(&offset, buf, ccnt, f);
-
+          /* TODO: escape str */
           str_append(buf, &offset, str, strlen(str));
           if (ccnt->more_siblings)
             delimiter(&offset, buf, f, ccnt, ',');
@@ -1144,7 +1200,7 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
         break;
       case CEE_JSON_BLOB:
         {
-
+          /* TODO: encode as base64 */
           char *str = "error:blob is not handled in print";
           pad(&offset, buf, ccnt, f);
           str_append(buf, &offset, str, strlen(str));
@@ -1160,7 +1216,7 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
           pad(&offset, buf, ccnt, f);
           incr = cee_boxed_snprint (NULL, 0, cee_json_to_boxed(cur_json));
           if (buf)
-            cee_boxed_snprint (buf+offset, incr+1 , cee_json_to_boxed(cur_json));
+            cee_boxed_snprint (buf+offset, incr+1/*\0*/, cee_json_to_boxed(cur_json));
           offset+=incr;
           if (ccnt->more_siblings)
             delimiter(&offset, buf, f, ccnt, ',');
@@ -1229,14 +1285,14 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
 }
 
 
-
-
-
+/*
+ * the memory allocated by this function is tracked by cee_state
+ */
 ssize_t
 cee_json_asprint(struct cee_state *st, char **buf_p, size_t *buf_size_p, struct cee_json *j,
                  enum cee_json_fmt f)
 {
-  size_t buf_size = cee_json_snprint(st, NULL, 0, j, f) + 1 ;
+  size_t buf_size = cee_json_snprint(st, NULL, 0, j, f) + 1/*\0*/;
   char *buf = cee_block_mk(st, buf_size);
   if (buf_size_p) *buf_size_p = buf_size;
   *buf_p = buf;
@@ -1255,12 +1311,12 @@ static bool utf_valid(uint32_t v)
 {
   if(v>0x10FFFF)
     return false;
-  if(0xD800 <=v && v<= 0xDFFF)
+  if(0xD800 <=v && v<= 0xDFFF) /*  surragates */
     return false;
   return true;
 }
 
-
+/* namespace utf8 { */
 static bool utf8_is_trail(char ci)
 {
   unsigned char c=ci;
@@ -1299,8 +1355,8 @@ static int utf8_width(uint32_t value)
   }
 }
 
-
-
+/*  See RFC 3629 */
+/*  Based on: http://www.w3.org/International/questions/qa-forms-utf-8 */
 static uint32_t next(char ** p, char * e, bool html)
 {
   if(*p==e)
@@ -1309,16 +1365,16 @@ static uint32_t next(char ** p, char * e, bool html)
   unsigned char lead = **p;
   (*p)++;
 
-
+  /*  First byte is fully validated here */
   int trail_size = utf8_trail_length(lead);
 
   if(trail_size < 0)
     return utf_illegal;
 
-
-
-
-
+  /*  */
+  /*  Ok as only ASCII may be of size = 0 */
+  /*  also optimize for ASCII text */
+  /*  */
   if(trail_size == 0) {
     if(!html || (lead >= 0x20 && lead!=0x7F) || lead==0x9 || lead==0x0A || lead==0x0D)
       return lead;
@@ -1327,7 +1383,7 @@ static uint32_t next(char ** p, char * e, bool html)
 
   uint32_t c = lead & ((1<<(6-trail_size))-1);
 
-
+  /*  Read the rest */
   unsigned char tmp;
   switch(trail_size) {
     case 3:
@@ -1356,19 +1412,33 @@ static uint32_t next(char ** p, char * e, bool html)
       c = (c << 6) | ( tmp & 0x3F);
   }
 
-
-
+  /*  Check code point validity: no surrogates and */
+  /*  valid range */
   if(!utf_valid(c))
     return utf_illegal;
 
-
+  /*  make sure it is the most compact representation */
   if(utf8_width(c)!=trail_size + 1)
     return utf_illegal;
 
   if(html && c<0xA0)
     return utf_illegal;
   return c;
+} /*  valid */
+
+
+/*
+bool validate_with_count(char * p, char * e, size_t *count,bool html)
+{
+  while(p!=e) {
+    if(next(p,e,html)==utf_illegal)
+      return false;
+    (*count)++;
+  }
+  return true;
 }
+*/
+
 static bool utf8_validate(char * p, char * e)
 {
   while(p!=e)
@@ -1384,7 +1454,7 @@ struct utf8_seq {
 };
 
 static void utf8_encode(uint32_t value, struct utf8_seq *out) {
-
+  /* struct utf8_seq out={0}; */
   if(value <=0x7F) {
     out->c[0]=value;
     out->len=1;
@@ -1507,11 +1577,11 @@ second_iter:
     if('\\' == c) {
       if (TESTING == state) {
         state = ALLOCATING;
-        break;
+        break; /*  break the while loop */
       }
 
       if (s == input_end) {
-
+        /* input is not a well-formed json string */
         goto return_err;
       }
 
@@ -1587,16 +1657,16 @@ return_err:
 }
 
 static bool parse_string(struct cee_state * st, struct tokenizer * t) {
-  char *start = t->buf + 1;
+  char *start = t->buf + 1; /*  start after initial '"' */
   char *end = start;
 
-
+  /*  reach the end of the string */
   while (*end != '\0' && *end != '"') {
-    if ('\\' == *end++ && *end != '\0') {
-      ++end;
+    if ('\\' == *end++ && *end != '\0') { /*  check for escaped characters */
+      ++end; /*  eat-up escaped character */
     }
   }
-  if (*end != '"') return false;
+  if (*end != '"') return false; /*  make sure reach end of string */
 
   char * unscp_str = NULL;
   size_t unscp_len = 0;
@@ -1605,14 +1675,14 @@ static bool parse_string(struct cee_state * st, struct tokenizer * t) {
       t->str = cee_str_mk_e(st, end-start+1, "%.*s", end-start, start);
     }
     else {
-
+      /* / @todo? create a cee_str func that takes ownership of string */
       t->str = cee_str_mk_e(st, unscp_len+1, "%s", unscp_str);
       free(unscp_str);
     }
-    t->buf = end + 1;
+    t->buf = end + 1; /*  skip the closing '"' */
     return true;
   }
-  return false;
+  return false; /*  ill formed string */
 }
 
 static bool parse_number(struct tokenizer *t) {
@@ -1622,7 +1692,7 @@ static bool parse_number(struct tokenizer *t) {
   bool is_integer = true, is_exponent = false;
   int offset_sign = 0;
 
-
+  /* 1st STEP: check for a minus sign and skip it */
   if ('-' == *end) {
     ++end;
     offset_sign = 1;
@@ -1630,11 +1700,11 @@ static bool parse_number(struct tokenizer *t) {
   if (!isdigit(*end))
     return false;
 
-
+  /* 2nd STEP: skips until a non digit char found */
   while (isdigit(*++end))
     continue;
 
-
+  /* 3rd STEP: if non-digit char is not a comma then it must be an integer */
   if ('.' == *end) {
     if (!isdigit(*++end))
       return false;
@@ -1643,8 +1713,8 @@ static bool parse_number(struct tokenizer *t) {
     is_integer = false;
   }
 
-
-
+  /* 4th STEP: check for exponent and skip its tokens */
+  /*  TODO: check if its an integer or not and change 'is_integer' accordingly */
   if ('e' == *end || 'E' == *end) {
     ++end;
     if ('+' == *end || '-' == *end)
@@ -1654,12 +1724,12 @@ static bool parse_number(struct tokenizer *t) {
     while (isdigit(*++end))
       continue;
     is_exponent = true;
-  }
+  } /*  can't be a integer that starts with zero followed n numbers (ex: 012, -023) */
   else if (is_integer && (end-1) != (start+offset_sign) && '0' == start[offset_sign]) {
     return false;
   }
 
-
+  /* 5th STEP: convert string to number */
   char *endptr=NULL;
   if (is_exponent || !is_integer) {
     t->type = NUMBER_IS_DOUBLE;
@@ -1670,7 +1740,7 @@ static bool parse_number(struct tokenizer *t) {
     t->number.i64 = strtoll(start, &endptr, 10);
   }
 
-  t->buf = end;
+  t->buf = end; /* skips entire length of number */
 
   return start != endptr;
 }
@@ -1692,7 +1762,7 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
     case '\n':
     case '\r':
         t->line++;
-
+    /* fallthrough */
     case ' ':
     case '\t':
         break;

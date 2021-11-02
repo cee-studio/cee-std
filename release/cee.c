@@ -410,6 +410,18 @@ extern struct cee_list * cee_map_values(struct cee_map *m);
  */
 extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, void *key, void *value));
 
+/*
+ * clone a new map
+ */
+extern struct cee_map* cee_map_clone(struct cee_map *m);
+
+/*
+ *
+ * merge m2 to m1
+ *
+ */
+extern void cee_map_merge(struct cee_map *m1, struct cee_map *m2);
+
 
 /*
  * dict behaviors like a map with the following properties
