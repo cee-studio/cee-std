@@ -64,10 +64,10 @@ extern struct cee_boxed * cee_json_to_boxed (struct cee_json *);
 extern struct cee_str* cee_json_to_str (struct cee_json *);
 extern struct cee_block* cee_json_to_blob (struct cee_json *);
 
-extern double cee_json_to_double (struct cee_json *);
-extern int64_t cee_json_to_i64 (struct cee_json*);
-extern uint64_t cee_json_to_u64 (struct cee_json*);
-extern bool cee_json_to_bool(struct cee_json*);
+extern bool cee_json_to_double (struct cee_json *, double *);
+extern bool cee_json_to_i64 (struct cee_json*, int64_t *);
+extern bool cee_json_to_u64 (struct cee_json*, uint64_t *);
+extern bool cee_json_to_bool(struct cee_json*, bool *);
 
 extern struct cee_json * cee_json_true ();
 extern struct cee_json * cee_json_false ();

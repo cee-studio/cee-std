@@ -77,10 +77,10 @@ extern struct cee_boxed * cee_json_to_boxed (struct cee_json *);
 extern struct cee_str* cee_json_to_str (struct cee_json *);
 extern struct cee_block* cee_json_to_blob (struct cee_json *);
 
-extern double cee_json_to_double (struct cee_json *);
-extern int64_t cee_json_to_i64 (struct cee_json*);
-extern uint64_t cee_json_to_u64 (struct cee_json*);
-extern bool cee_json_to_bool(struct cee_json*);
+extern bool cee_json_to_double (struct cee_json *, double *);
+extern bool cee_json_to_i64 (struct cee_json*, int64_t *);
+extern bool cee_json_to_u64 (struct cee_json*, uint64_t *);
+extern bool cee_json_to_bool(struct cee_json*, bool *);
 
 extern struct cee_json * cee_json_true ();
 extern struct cee_json * cee_json_false ();
@@ -263,34 +263,44 @@ int cee_json_empty(struct cee_json *p) {
 }
 
 
-double cee_json_to_double (struct cee_json *p) {
-  if (p->t == CEE_JSON_DOUBLE)
-    return cee_boxed_to_double(p->value.boxed);
-  else
-    cee_segfault();
-}
-
-int64_t cee_json_to_i64 (struct cee_json *p) {
-  if (p->t == CEE_JSON_I64)
-    return cee_boxed_to_i64(p->value.boxed);
-  else
-    cee_segfault();
-}
-
-uint64_t cee_json_to_u64 (struct cee_json *p) {
-  if (p->t == CEE_JSON_U64)
-    return cee_boxed_to_u64(p->value.boxed);
-  else
-    cee_segfault();
-}
-
-bool cee_json_to_bool(struct cee_json *p) {
-  if (p == cee_json_true())
+bool cee_json_to_double (struct cee_json *p, double *r) {
+  if (p->t == CEE_JSON_DOUBLE) {
+    *r = cee_boxed_to_double(p->value.boxed);
     return true;
-  else if (p == cee_json_false())
-    return false;
+  }
   else
-    cee_segfault();
+    return false;
+}
+
+bool cee_json_to_i64 (struct cee_json *p, int64_t *r) {
+  if (p->t == CEE_JSON_I64) {
+    *r = cee_boxed_to_i64(p->value.boxed);
+    return true;
+  }
+  else
+    return false;
+}
+
+bool cee_json_to_u64 (struct cee_json *p, uint64_t *r) {
+  if (p->t == CEE_JSON_U64) {
+    *r = cee_boxed_to_u64(p->value.boxed);
+    return true;
+  }
+  else
+    return false;
+}
+
+bool cee_json_to_bool(struct cee_json *p, bool *r) {
+  if (p == cee_json_true()) {
+    *r = true;
+    return true;
+  }
+  else if (p == cee_json_false()) {
+    *r = false;
+    return true;
+  }
+  else
+    return false;
 }
 
 struct cee_json * cee_json_double_mk (struct cee_state *st, double d) {
@@ -1192,7 +1202,9 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
         {
           pad(&offset, buf, ccnt, f);
           char * s = "false";
-          if (cee_json_to_bool(cur_json))
+          bool b;
+          cee_json_to_bool(cur_json, &b);
+          if (b)
             s = "true";
           if (buf)
             memcpy(buf + offset, s, strlen(s));

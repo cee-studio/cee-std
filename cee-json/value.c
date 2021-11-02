@@ -86,34 +86,44 @@ int cee_json_empty(struct cee_json *p) {
 }
 
 
-double cee_json_to_double (struct cee_json *p) {
-  if (p->t == CEE_JSON_DOUBLE)
-    return cee_boxed_to_double(p->value.boxed);
-  else
-    cee_segfault();    
-}
-
-int64_t cee_json_to_i64 (struct cee_json *p) {
-  if (p->t == CEE_JSON_I64)
-    return cee_boxed_to_i64(p->value.boxed);
-  else
-    cee_segfault();
-}
-
-uint64_t cee_json_to_u64 (struct cee_json *p) {
-  if (p->t == CEE_JSON_U64)
-    return cee_boxed_to_u64(p->value.boxed);
-  else
-    cee_segfault();
-}
-
-bool cee_json_to_bool(struct cee_json *p) {
-  if (p == cee_json_true())
+bool cee_json_to_double (struct cee_json *p, double *r) {
+  if (p->t == CEE_JSON_DOUBLE) {
+    *r = cee_boxed_to_double(p->value.boxed);
     return true;
-  else if (p == cee_json_false())
-    return false;
+  }
   else
-    cee_segfault();
+    return false;
+}
+
+bool cee_json_to_i64 (struct cee_json *p, int64_t *r) {
+  if (p->t == CEE_JSON_I64) {
+    *r = cee_boxed_to_i64(p->value.boxed);
+    return true;
+  }
+  else
+    return false;
+}
+
+bool cee_json_to_u64 (struct cee_json *p, uint64_t *r) {
+  if (p->t == CEE_JSON_U64) {
+    *r = cee_boxed_to_u64(p->value.boxed);
+    return true;
+  }
+  else
+    return false;
+}
+
+bool cee_json_to_bool(struct cee_json *p, bool *r) {
+  if (p == cee_json_true()) {
+    *r = true;
+    return true;
+  }
+  else if (p == cee_json_false()) {
+    *r = false;
+    return true;
+  }
+  else
+    return false;
 }
 
 struct cee_json * cee_json_double_mk (struct cee_state *st, double d) {
