@@ -121,6 +121,7 @@ extern void cee_json_array_append_u64 (struct cee_json *, uint64_t);
 /* remove an element from a json array */
 extern void cee_json_array_remove (struct cee_json *, int index);
 
+extern size_t cee_json_array_length (struct cee_json *);
 extern struct cee_json* cee_json_array_get(struct cee_json *, int);
 extern void cee_json_array_iterate (struct cee_json *, void *ctx,
 				    void (*f)(void *ctx, int index, struct cee_json *val));

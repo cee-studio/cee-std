@@ -343,6 +343,13 @@ void cee_json_array_append_strf (struct cee_json *j, const char *fmt, ...) {
   }
 }
 
+size_t cee_json_array_length(struct cee_json *j) {
+  struct cee_list *o = cee_json_to_array(j);
+  if (!o)
+    cee_segfault();
+  return cee_list_size(o);
+}
+
 struct cee_json* cee_json_array_get (struct cee_json *j, int i) {
   struct cee_list *o = cee_json_to_array(j);
   if (!o)
