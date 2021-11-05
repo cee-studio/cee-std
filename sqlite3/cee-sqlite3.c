@@ -16,6 +16,9 @@ sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts)
     return NULL;
   }
 
+  if (!sqlstmts)
+    return db;
+
   char *err_msg=NULL;
   rc = sqlite3_exec(db, "begin transaction;", 0, 0, &err_msg);
   if (rc != SQLITE_OK) {
