@@ -181,7 +181,6 @@ cee_sqlite3_update_or_insert(struct cee_state *state,
 {
   int step;
   struct cee_json *result = cee_json_object_mk(state);
-  sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL);
   step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->select_stmt, NULL, &result);
   if (step == SQLITE_ROW) {
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
@@ -201,7 +200,6 @@ cee_sqlite3_update_or_insert(struct cee_state *state,
       cee_json_object_set_i64(result, "last_insert_rowid", row_id);
     }
   }
-  sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
   return result;
 }
 
@@ -215,7 +213,6 @@ cee_sqlite3_insert(struct cee_state *state,
   sqlite3_stmt *sql_stmt;
   int step;
   struct cee_json *result = cee_json_object_mk(state);
-  sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL);
   step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->insert_stmt, NULL, &result);
   if (step != SQLITE_DONE)
     cee_json_object_set_strf(result, "error", "sqlite3:'%s' -> %s",
@@ -224,7 +221,6 @@ cee_sqlite3_insert(struct cee_state *state,
     int row_id = sqlite3_last_insert_rowid(db);
     cee_json_object_set_i64(result, "last_insert_rowid", row_id);
   }
-  sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
   return result;
 }
 
@@ -239,7 +235,6 @@ cee_sqlite3_update(struct cee_state *state,
   sqlite3_stmt *sql_stmt;
   int step;
   struct cee_json *result = cee_json_object_mk(state);
-  sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL);
   step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->select_stmt, NULL, &result);
   if (step == SQLITE_ROW) {
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
@@ -251,7 +246,6 @@ cee_sqlite3_update(struct cee_state *state,
   }
   else
     cee_json_object_set_strf(result, "error", "sqlite3:'%s' returns no record", stmts->select_stmt);
-  sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
   return result;
 }
 
@@ -333,7 +327,6 @@ cee_sqlite3_select_or_insert(struct cee_state *state,
     return array;
 
   struct cee_json *result = cee_json_object_mk(state);
-  sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL);
   int step = cee_sqlite3_bind_run_sql(state, db, info, data, stmts->insert_stmt, NULL, &result);
   if (cee_json_select(result, ".error")) {
     /* do nothing */
@@ -346,7 +339,6 @@ cee_sqlite3_select_or_insert(struct cee_state *state,
     cee_json_object_set_i64(result, "last_insert_rowid", row_id);
   }
 
-  sqlite3_exec(db, "end transaction;", NULL, NULL, NULL);
   return result;
 }
 
