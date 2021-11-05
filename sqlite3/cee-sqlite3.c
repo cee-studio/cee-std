@@ -95,8 +95,14 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
   struct cee_json *result = NULL;
   struct cee_sqlite3_bind_data *data_p = NULL;
 
-  if (ret && *ret)
-    result = *ret;
+  if (ret) {
+    if (*ret)
+      result = *ret;
+    else {
+      result = cee_json_object_mk(state);
+      *ret = result;
+    }
+  }
 
   if (rc == SQLITE_OK) {
     if (info) {
@@ -161,8 +167,8 @@ int cee_sqlite3_bind_run_sql(struct cee_state *state,
     return rc;
   }
   else if (result)
-    cee_json_object_set_strf(result, "error", "sqlite3:'%s' %s", 
-                             sql, sqlite3_errmsg(db));
+    cee_json_object_set_error(result, "sqlite3:'%s' %s", 
+                              sql, sqlite3_errmsg(db));
   return rc;
 }
 
@@ -173,7 +179,6 @@ cee_sqlite3_update_or_insert(struct cee_state *state,
                              struct cee_sqlite3_bind_data *data,
                              struct cee_sqlite3_stmt_strs *stmts)
 {
-  sqlite3_stmt *sql_stmt;
   int step;
   struct cee_json *result = cee_json_object_mk(state);
   sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL);
