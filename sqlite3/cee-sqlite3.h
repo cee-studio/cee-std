@@ -13,6 +13,11 @@
  * a simple SQL Data <-> JSON binding
  */
 
+struct cee_sqlite3 {
+  sqlite3 *db;
+  struct cee_state *state;
+};
+
 extern sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts);
 
 #define cee_sqlite3_begin_transaction(db)  sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL)
@@ -87,32 +92,28 @@ struct cee_sqlite3_stmt_strs {
 };
 
 extern int
-cee_sqlite3_bind_run_sql(struct cee_state *state,
-                         sqlite3 *db,
+cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
                          struct cee_sqlite3_bind_info *info,
                          struct cee_sqlite3_bind_data *data,
                          char *sql, sqlite3_stmt **stmt_pp,
                          struct cee_json **ret);
 
 extern int
-cee_sqlite3_insert(struct cee_state *state,
-		   sqlite3 *db,
+cee_sqlite3_insert(struct cee_sqlite3 *cs,
 		   struct cee_sqlite3_bind_info *info,
 		   struct cee_sqlite3_bind_data *data,
 		   struct cee_sqlite3_stmt_strs *stmts,
 		   struct cee_json **status);
 
 extern int
-cee_sqlite3_update(struct cee_state *state,
-                   sqlite3 *db,
+cee_sqlite3_update(struct cee_sqlite3 *cs,
                    struct cee_sqlite3_bind_info *info,
                    struct cee_sqlite3_bind_data *data,
                    struct cee_sqlite3_stmt_strs *stmts,
 		   struct cee_json **status);
 
 extern int
-cee_sqlite3_update_or_insert(struct cee_state *state,
-                             sqlite3 *db,
+cee_sqlite3_update_or_insert(struct cee_sqlite3 *cs,
                              struct cee_sqlite3_bind_info *info,
                              struct cee_sqlite3_bind_data *data,
                              struct cee_sqlite3_stmt_strs *stmts,
@@ -123,8 +124,7 @@ cee_sqlite3_update_or_insert(struct cee_state *state,
  * the returned value is a json_array
  */
 int 
-cee_sqlite3_select(struct cee_state *state,
-		   sqlite3 *db,
+cee_sqlite3_select(struct cee_sqlite3 *cs,
 		   struct cee_sqlite3_bind_info *info,
 		   struct cee_sqlite3_bind_data *data,
 		   char *sql,
@@ -134,8 +134,7 @@ cee_sqlite3_select(struct cee_state *state,
  * this is used to pass to generic_opcode function
  */
 extern int
-cee_sqlite3_select_wrapper(struct cee_state *state,
-			   sqlite3 *db,
+cee_sqlite3_select_wrapper(struct cee_sqlite3 *cs,
 			   struct cee_sqlite3_bind_info *info,
 			   struct cee_sqlite3_bind_data *data,
 			   struct cee_sqlite3_stmt_strs *stmts,
@@ -146,8 +145,7 @@ cee_sqlite3_select_wrapper(struct cee_state *state,
  * or a json_object with last_insert_rowid set.
  */
 extern int
-cee_sqlite3_select_or_insert(struct cee_state *state,
-                             sqlite3 *db,
+cee_sqlite3_select_or_insert(struct cee_sqlite3 *cs,
                              struct cee_sqlite3_bind_info *info,
                              struct cee_sqlite3_bind_data *data,
                              struct cee_sqlite3_stmt_strs *stmts,
@@ -157,15 +155,13 @@ cee_sqlite3_select_or_insert(struct cee_state *state,
  * use JSON to bind sqlite3 stmts
  */
 extern int
-cee_sqlite3_generic_opcode(struct cee_state *st,
-			   sqlite3 *db,
+cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
 			   struct cee_json *json,
 			   struct cee_sqlite3_bind_info *info,
 			   struct cee_sqlite3_bind_data *data,
 			   struct cee_sqlite3_stmt_strs *stmts,
 			   struct cee_json **status,
-			   int (*f)(struct cee_state *st,
-				    sqlite3 *db,
+			   int (*f)(struct cee_sqlite3 *cs,
 				    struct cee_sqlite3_bind_info *info,
 				    struct cee_sqlite3_bind_data *data,
 				    struct cee_sqlite3_stmt_strs *stmts,
