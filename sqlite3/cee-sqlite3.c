@@ -525,3 +525,9 @@ cee_sqlite3_generic_opcode(struct cee_state *st,
 
   return ret;
 }
+
+
+struct cee_json* cee_sqlite3_get_selected(struct cee_json *status)
+{
+  return cee_json_select(status, ".sqlite3_selected");
+}

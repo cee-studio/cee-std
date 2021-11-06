@@ -170,4 +170,11 @@ cee_sqlite3_generic_opcode(struct cee_state *st,
 				    struct cee_sqlite3_bind_data *data,
 				    struct cee_sqlite3_stmt_strs *stmts,
 				    struct cee_json **status));
+
+
+/*
+ *  extract selected raw from status
+ */
+extern struct cee_json*
+cee_sqlite3_get_selected(struct cee_json *status);
 #endif
