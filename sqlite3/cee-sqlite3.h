@@ -94,72 +94,80 @@ cee_sqlite3_bind_run_sql(struct cee_state *state,
                          char *sql, sqlite3_stmt **stmt_pp,
                          struct cee_json **ret);
 
-extern struct cee_json*
+extern int
 cee_sqlite3_insert(struct cee_state *state,
 		   sqlite3 *db,
 		   struct cee_sqlite3_bind_info *info,
 		   struct cee_sqlite3_bind_data *data,
-		   struct cee_sqlite3_stmt_strs *stmts);
+		   struct cee_sqlite3_stmt_strs *stmts,
+		   struct cee_json **status);
 
-extern struct cee_json*
+extern int
 cee_sqlite3_update(struct cee_state *state,
                    sqlite3 *db,
                    struct cee_sqlite3_bind_info *info,
                    struct cee_sqlite3_bind_data *data,
-                   struct cee_sqlite3_stmt_strs *stmts);
+                   struct cee_sqlite3_stmt_strs *stmts,
+		   struct cee_json **status);
 
-extern struct cee_json*
+extern int
 cee_sqlite3_update_or_insert(struct cee_state *state,
                              sqlite3 *db,
                              struct cee_sqlite3_bind_info *info,
                              struct cee_sqlite3_bind_data *data,
-                             struct cee_sqlite3_stmt_strs *stmts);
+                             struct cee_sqlite3_stmt_strs *stmts,
+			     struct cee_json **status);
 
   
 /*
  * the returned value is a json_array
  */
-struct cee_json*
+int 
 cee_sqlite3_select(struct cee_state *state,
 		   sqlite3 *db,
 		   struct cee_sqlite3_bind_info *info,
 		   struct cee_sqlite3_bind_data *data,
-		   char *sql);
+		   char *sql,
+		   struct cee_json **status);
 
 /*
  * this is used to pass to generic_opcode function
  */
-extern struct cee_json*
+extern int
 cee_sqlite3_select_wrapper(struct cee_state *state,
 			   sqlite3 *db,
 			   struct cee_sqlite3_bind_info *info,
 			   struct cee_sqlite3_bind_data *data,
-			   struct cee_sqlite3_stmt_strs *stmts);
+			   struct cee_sqlite3_stmt_strs *stmts,
+			   struct cee_json **status);
 
 /*
  * the returned value is a json_array if select succeeds,
  * or a json_object with last_insert_rowid set.
  */
-extern struct cee_json*
+extern int
 cee_sqlite3_select_or_insert(struct cee_state *state,
                              sqlite3 *db,
                              struct cee_sqlite3_bind_info *info,
                              struct cee_sqlite3_bind_data *data,
-                             struct cee_sqlite3_stmt_strs *stmts);
+                             struct cee_sqlite3_stmt_strs *stmts,
+			     struct cee_json **status);
 
 /*
  * use JSON to bind sqlite3 stmts
  */
-extern struct cee_json*
+extern int
 cee_sqlite3_generic_opcode(struct cee_state *st,
 			   sqlite3 *db,
 			   struct cee_json *json,
 			   struct cee_sqlite3_bind_info *info,
 			   struct cee_sqlite3_bind_data *data,
 			   struct cee_sqlite3_stmt_strs *stmts,
-			   struct cee_json* (*f)(struct cee_state *st,
-						 sqlite3 *db,
-						 struct cee_sqlite3_bind_info *info,
-						 struct cee_sqlite3_bind_data *data,
-						 struct cee_sqlite3_stmt_strs *stmts));
+			   struct cee_json **status,
+			   int (*f)(struct cee_state *st,
+				    sqlite3 *db,
+				    struct cee_sqlite3_bind_info *info,
+				    struct cee_sqlite3_bind_data *data,
+				    struct cee_sqlite3_stmt_strs *stmts,
+				    struct cee_json **status));
 #endif

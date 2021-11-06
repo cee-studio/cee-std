@@ -114,7 +114,7 @@ extern void cee_json_object_set_i64 (struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_json *, char *, uint64_t);
 extern bool cee_json_object_replace (struct cee_json *, char *old_key, char *new_key);
 
-extern void cee_json_object_set_error(struct cee_json *o, const char *fmt, ...);
+extern void cee_json_set_error(struct cee_json **o, const char *fmt, ...);
 
 extern struct cee_json* cee_json_object_get(struct cee_json *, char *key);
 /* remove a key from a json object */
@@ -393,8 +393,9 @@ void cee_json_object_remove(struct cee_json *j, char *key)
   cee_map_remove(o, key);
 }
 
-void cee_json_object_set_error(struct cee_json *o, const char *fmt, ...) {
-  if (!o) return;
+void cee_json_set_error(struct cee_json **x, const char *fmt, ...) {
+  if (x == NULL || *x == NULL) return;
+  struct cee_json *o = *x;
   if (o->t != CEE_JSON_OBJECT)
     cee_segfault();
   if (cee_json_select(o, ".error"))

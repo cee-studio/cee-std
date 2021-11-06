@@ -215,8 +215,9 @@ void cee_json_object_remove(struct cee_json *j, char *key)
   cee_map_remove(o, key);
 }
 
-void cee_json_object_set_error(struct cee_json *o, const char *fmt, ...) {
-  if (!o) return;
+void cee_json_set_error(struct cee_json **x, const char *fmt, ...) {
+  if (x == NULL || *x == NULL) return;
+  struct cee_json *o = *x;
   if (o->t != CEE_JSON_OBJECT)
     cee_segfault();
   if (cee_json_select(o, ".error"))
