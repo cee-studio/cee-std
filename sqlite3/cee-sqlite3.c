@@ -293,7 +293,7 @@ cee_sqlite3_select(struct cee_state *state,
   
   int rc = cee_sqlite3_bind_run_sql(state, db, info, data, sql, &stmt, status);
   if (rc != SQLITE_ROW) {
-    cee_json_set_error(ret, "sqlite3:'%s' %s", sql, sqlite3_errmsg(db));
+    cee_json_set_error(status, "sqlite3:'%s' %s", sql, sqlite3_errmsg(db));
     return rc;
   }
   
