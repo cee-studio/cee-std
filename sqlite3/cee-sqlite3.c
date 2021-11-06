@@ -288,7 +288,7 @@ int cee_sqlite3_select(struct cee_state *state,
   accept_result(state, status, &result);
   
   int rc = cee_sqlite3_bind_run_sql(state, db, info, data, sql, &stmt, status);
-  if (rc != SQLITE_ROW && rc != DONE) {
+  if (rc != SQLITE_ROW && rc != SQLITE_DONE) {
     cee_json_set_error(status, "sqlite3:[%d]'%s' %s", rc, sql, sqlite3_errmsg(db));
     return rc;
   }
