@@ -110,7 +110,8 @@ uintptr_t cee_map_size(struct cee_map * m) {
   return b->size;
 }
 
-void* cee_map_add(struct cee_map * m, void * key, void * value) {
+void* cee_map_add_e(struct cee_map * m, void * key, void * value,
+		    void *ctx, void* (*merge)(void *ctx, void *old_value, void *new_value)) {
   struct S(header) * b = FIND_HEADER(m);
 
   struct cee_tuple *t, *t1 = NULL, **oldp;
@@ -122,15 +123,26 @@ void* cee_map_add(struct cee_map * m, void * key, void * value) {
   else if (*oldp != t) {
     t1 = *oldp;
     void *old_value = t1->_[1];
-    t1->_[1] = value; /* detach old value  and capture value */
-    cee_decr_indegree(b->del_policies._.val, old_value); /* decrease the rc of old value */
+    void *new_value = value;
+    if (merge)
+      new_value = merge(ctx, old_value, new_value);
+
+    /* detach old_value  and capture new_value */
+    if (new_value != old_value) {
+      t1->_[1] = new_value; 
+      cee_decr_indegree(b->del_policies._.val, old_value); /* decrease the rc of old value */
+    }
     cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); /* do nothing for t[1] */
-    cee_del(t);
+    cee_del(t);    
     return old_value;
   }
   else
     b->size ++;
   return NULL;
+}
+
+void* cee_map_add(struct cee_map * m, void * key, void * value) {
+  return cee_map_add_e(m, key, value, NULL, NULL);
 }
 
 void * cee_map_find(struct cee_map * m, void * key) {
@@ -261,30 +273,25 @@ void cee_map_iterate(struct cee_map *m, void *ctx,
 }
 
 
+struct S(merge_ctx) {
+  struct cee_map *dest_map;
+  void *merge_ctx;
+  void* (*merge)(void *ctx, void *old_value, void *new_value);
+};
+
 static void S(_add_kv)(void *ctx, void *key, void *value)
 {
-  struct cee_map *map = ctx;
-  cee_map_add(map, key, value);
-}
-
-/*
- * create a shadow clone of cee_map
- * the key/value pairs will not be cloned.
- */
-struct cee_map* cee_map_clone(struct cee_map *old_map)
-{
-  struct cee_state *st = cee_get_state(old_map);
-  struct S(header) * b = FIND_HEADER(old_map);
-  struct cee_map *new_map = cee_map_mk_e(st, b->del_policies.a, b->cmp);
-  cee_map_iterate(old_map, new_map, S(_add_kv));
-  return new_map;
+  struct S(merge_ctx) *mctx = ctx;
+  cee_map_add_e(mctx->dest_map, key, value, mctx->merge_ctx, mctx->merge);
 }
 
 /*
  * add all key/value pairs of the src to the dest
- * and keep the src intact
+ * and keep the src intact.
  */
-void cee_map_merge(struct cee_map *dest, struct cee_map *src)
+void cee_map_merge(struct cee_map *dest, struct cee_map *src,
+		   void *ctx, void* (*merge)(void *ctx, void *old, void *new))
 {
-  cee_map_iterate(src, dest, S(_add_kv));
+  struct S(merge_ctx) mctx = { .dest_map = dest, .merge_ctx = ctx, .merge = merge };
+  cee_map_iterate(src, &mctx, S(_add_kv));
 }

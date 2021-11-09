@@ -216,8 +216,6 @@ extern struct cee_list * cee_list_mk_e (struct cee_state * s, enum cee_del_polic
 extern struct cee_list * cee_list_append(struct cee_list ** v, void * e);
 
 
-extern void* cee_list_get(struct cee_list *v, int index);
-
 /*
  * it inserts an element e at index and shift the rest elements 
  * to higher indices
@@ -249,11 +247,6 @@ extern size_t cee_list_capacity (struct cee_list *);
  * if the list is null, return immediately
  */
 extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, int idx, void * e));
-
-/*
- * make a shadow copy of input list
- */
-extern struct cee_list* cee_list_clone (struct cee_list *);
 
 extern void cee_list_merge (struct cee_list **dest, struct cee_list *src);
   
@@ -367,8 +360,6 @@ extern struct cee_set * cee_set_union_sets (struct cee_set * s1, struct cee_set 
 extern void cee_set_iterate (struct cee_set *s, void *ctx,
 			     void (*f)(void *ctx, void *value));
 
-extern struct cee_set* cee_set_clone (struct cee_set *s);
-
 struct cee_map {
   void * _;
 };
@@ -417,16 +408,17 @@ extern struct cee_list * cee_map_values(struct cee_map *m);
 extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, void *key, void *value));
 
 /*
- * create a shadow copy
- */
-extern struct cee_map* cee_map_clone(struct cee_map *m);
-
-/*
  *
- * add all k/v pairs from src to dest
+ * merge all k/v pairs from src to dest
+ * src will never be changed. dest is modified 
+ * if src is not empty. 
+ *
+ * @param merge decides how to merge two values
+ * if merge is NULL, the value from src overwrite the value from dest.
  *
  */
-extern void cee_map_merge(struct cee_map *dest, struct cee_map *src);
+extern void cee_map_merge(struct cee_map *dest, struct cee_map *src,
+			  void *ctx, void* (*merge)(void *ctx, void *old, void *new));
 
 
 /*

@@ -67,6 +67,7 @@ extern struct cee_json * cee_json_load_from_file (struct cee_state *,
 extern struct cee_json * cee_json_load_from_buffer (int size, char *, int line);
 extern int cee_json_cmp (struct cee_json *, struct cee_json *);
 
+extern bool cee_json_merge (struct cee_json *dest, struct cee_json *src);
 
 extern struct cee_json * cee_list_to_json (struct cee_list *v);
 extern struct cee_json * cee_map_to_json (struct cee_map *v);
@@ -312,6 +313,38 @@ bool cee_json_to_bool(struct cee_json *p, bool *r) {
   else
     return false;
 }
+
+static void* merge_json_value (void *ctx, void *oldv, void *newv)
+{
+  struct cee_json *oldj = oldv, *newj = newv;
+  if (cee_json_merge(oldj, newj))
+    return oldj;
+  else
+    return newj;
+}
+
+/*
+ * merge two objects recursively by combining 
+ * their key/value pairs:
+ * 
+ * if the src value and dest value are different types,
+ * the src value overwrite the dest value.
+ *
+ * if both src value and dest value are objects, merge
+ * them recursively.
+ *
+ */
+bool cee_json_merge (struct cee_json *dest, struct cee_json *src) {
+  if (dest->t == src->t && dest->t == CEE_JSON_OBJECT) {
+    struct cee_map *dest_map = cee_json_to_object(dest);
+    struct cee_map *src_map = cee_json_to_object(src);
+    cee_map_merge(dest_map, src_map, NULL, merge_json_value);
+    return true;
+  }
+  else
+    return false;
+}
+
 
 struct cee_json * cee_json_double_mk (struct cee_state *st, double d) {
   struct cee_boxed * p = cee_boxed_from_double (st, d);

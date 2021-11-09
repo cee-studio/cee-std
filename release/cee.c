@@ -225,8 +225,6 @@ extern struct cee_list * cee_list_mk_e (struct cee_state * s, enum cee_del_polic
 extern struct cee_list * cee_list_append(struct cee_list ** v, void * e);
 
 
-extern void* cee_list_get(struct cee_list *v, int index);
-
 /*
  * it inserts an element e at index and shift the rest elements 
  * to higher indices
@@ -258,11 +256,6 @@ extern size_t cee_list_capacity (struct cee_list *);
  * if the list is null, return immediately
  */
 extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, int idx, void * e));
-
-/*
- * make a shadow copy of input list
- */
-extern struct cee_list* cee_list_clone (struct cee_list *);
 
 extern void cee_list_merge (struct cee_list **dest, struct cee_list *src);
   
@@ -370,13 +363,11 @@ extern size_t cee_set_size(struct cee_set * m);
  * return true if the set is null or has no element
  */
 extern bool cee_set_empty(struct cee_set * s);
-extern struct cee_list * cee_set_values(struct cee_set * m);
+extern struct cee_list * cee_set_values (struct cee_set * m);
 extern struct cee_set * cee_set_union_sets (struct cee_set * s1, struct cee_set * s2);
 
 extern void cee_set_iterate (struct cee_set *s, void *ctx,
 			     void (*f)(void *ctx, void *value));
-
-extern struct cee_set* cee_set_clone (struct cee_set *s);
 
 struct cee_map {
   void * _;
@@ -426,16 +417,17 @@ extern struct cee_list * cee_map_values(struct cee_map *m);
 extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, void *key, void *value));
 
 /*
- * create a shadow copy
- */
-extern struct cee_map* cee_map_clone(struct cee_map *m);
-
-/*
  *
- * add all k/v pairs from src to dest
+ * merge all k/v pairs from src to dest
+ * src will never be changed. dest is modified 
+ * if src is not empty. 
+ *
+ * @param merge decides how to merge two values
+ * if merge is NULL, the value from src overwrite the value from dest.
  *
  */
-extern void cee_map_merge(struct cee_map *dest, struct cee_map *src);
+extern void cee_map_merge(struct cee_map *dest, struct cee_map *src,
+			  void *ctx, void* (*merge)(void *ctx, void *old, void *new));
 
 
 /*
@@ -2313,7 +2305,8 @@ uintptr_t cee_map_size(struct cee_map * m) {
   return b->size;
 }
 
-void* cee_map_add(struct cee_map * m, void * key, void * value) {
+void* cee_map_add_e(struct cee_map * m, void * key, void * value,
+      void *ctx, void* (*merge)(void *ctx, void *old_value, void *new_value)) {
   struct _cee_map_header * b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
 
   struct cee_tuple *t, *t1 = NULL, **oldp;
@@ -2325,8 +2318,15 @@ void* cee_map_add(struct cee_map * m, void * key, void * value) {
   else if (*oldp != t) {
     t1 = *oldp;
     void *old_value = t1->_[1];
-    t1->_[1] = value; /* detach old value  and capture value */
-    cee_decr_indegree(b->del_policies._.val, old_value); /* decrease the rc of old value */
+    void *new_value = value;
+    if (merge)
+      new_value = merge(ctx, old_value, new_value);
+
+    /* detach old_value  and capture new_value */
+    if (new_value != old_value) {
+      t1->_[1] = new_value;
+      cee_decr_indegree(b->del_policies._.val, old_value); /* decrease the rc of old value */
+    }
     cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); /* do nothing for t[1] */
     cee_del(t);
     return old_value;
@@ -2334,6 +2334,10 @@ void* cee_map_add(struct cee_map * m, void * key, void * value) {
   else
     b->size ++;
   return NULL;
+}
+
+void* cee_map_add(struct cee_map * m, void * key, void * value) {
+  return cee_map_add_e(m, key, value, NULL, NULL);
 }
 
 void * cee_map_find(struct cee_map * m, void * key) {
@@ -2464,32 +2468,27 @@ void cee_map_iterate(struct cee_map *m, void *ctx,
 }
 
 
+struct _cee_map_merge_ctx {
+  struct cee_map *dest_map;
+  void *merge_ctx;
+  void* (*merge)(void *ctx, void *old_value, void *new_value);
+};
+
 static void _cee_map__add_kv(void *ctx, void *key, void *value)
 {
-  struct cee_map *map = ctx;
-  cee_map_add(map, key, value);
-}
-
-/*
- * create a shadow clone of cee_map
- * the key/value pairs will not be cloned.
- */
-struct cee_map* cee_map_clone(struct cee_map *old_map)
-{
-  struct cee_state *st = cee_get_state(old_map);
-  struct _cee_map_header * b = (struct _cee_map_header *)((void *)((char *)(old_map) - (__builtin_offsetof(struct _cee_map_header, _))));
-  struct cee_map *new_map = cee_map_mk_e(st, b->del_policies.a, b->cmp);
-  cee_map_iterate(old_map, new_map, _cee_map__add_kv);
-  return new_map;
+  struct _cee_map_merge_ctx *mctx = ctx;
+  cee_map_add_e(mctx->dest_map, key, value, mctx->merge_ctx, mctx->merge);
 }
 
 /*
  * add all key/value pairs of the src to the dest
- * and keep the src intact
+ * and keep the src intact.
  */
-void cee_map_merge(struct cee_map *dest, struct cee_map *src)
+void cee_map_merge(struct cee_map *dest, struct cee_map *src,
+     void *ctx, void* (*merge)(void *ctx, void *old, void *new))
 {
-  cee_map_iterate(src, dest, _cee_map__add_kv);
+  struct _cee_map_merge_ctx mctx = { .dest_map = dest, .merge_ctx = ctx, .merge = merge };
+  cee_map_iterate(src, &mctx, _cee_map__add_kv);
 }
 
 struct _cee_set_header {
@@ -3559,16 +3558,6 @@ void cee_list_iterate (struct cee_list *x, void *ctx,
 static void _cee_list__add_v(void *cxt, int idx, void *e) {
   struct cee_list **l = cxt;
   cee_list_append(l, e);
-}
-
-struct cee_list* cee_list_clone (struct cee_list * old_list)
-{
-  struct cee_state *state = cee_get_state (old_list);
-
-  struct _cee_list_header *h = (struct _cee_list_header *)((void *)((char *)(old_list) - (__builtin_offsetof(struct _cee_list_header, _))));
-  struct cee_list *new_list = cee_list_mk_e(state, h->del_policy, h->capacity);
-  cee_list_iterate (old_list, &new_list, _cee_list__add_v);
-  return new_list;
 }
 
 void cee_list_merge (struct cee_list **dest, struct cee_list *src)

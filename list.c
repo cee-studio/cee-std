@@ -155,16 +155,6 @@ static void S(_add_v)(void *cxt, int idx, void *e) {
   cee_list_append(l, e);
 }
 
-struct cee_list* cee_list_clone (struct cee_list * old_list)
-{
-  struct cee_state *state = cee_get_state (old_list);
-  
-  struct S(header) *h = FIND_HEADER(old_list);
-  struct cee_list *new_list = cee_list_mk_e(state, h->del_policy, h->capacity);
-  cee_list_iterate (old_list, &new_list, S(_add_v));
-  return new_list;
-}
-
 void cee_list_merge (struct cee_list **dest, struct cee_list *src)
 {
   cee_list_iterate (src, dest, S(_add_v));
