@@ -443,11 +443,14 @@ struct cee_json * cee_json_load_from_file (struct cee_state * st,
   char * b = malloc(size);
   if (!b) 
     cee_segfault();
+  fread(b, 1, size, f);
   
   int line = 0;
   struct cee_json * j;
   if (!cee_json_parse(st, b, size, &j, true, &line)) {
     /*  report error */
+    fprintf(stderr, "failed to parse at %d\n", line);
+    return NULL;
   }
   return j;
 }
