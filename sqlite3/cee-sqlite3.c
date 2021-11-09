@@ -528,3 +528,16 @@ struct cee_json* cee_sqlite3_get_selected(struct cee_json *status)
 {
   return cee_json_select(status, ".sqlite3_selected");
 }
+
+bool
+cee_sqlite3_has_selected_result(struct cee_json *status)
+{
+  struct cee_json* a;
+
+  if (cee_json_select(status, ".error"))
+    return false;
+  else if ((a = cee_sqlite3_get_selected(status)))
+    return cee_json_select(a, "[0]") != NULL;
+  else
+    return false;
+}
