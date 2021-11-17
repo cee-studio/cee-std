@@ -279,7 +279,7 @@ static bool
 dont_return_colum(struct cee_sqlite3_bind_info *info, char *colum_name)
 {
   int i = 0;
-  for (i = 0; info[i].var_name; i++)
+  for (i = 0; info[i].var_name || info[i].col_name; i++)
     if (info[i].col_name && strcmp(info[i].col_name, colum_name) == 0)
       return info[i].no_return;
   return false;
