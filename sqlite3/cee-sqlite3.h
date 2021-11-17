@@ -32,12 +32,6 @@ enum cee_sqlite3_type {
   CEE_SQLITE3_BLOB
 };
   
-struct cee_sqlite3_bind_info_data {
-  char *name; /* name for the binding variable */
-  enum cee_sqlite3_type type;
-  void *value;
-};
-
 /*
  * the value of binding data
  */
@@ -55,7 +49,7 @@ struct cee_sqlite3_bind_info {
   char *ext_name; /* external name */
   enum cee_sqlite3_type type;
   struct cee_sqlite3_bind_data data; /* default data is used if external data is not provided */
-  bool no_update; /* dont update this field if it's true */
+  bool no_update; /* dont update this field if it's true, it's only effective for update */
   /* 
    * this field will only affect insert
    *
@@ -69,7 +63,8 @@ struct cee_sqlite3_bind_info {
    * text: ""
    * blob: size 0
    */
-  bool not_null;  
+  bool not_null;  /* the default is 0/false */
+  bool no_return; /* dont return this colum, it's only effective for select, the default is 0/false */
 };
 
 
