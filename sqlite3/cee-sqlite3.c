@@ -313,25 +313,21 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
     int i, num_cols = sqlite3_column_count(stmt);
     for (i = 0; i < num_cols; i++) {
       char *name = (char *)sqlite3_column_name(stmt, i);
+      if (dont_return_colum(info, name)) continue;
       switch(sqlite3_column_type(stmt, i)) {
       case SQLITE_INTEGER:
-        if (!dont_return_colum(info, name))
-          cee_json_object_set_i64(obj, name, sqlite3_column_int64(stmt, i));
+        cee_json_object_set_i64(obj, name, sqlite3_column_int64(stmt, i));
         break;
       case SQLITE_FLOAT:
-        if (!dont_return_colum(info, name))
-          cee_json_object_set_double(obj, name, sqlite3_column_double(stmt, i));
+        cee_json_object_set_double(obj, name, sqlite3_column_double(stmt, i));
         break;
       case SQLITE_TEXT:
-        if (!dont_return_colum(info, name))
-          cee_json_object_set_str(obj, name, (char*)sqlite3_column_text(stmt, i));
+        cee_json_object_set_str(obj, name, (char*)sqlite3_column_text(stmt, i));
         break;
       case SQLITE_NULL:
-        if (!dont_return_colum(info, name))
-          cee_json_object_set(obj, name, cee_json_null());
+        cee_json_object_set(obj, name, cee_json_null());
         break;
-      case SQLITE_BLOB:
-        if (!dont_return_colum(info, name)) {
+      case SQLITE_BLOB: {
           size_t bytes = sqlite3_column_bytes(stmt, i);
           const void *data = sqlite3_column_blob(stmt, i);
           struct cee_json *blob = cee_json_blob_mk (state, data, bytes);
