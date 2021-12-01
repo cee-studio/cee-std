@@ -401,7 +401,7 @@ extern void * cee_map_find(struct cee_map * m, void * key);
 /*
  * replace the old_key with the new key
  */
-extern bool cee_map_replace(struct cee_map *m, void *old_key, void *new_key);
+extern bool cee_map_rename(struct cee_map *m, void *old_key, void *new_key);
 
 /*
  * if the map is null, return NULL
@@ -428,6 +428,12 @@ extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, v
  */
 extern void cee_map_merge(struct cee_map *dest, struct cee_map *src,
 			  void *ctx, void* (*merge)(void *ctx, void *old, void *new));
+
+
+/*
+ * make a shadow copy of a map
+ */
+extern struct cee_map* cee_map_clone(struct cee_map *src);
 
 
 /*
@@ -2372,7 +2378,7 @@ void * cee_map_remove(struct cee_map * m, void *key) {
   }
 }
 
-bool cee_map_replace(struct cee_map *m, void *old_key, void *new_key) {
+bool cee_map_rename(struct cee_map *m, void *old_key, void *new_key) {
   void *v = cee_map_remove(m, old_key);
   if (v) {
     cee_map_add(m, new_key, v);
@@ -2489,6 +2495,14 @@ void cee_map_merge(struct cee_map *dest, struct cee_map *src,
 {
   struct _cee_map_merge_ctx mctx = { .dest_map = dest, .merge_ctx = ctx, .merge = merge };
   cee_map_iterate(src, &mctx, _cee_map__add_kv);
+}
+
+struct cee_map* cee_map_clone(struct cee_map *src)
+{
+  struct _cee_map_header *m = (struct _cee_map_header *)((void *)((char *)(src) - (__builtin_offsetof(struct _cee_map_header, _))));
+  struct cee_map *new_map = cee_map_mk_e(cee_get_state(src), m->del_policies.a, m->cmp);
+  cee_map_merge(new_map, src, NULL, NULL);
+  return new_map;
 }
 
 struct _cee_set_header {

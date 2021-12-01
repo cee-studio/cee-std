@@ -100,7 +100,7 @@ extern void cee_json_object_set_strf (struct cee_json *, char *, const char *fmt
 extern void cee_json_object_set_double (struct cee_json *, char *, double);
 extern void cee_json_object_set_i64 (struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_json *, char *, uint64_t);
-extern bool cee_json_object_replace (struct cee_json *, char *old_key, char *new_key);
+extern bool cee_json_object_rename (struct cee_json *, char *old_key, char *new_key);
 
 extern void cee_json_set_error(struct cee_json **o, const char *fmt, ...);
 

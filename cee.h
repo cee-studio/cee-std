@@ -392,7 +392,7 @@ extern void * cee_map_find(struct cee_map * m, void * key);
 /*
  * replace the old_key with the new key
  */
-extern bool cee_map_replace(struct cee_map *m, void *old_key, void *new_key);
+extern bool cee_map_rename(struct cee_map *m, void *old_key, void *new_key);
 
 /*
  * if the map is null, return NULL
@@ -419,6 +419,12 @@ extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, v
  */
 extern void cee_map_merge(struct cee_map *dest, struct cee_map *src,
 			  void *ctx, void* (*merge)(void *ctx, void *old, void *new));
+
+
+/*
+ * make a shadow copy of a map
+ */
+extern struct cee_map* cee_map_clone(struct cee_map *src);
 
 
 /*

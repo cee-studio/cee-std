@@ -219,14 +219,14 @@ struct cee_json* cee_json_blob_mk(struct cee_state *st, const void *src, size_t 
   return (struct cee_json*)t;
 }
 
-bool cee_json_object_replace(struct cee_json *j, char *old_key, char *new_key) {
+bool cee_json_object_rename(struct cee_json *j, char *old_key, char *new_key) {
   struct cee_map *o = cee_json_to_object(j);
   if (!o)
     return false;
   struct cee_state *st = cee_get_state(o);
   struct cee_str *old_str = cee_str_mk(st, "%s", old_key);
   struct cee_str *new_str = cee_str_mk(st, "%s", new_key);
-  bool t = cee_map_replace(o, old_str, new_str);
+  bool t = cee_map_rename(o, old_str, new_str);
   cee_del(old_str);
   return t;
 }
