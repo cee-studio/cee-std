@@ -71,13 +71,23 @@ struct cee_sqlite3_bind_info {
 struct cee_sqlite3_stmt_strs {
   char *table_name;
   char *select_stmt;
-  char *insert_stmt;
+  char *insert_stmt; /* this has a higher precedence over insert_stmt_x */
+
+  /* 
+   * if dynamic insert is true, the following template is used to 
+   *  compose insert_stmt_x:
+   *
+   * insert into table_name (%s) values (%s);
+   */
+  bool dynamic_insert;
+  char *insert_stmt_x;
+  
   char *delete_stmt;
   char *update_stmt; /* this has a higher precedence over update_stmt_x */
 
   /* 
    * a template of the following form is used to 
-   *  compose stmt_x:
+   *  compose update_stmt_x:
    *
    * update table set %s where ...;
    */

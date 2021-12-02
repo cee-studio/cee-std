@@ -403,6 +403,8 @@ struct _combo {
   struct cee_sqlite3_bind_info *info;
   struct cee_sqlite3_bind_data *data;
   struct cee_str *update_set;
+  struct cee_str *insert_colums;
+  struct cee_str *insert_values;
 };
 
 static void
@@ -451,13 +453,27 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
         }
           break;
       }
+
       if (p->update_set
-          && !info[i].no_update
+	  && !info[i].no_update
           && (data[i].has_value || info[i].data.has_value)) {
+
         if (strlen(p->update_set->_) == 0)
           p->update_set = cee_str_catf(p->update_set, "%s=%s", info[i].col_name, info[i].var_name);
         else
           p->update_set = cee_str_catf(p->update_set, ",%s=%s", info[i].col_name, info[i].var_name);
+      }
+
+      if (p->insert_colums
+          && (data[i].has_value || info[i].data.has_value)) {
+	if (strlen(p->insert_colums->_) == 0) {
+	  p->insert_colums = cee_str_catf(p->insert_colums, "%s", info[i].col_name);
+	  p->insert_values = cee_str_catf(p->insert_values, "%s", info[i].var_name);
+	}
+	else {
+	  p->insert_colums = cee_str_catf(p->insert_colums, ",%s", info[i].col_name);
+	  p->insert_values = cee_str_catf(p->insert_values, ",%s", info[i].var_name);
+	}
       }
       return;
     }
@@ -490,7 +506,9 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
     .stmts = stmts,
     .data = data,
     .info = info,
-    .update_set = NULL
+    .update_set = NULL,
+    .insert_colums = NULL,
+    .insert_values = NULL
   };
 
   struct cee_json *result = NULL;
@@ -501,18 +519,32 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
   aaa.used = cee_json_array_mk(state, 10);
   if (stmts->update_template)
     aaa.update_set = cee_str_mk(state, "");
-  
+
+  if (stmts->dynamic_insert) {
+    aaa.insert_colums = cee_str_mk(state, "");
+    aaa.insert_values = cee_str_mk(state, "");
+  }
+
   /* populate aaa.data with the key/value pairs from json */
   cee_json_object_iterate(json, &aaa, populate_opcode);
 
   if (stmts->update_template)
     stmts->update_stmt_x = (char*)cee_str_mk(state, stmts->update_template, aaa.update_set);
-  
+
+  if (stmts->dynamic_insert)
+    stmts->insert_stmt_x = (char*)cee_str_mk(state, "insert into %s (%s) values (%s)",
+					     stmts->table_name, aaa.insert_colums, aaa.insert_values);
+
   int rc = f (cs, info, data, stmts, status);
 
   if (stmts->update_template) {
     cee_del(stmts->update_stmt_x);
     stmts->update_stmt_x = NULL;
+  }
+
+  if (stmts->dynamic_insert) {
+    cee_del(stmts->insert_stmt_x);
+    stmts->insert_stmt_x = NULL;
   }
 
   if (result == NULL) return rc;
