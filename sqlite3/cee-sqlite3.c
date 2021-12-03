@@ -411,9 +411,8 @@ struct _combo {
 };
 
 static void
-populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
+populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
   struct _combo *p = ctx;
-  struct cee_sqlite3_stmt_strs *stmts = p->stmts;
   struct cee_sqlite3_bind_info *info = p->info;
   struct cee_sqlite3_bind_data *data = p->data;
   int i;
@@ -449,14 +448,29 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
             cee_json_array_append_strf(p->errors, "'%s' should be text",
                                        info[i].col_name);
           break;
-        case CEE_SQLITE3_BLOB: {
+        case CEE_SQLITE3_BLOB:
           // decode the string as base64 encoding
           cee_json_array_append_strf(p->errors, "'%s' should be blob and is not supported yet",
                                      info[i].col_name);
-        }
           break;
       }
+      return;
+    }
+  }
+  // report this value is ignored
+  cee_json_array_append(p->unused, cee_json_str_mkf(p->state, "%s", key->_));
+}
 
+
+static void
+compose_dyn_stmts(struct cee_json *input, struct _combo *p) {
+  struct cee_sqlite3_bind_info *info = p->info;
+  struct cee_sqlite3_bind_data *data = p->data;
+  int i;
+  struct cee_json *value;
+
+  for (i = 0; info[i].var_name; i++) {
+    if ((value = cee_json_object_get(input, info[i].col_name))) {
       if (p->update_set
           && !info[i].no_update
           && (data[i].has_value || info[i].data.has_value)) {
@@ -466,23 +480,20 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
         else
           p->update_set = cee_str_catf(p->update_set, ",%s=%s", info[i].col_name, info[i].var_name);
       }
+    }
 
-      if (p->insert_colums
-          && (data[i].has_value || info[i].data.has_value || info[i].not_null)) {
-        if (strlen(p->insert_colums->_) == 0) {
-          p->insert_colums = cee_str_catf(p->insert_colums, "%s", info[i].col_name);
-          p->insert_values = cee_str_catf(p->insert_values, "%s", info[i].var_name);
-        }
-        else {
-          p->insert_colums = cee_str_catf(p->insert_colums, ",%s", info[i].col_name);
-          p->insert_values = cee_str_catf(p->insert_values, ",%s", info[i].var_name);
-        }
+    if (p->insert_colums
+        && (data[i].has_value || info[i].data.has_value || info[i].not_null)) {
+      if (strlen(p->insert_colums->_) == 0) {
+        p->insert_colums = cee_str_catf(p->insert_colums, "%s", info[i].col_name);
+        p->insert_values = cee_str_catf(p->insert_values, "%s", info[i].var_name);
       }
-      return;
+      else {
+        p->insert_colums = cee_str_catf(p->insert_colums, ",%s", info[i].col_name);
+        p->insert_values = cee_str_catf(p->insert_values, ",%s", info[i].var_name);
+      }
     }
   }
-  // report this value is ignored
-  cee_json_array_append(p->unused, cee_json_str_mkf(p->state, "%s", key->_));
 }
 
 /*
@@ -529,7 +540,8 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
   }
 
   /* populate aaa.data with the key/value pairs from json */
-  cee_json_object_iterate(json, &aaa, populate_opcode);
+  cee_json_object_iterate(json, &aaa, populate_usage);
+  compose_dyn_stmts(json, &aaa);
 
   if (stmts->update_template)
     stmts->update_stmt_x = (char*)cee_str_mk(state, stmts->update_template, aaa.update_set);
