@@ -213,10 +213,11 @@ int cee_sqlite3_update_or_insert(struct cee_sqlite3 *cs,
       cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, update, sqlite3_errmsg(db));
   }
   else {
-    rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->insert_stmt, NULL, status);
+    char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;
+    rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
     if (rc != SQLITE_DONE)
       cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s",
-             rc, stmts->insert_stmt, sqlite3_errmsg(db));
+                         rc, insert, sqlite3_errmsg(db));
     else if (result) {
       int row_id = sqlite3_last_insert_rowid(db);
       cee_json_object_set_i64(result, "last_insert_rowid", row_id);
@@ -238,9 +239,10 @@ int cee_sqlite3_insert(struct cee_sqlite3 *cs,
   struct cee_json *result = NULL;
 
   accept_result(state, status, &result);
-  rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->insert_stmt, NULL, status);
+  char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;
+  rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
   if (rc != SQLITE_DONE)
-    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, stmts->insert_stmt, sqlite3_errmsg(db));
+    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, insert, sqlite3_errmsg(db));
   else if (result) {
     int row_id = sqlite3_last_insert_rowid(db);
     cee_json_object_set_i64(result, "last_insert_rowid", row_id);
@@ -376,11 +378,12 @@ int cee_sqlite3_select_or_insert(struct cee_sqlite3 *cs,
   if (result && cee_json_select(result, ".sqlite3_selected[0]"))
     return rc;
 
-  rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->insert_stmt, NULL, status);
+  char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;  
+  rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
 
   if (rc != SQLITE_DONE)
     cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s",
-               rc, stmts->insert_stmt, sqlite3_errmsg(db));
+                       rc, insert, sqlite3_errmsg(db));
   else if (result) {
     int row_id = sqlite3_last_insert_rowid(db);
     cee_json_object_set_i64(*status, "last_insert_rowid", row_id);
