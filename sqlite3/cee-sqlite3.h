@@ -79,7 +79,7 @@ struct cee_sqlite3_stmt_strs {
    *
    * insert into table_name (%s) values (%s);
    */
-  bool dynamic_insert;
+  bool insert_dynamic;
   char *insert_stmt_x;
   
   char *delete_stmt;

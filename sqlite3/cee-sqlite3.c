@@ -520,7 +520,7 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
   if (stmts->update_template)
     aaa.update_set = cee_str_mk(state, "");
 
-  if (stmts->dynamic_insert) {
+  if (stmts->insert_dynamic) {
     aaa.insert_colums = cee_str_mk(state, "");
     aaa.insert_values = cee_str_mk(state, "");
   }
@@ -531,7 +531,7 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
   if (stmts->update_template)
     stmts->update_stmt_x = (char*)cee_str_mk(state, stmts->update_template, aaa.update_set);
 
-  if (stmts->dynamic_insert)
+  if (stmts->insert_dynamic)
     stmts->insert_stmt_x = (char*)cee_str_mk(state, "insert into %s (%s) values (%s)",
 					     stmts->table_name, aaa.insert_colums, aaa.insert_values);
 
@@ -542,7 +542,7 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
     stmts->update_stmt_x = NULL;
   }
 
-  if (stmts->dynamic_insert) {
+  if (stmts->insert_dynamic) {
     cee_del(stmts->insert_stmt_x);
     stmts->insert_stmt_x = NULL;
   }
