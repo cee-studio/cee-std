@@ -468,7 +468,7 @@ populate_opcode(void *ctx, struct cee_str *key, struct cee_json *value) {
       }
 
       if (p->insert_colums
-          && (data[i].has_value || info[i].data.has_value)) {
+          && (data[i].has_value || info[i].data.has_value || info[i].not_null)) {
 	if (strlen(p->insert_colums->_) == 0) {
 	  p->insert_colums = cee_str_catf(p->insert_colums, "%s", info[i].col_name);
 	  p->insert_values = cee_str_catf(p->insert_values, "%s", info[i].var_name);
