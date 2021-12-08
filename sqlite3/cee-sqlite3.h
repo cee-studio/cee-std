@@ -185,5 +185,7 @@ cee_sqlite3_get_selected(struct cee_json *status);
 extern bool
 cee_sqlite3_has_selected_result(struct cee_json *status);
 
+extern int
+cee_sqlite3_get_pragma_variable(sqlite3 *db, char *name);
 
 #endif

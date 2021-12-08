@@ -599,3 +599,16 @@ cee_sqlite3_has_selected_result(struct cee_json *status)
   else
     return false;
 }
+
+
+int cee_sqlite3_get_pragma_variable(sqlite3 *db, char *name) {
+  char *err_msg=NULL;
+  sqlite3_stmt *sql_stmt = NULL;
+  char buf[256];
+  snprintf(buf, sizeof buf, "PRAGMA %s;", name);
+  int rc = sqlite3_prepare_v2(db, buf, -1, &sql_stmt, 0);
+  rc = sqlite3_step(sql_stmt);
+  int value = sqlite3_column_int(sql_stmt, 0);
+  sqlite3_finalize(sql_stmt);
+  return value;
+}
