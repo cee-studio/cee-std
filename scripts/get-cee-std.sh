@@ -6,7 +6,7 @@ mypath=$(dirname $(readlink -f $0))
 url="https://raw.githubusercontent.com/cee-studio/cee-std/master"
 url="file:///${HOME}/workspace/cee-std"
 
-#curl $url/scripts/get-cee-std.sh -o ${mypath}/get-cee-std.sh
+curl $url/scripts/get-cee-std.sh -o ${mypath}/get-cee-std.sh
 chmod +x ${mypath}/get-cee-std.sh
 
 cee_list="
