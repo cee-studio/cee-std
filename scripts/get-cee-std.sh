@@ -4,8 +4,9 @@ set -o pipefail
 
 mypath=$(dirname $(readlink -f $0))
 url="https://raw.githubusercontent.com/cee-studio/cee-std/master"
+url="file:///${HOME}/workspace/cee-std"
 
-wget --no-cache $url/scripts/get-cee-std.sh -O ${mypath}/get-cee-std.sh
+#curl $url/scripts/get-cee-std.sh -o ${mypath}/get-cee-std.sh
 chmod +x ${mypath}/get-cee-std.sh
 
 cee_list="
@@ -25,18 +26,18 @@ pushd $mypath/../cee-std
 for i in $cee_list; do
     echo "getting $i"
     echo "$url/release/$i"
-    wget --no-cache $url/release/$i -O $i
+    curl $url/release/$i -o $i
 done
 
 for i in $json_list; do
     echo "getting $i"
     echo "$url/cee-json/release/$i"
-    wget --no-cache $url/cee-json/release/$i -O $i
+    curl $url/cee-json/release/$i -o $i
 done
 
 for i in $sqlite3_list; do
     echo "getting $i"
     echo "$url/sqlite3/$i"
-    wget --no-cache $url/sqlite3/$i -O $i
+    curl $url/sqlite3/$i -o $i
 done
 popd
