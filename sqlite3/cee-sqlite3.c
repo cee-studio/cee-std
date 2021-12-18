@@ -553,11 +553,13 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
   int rc = f (cs, info, data, stmts, status);
 
   if (stmts->update_template) {
+    cee_json_object_set_strf(debug, "update", "%s", stmts->update_stmt_x);
     cee_del(stmts->update_stmt_x);
     stmts->update_stmt_x = NULL;
   }
 
   if (stmts->insert_dynamic) {
+    cee_json_object_set_strf(debug, "insert", "%s", stmts->insert_stmt_x);
     cee_del(stmts->insert_stmt_x);
     stmts->insert_stmt_x = NULL;
   }
