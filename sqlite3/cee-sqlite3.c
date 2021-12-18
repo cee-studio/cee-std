@@ -552,6 +552,7 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
 
   int rc = f (cs, info, data, stmts, status);
 
+  struct cee_json *debug = cee_json_object_mk(state);
   if (stmts->update_template) {
     cee_json_object_set_strf(debug, "update", "%s", stmts->update_stmt_x);
     cee_del(stmts->update_stmt_x);
@@ -566,7 +567,6 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
 
   if (result == NULL) return rc;
   
-  struct cee_json *debug = cee_json_object_mk(state);
   cee_json_object_set(debug, "used_keys", aaa.used);
 
   if (cee_json_select(aaa.unused, "[0]"))
