@@ -251,13 +251,33 @@ int cee_sqlite3_insert(struct cee_sqlite3 *cs,
 }
 
 
+int cee_sqlite3_delete(struct cee_sqlite3 *cs,
+                       struct cee_sqlite3_bind_info *info,
+                       struct cee_sqlite3_bind_data *data,
+                       struct cee_sqlite3_stmt_strs *stmts,
+                       struct cee_json **status)
+{
+  struct cee_state *state = cs->state;
+  sqlite3 *db = cs->db;
+  sqlite3_stmt *sql_stmt;
+  int rc;
+  struct cee_json *result = NULL;
+
+  accept_result(state, status, &result);
+  rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->delete_stmt, NULL, status);
+  if (rc != SQLITE_DONE)
+    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s",
+		       rc, stmts->delete_stmt, sqlite3_errmsg(db));
+  return rc;
+}
+
+
 int cee_sqlite3_update(struct cee_sqlite3 *cs,
                        struct cee_sqlite3_bind_info *info,
                        struct cee_sqlite3_bind_data *data,
                        struct cee_sqlite3_stmt_strs *stmts,
                        struct cee_json **status)
 {
-  sqlite3_stmt *sql_stmt;
   int rc;
   struct cee_json *result = NULL;
   sqlite3 *db = cs->db;
