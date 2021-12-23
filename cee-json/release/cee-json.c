@@ -77,6 +77,10 @@ extern struct cee_map * cee_json_to_object (struct cee_json *);
 extern struct cee_boxed * cee_json_to_boxed (struct cee_json *);
 extern struct cee_str* cee_json_to_str (struct cee_json *);
 extern struct cee_block* cee_json_to_blob (struct cee_json *);
+/*
+ * convert object/str to [object/str]
+ */
+extern struct cee_json* cee_json_listify(struct cee_json *);
 
 extern bool cee_json_to_double (struct cee_json *, double *);
 extern bool cee_json_to_int (struct cee_json*, int *);
@@ -107,6 +111,11 @@ extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
 extern int cee_json_empty(struct cee_json *);
 
 extern void cee_json_object_set (struct cee_json *, char *, struct cee_json *);
+/*
+ * if the key has an array value, append to the end
+ * otherwise, convert the value to an array of this value, and append to the end
+ */
+extern void cee_json_object_append (struct cee_json *, char *, struct cee_json *);
 extern void cee_json_object_set_bool (struct cee_json *, char *, bool);
 extern void cee_json_object_set_str (struct cee_json *, char *, char *);
 extern void cee_json_object_set_strf (struct cee_json *, char *, const char *fmt, ...);
@@ -223,6 +232,28 @@ struct cee_json * cee_map_to_json(struct cee_map *v) {
   struct cee_state *st = cee_get_state(v);
   /* TODO: check v use strcmp as the comparison function */
   return (struct cee_json *)cee_tagged_mk (st, CEE_JSON_OBJECT, v);
+}
+
+struct cee_json* cee_json_listify(struct cee_json *j)
+{
+  switch (j->t) {
+  case CEE_JSON_ARRAY:
+    return j;
+  case CEE_JSON_OBJECT: {
+    struct cee_state *state = cee_get_state(cee_json_to_str(j));
+    struct cee_json *list = cee_json_array_mk(state, 1);
+    cee_json_array_append(list, j);
+    return list;
+  }
+  case CEE_JSON_STRING: {
+    struct cee_state *state = cee_get_state(cee_json_to_str(j));
+    struct cee_json *list = cee_json_array_mk(state, 1);
+    cee_json_array_append(list, j);
+    return list;
+  }
+  default:
+    cee_segfault();
+  }
 }
 
 struct cee_map * cee_json_to_object (struct cee_json *p) {
@@ -451,6 +482,22 @@ void cee_json_object_set(struct cee_json *j, char *key, struct cee_json *v) {
     cee_segfault();
   struct cee_state *st = cee_get_state(o);
   cee_map_add(o, cee_str_mk(st, "%s", key), v);
+}
+
+void cee_json_object_append(struct cee_json *j, char *key, struct cee_json *v) {
+  if (!j) return;
+  struct cee_json *old_value = cee_json_object_get(j, key);
+  if (old_value) {
+    if (cee_json_to_array(old_value))
+      cee_json_array_append(old_value, v);
+    else {
+      struct cee_json *llist = cee_json_listify(old_value);
+      cee_json_array_append(llist, v);
+      cee_json_object_set(j, key, llist);
+    }
+  }
+  else
+    cee_json_object_set(j, key, v);
 }
 
 void cee_json_object_set_bool(struct cee_json *j, char *key, bool b) {

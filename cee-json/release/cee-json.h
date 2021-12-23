@@ -64,6 +64,10 @@ extern struct cee_map * cee_json_to_object (struct cee_json *);
 extern struct cee_boxed * cee_json_to_boxed (struct cee_json *);
 extern struct cee_str* cee_json_to_str (struct cee_json *);
 extern struct cee_block* cee_json_to_blob (struct cee_json *);
+/*
+ * convert object/str to [object/str]
+ */
+extern struct cee_json* cee_json_listify(struct cee_json *);
 
 extern bool cee_json_to_double (struct cee_json *, double *);
 extern bool cee_json_to_int (struct cee_json*, int *);
@@ -94,6 +98,11 @@ extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
 extern int cee_json_empty(struct cee_json *);
 
 extern void cee_json_object_set (struct cee_json *, char *, struct cee_json *);
+/*
+ * if the key has an array value, append to the end
+ * otherwise, convert the value to an array of this value, and append to the end
+ */
+extern void cee_json_object_append (struct cee_json *, char *, struct cee_json *);
 extern void cee_json_object_set_bool (struct cee_json *, char *, bool);
 extern void cee_json_object_set_str (struct cee_json *, char *, char *);
 extern void cee_json_object_set_strf (struct cee_json *, char *, const char *fmt, ...);
