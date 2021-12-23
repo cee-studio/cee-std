@@ -1,0 +1,6 @@
+0 success
+non-zero failure
+
+
+n number of bytes consumed
+-1 error
