@@ -123,7 +123,17 @@ TEST list__persistent_element_values_and_position(void)
   struct cee_str *s[] = { 
     cee_str_mk(st, "%s", "1"),
     cee_str_mk(st, "%s", "2"),
-    cee_str_mk(st, "%s", "3")
+    cee_str_mk(st, "%s", "3"),
+    cee_str_mk(st, "%s", "4"),
+    cee_str_mk(st, "%s", "5"),
+    cee_str_mk(st, "%s", "6"),
+    cee_str_mk(st, "%s", "7"),
+    cee_str_mk(st, "%s", "8"),
+    cee_str_mk(st, "%s", "9"),
+    cee_str_mk(st, "%s", "10"),
+    cee_str_mk(st, "%s", "11"),
+    cee_str_mk(st, "%s", "12"),
+    cee_str_mk(st, "%s", "13"),
   };
   const unsigned arr_len = sizeof(s) / sizeof(struct cee_str*);
 
@@ -134,6 +144,7 @@ TEST list__persistent_element_values_and_position(void)
 
   for (int i=0; i < cee_list_size(list); ++i) {
     char num[32];
+    printf("%d\n", i);
     snprintf(num, sizeof(num), "%d", i+1);
     ASSERT_STR_EQ(num, (char *)list->_[i]);
   }

@@ -26,6 +26,7 @@ enum state_type {
 static const uintptr_t cee_json_max_depth = 512;
 
 #define SPI(st, state, j)  cee_tuple_mk_e(st, (enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)state, j)
+#define ARR_LEN 20
 
 bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee_json **out, bool force_eof,
                     int *error_at_line)
@@ -65,7 +66,7 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
     switch(state) {
     case st_object_or_array_or_value_expected:
         if(c=='[')  {
-          top->_[1]=cee_json_array_mk(st, 10);
+          top->_[1]=cee_json_array_mk(st, ARR_LEN);
           state=st_array_value_or_close_expected;
         }
         else if(c=='{') {
@@ -154,7 +155,7 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           state=st_object_close_or_comma_expected;
         }
         else if(c=='[') {
-          struct cee_json * a = cee_json_array_mk(st, 10);
+          struct cee_json * a = cee_json_array_mk(st, ARR_LEN);
           cee_map_add(obj, key, a);
           state=st_array_value_or_close_expected;
           cee_stack_push(sp, SPI(st, st_object_close_or_comma_expected, a));
@@ -212,7 +213,7 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
           state=st_array_close_or_comma_expected;
         }
         else if(c=='[') {
-          struct cee_json * a = cee_json_array_mk(st, 10);
+          struct cee_json * a = cee_json_array_mk(st, ARR_LEN);
           cee_list_append(&ar, a);
           state=st_array_value_or_close_expected;
           cee_stack_push(sp, SPI(st, st_array_close_or_comma_expected,a));
