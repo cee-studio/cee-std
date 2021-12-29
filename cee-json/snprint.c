@@ -284,7 +284,7 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
               more_siblings = true;
             ccnt->next++;
             push (st, ccnt->tabs + 1, more_siblings, sp, 
-                  (struct cee_json *)(ccnt->array->_[i]));
+                  (struct cee_json *)(ccnt->array->a->_[i]));
           } 
           else {
             delimiter(&offset, buf, f, ccnt, ']');
@@ -307,8 +307,8 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
               more_siblings = true;
 
             ccnt->next++;
-            char * key = (char *)ccnt->array->_[i];
-            struct cee_json * j1 = cee_map_find(ccnt->object, ccnt->array->_[i]);
+            char * key = (char *)ccnt->array->a->_[i];
+            struct cee_json * j1 = cee_map_find(ccnt->object, ccnt->array->a->_[i]);
             unsigned klen = strlen(key);
             pad(&offset, buf, ccnt, f);
             str_append(buf, &offset, key, klen);

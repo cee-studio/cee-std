@@ -25,10 +25,10 @@ void add_n_list(struct cee_state *st, unsigned n_append, void **p_root)
   struct cee_list *list = cee_list_mk(st, 10);
   for (unsigned i=0, j=0; i < n_append; ++i, ++j) {
     switch (j) {
-    case 0: cee_list_append(&list, cee_str_mk(st, "%u", i)); break;
-    case 1: cee_list_append(&list, cee_tagged_mk(st, FLOAT, cee_boxed_from_float(st, 1.0f * i))); break;
-    case 2: cee_list_append(&list, cee_tagged_mk(st, INT32, cee_boxed_from_i32(st, i))); break;
-    case 3: cee_list_append(&list, cee_tagged_mk(st, STRING, cee_str_mk(st, "%u", i))); j=0; break;
+    case 0: cee_list_append(list, cee_str_mk(st, "%u", i)); break;
+    case 1: cee_list_append(list, cee_tagged_mk(st, FLOAT, cee_boxed_from_float(st, 1.0f * i))); break;
+    case 2: cee_list_append(list, cee_tagged_mk(st, INT32, cee_boxed_from_i32(st, i))); break;
+    case 3: cee_list_append(list, cee_tagged_mk(st, STRING, cee_str_mk(st, "%u", i))); j=0; break;
     }
   }
   cee_state_add_gc_root(st, list);

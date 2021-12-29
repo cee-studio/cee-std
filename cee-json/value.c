@@ -386,7 +386,7 @@ void cee_json_array_append (struct cee_json * j, struct cee_json *v) {
   struct cee_list *o = cee_json_to_array(j);
   if (!o) 
     cee_segfault();
-  cee_list_append(&o, v);
+  cee_list_append(o, v);
   if (o != j->value.array) {
     /*  free j->value.array */
     j->value.array = o;
@@ -397,7 +397,7 @@ void cee_json_array_append_bool (struct cee_json * j, bool b) {
   struct cee_list * o = cee_json_to_array(j);
   if (!o) 
     cee_segfault();
-  cee_list_append(&o, cee_json_bool(b));
+  cee_list_append(o, cee_json_bool(b));
   if (o != j->value.array) {
     /*  free j->value.array */
     j->value.array = o;
@@ -409,7 +409,7 @@ void cee_json_array_append_str (struct cee_json * j, char * x) {
   if (!o) 
     cee_segfault();
   struct cee_state *st = cee_get_state(o);
-  cee_list_append(&o, cee_json_str_mk(st, cee_str_mk(st, "%s", x)));
+  cee_list_append(o, cee_json_str_mk(st, cee_str_mk(st, "%s", x)));
   if (o != j->value.array) {
     /*  free j->value.array */
     j->value.array = o;
@@ -426,7 +426,7 @@ void cee_json_array_append_strf (struct cee_json *j, const char *fmt, ...) {
   struct cee_str *v = cee_str_mkv(st, fmt, ap);
   va_end(ap);
     
-  cee_list_append(&o, cee_json_str_mk(st, v));
+  cee_list_append(o, cee_json_str_mk(st, v));
   if (o != j->value.array) {
     /*  free j->value.array */
     j->value.array = o;
@@ -445,7 +445,7 @@ struct cee_json* cee_json_array_get (struct cee_json *j, int i) {
   if (!o)
     cee_segfault();
   if (0 <= i && i < cee_list_size(o))
-    return o->_[i];
+    return o->a->_[i];
   else
     return NULL;
 }

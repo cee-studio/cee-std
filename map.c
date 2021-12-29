@@ -204,8 +204,8 @@ static void S(get_key) (void * ctx, const void *nodep, const VISIT which, const 
 struct cee_list * cee_map_keys(struct cee_map * m) {
   uintptr_t n = cee_map_size(m);
   struct S(header) * b = FIND_HEADER(m);
-  struct cee_list * keys = cee_list_mk(b->cs.state, n);
-  musl_twalk(&keys, b->_[0], S(get_key));
+  struct cee_list *keys = cee_list_mk(b->cs.state, n);
+  musl_twalk(keys, b->_[0], S(get_key));
   return keys;
 }
 
@@ -228,7 +228,7 @@ struct cee_list* cee_map_values(struct cee_map *m) {
   uintptr_t s = cee_map_size(m);
   struct S(header) *b = FIND_HEADER(m);
   struct cee_list *values = cee_list_mk(b->cs.state, s);
-  musl_twalk(&values, b->_[0], S(get_value));
+  musl_twalk(values, b->_[0], S(get_value));
   return values;
 }
 

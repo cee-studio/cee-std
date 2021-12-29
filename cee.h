@@ -194,8 +194,9 @@ extern struct cee_str * cee_str_replace (struct cee_str *, const char *fmt, ...)
   
 /* an auto expandable list */
 struct cee_list {
-  /* this should be redesigned to be able to keep the different addresss caused by resizing */
-  void * _[1]; /* an array of `void *`s */
+  struct {
+    void *_[1]; /* an array of `void *` s */
+  } *a; /* a stands for array, this value may change */
 };
 
 /*
@@ -213,21 +214,21 @@ extern struct cee_list * cee_list_mk_e (struct cee_state * s, enum cee_del_polic
 /*
  * it may return a new list if the parameter list is too small
  */
-extern struct cee_list * cee_list_append(struct cee_list ** v, void * e);
+extern void cee_list_append(struct cee_list *v, void * e);
 
 
 /*
  * it inserts an element e at index and shift the rest elements 
  * to higher indices
  */
-extern struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, int index, void *e);
+extern void cee_list_insert(struct cee_list *l, int index, void *e);
 
 /*
  * it removes an element at index and shift the rest elements
  * to lower indices.
  * if the list is NULL, return false
  */
-extern bool cee_list_remove(struct cee_list * v, int index);
+extern bool cee_list_remove(struct cee_list *v, int index);
 
 /*
  * returns the number of elements in the list
@@ -248,7 +249,7 @@ extern size_t cee_list_capacity (struct cee_list *);
  */
 extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, int idx, void * e));
 
-extern void cee_list_merge (struct cee_list **dest, struct cee_list *src);
+extern void cee_list_merge (struct cee_list *dest, struct cee_list *src);
   
 struct cee_tuple {
   void * _[2];

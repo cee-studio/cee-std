@@ -92,8 +92,8 @@ void cee_dict_add (struct cee_dict * d, char * key, void * value) {
   n.data = value;
   if (!musl_hsearch_r(n, ENTER, &np, m->_))
     cee_segfault();
-  cee_list_append(&m->keys, key);
-  cee_list_append(&m->vals, value);
+  cee_list_append(m->keys, key);
+  cee_list_append(m->vals, value);
 }
 
 void * cee_dict_find(struct cee_dict * d, char * key) {

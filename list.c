@@ -16,7 +16,7 @@ struct S(header) {
   uintptr_t capacity;
   enum cee_del_policy del_policy;
   struct cee_sect cs;
-  void * _[];
+  struct cee_list _;
 };
 
 #include "cee-resize.h"
@@ -28,25 +28,27 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
   switch(ta) {
     case CEE_TRACE_DEL_NO_FOLLOW:
       S(de_chain)(m);
+      free(m->_.a);
       free(m);
       break;
     case CEE_TRACE_DEL_FOLLOW:
       for (i = 0; i < m->size; i++)
-        cee_del_e(m->del_policy, m->_[i]);
+        cee_del_e(m->del_policy, m->_.a->_[i]);
       S(de_chain)(m);
+      free(m->_.a);
       free(m);
       break;
     case CEE_TRACE_MARK:
     default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < m->size; i++)
-        cee_trace(m->_[i], ta);
+        cee_trace(m->_.a->_[i], ta);
       break;
   }
 }
 
 struct cee_list * cee_list_mk_e (struct cee_state * st, enum cee_del_policy o, size_t cap) {
-  size_t mem_block_size = sizeof(struct S(header)) + cap * sizeof(void *);
+  size_t mem_block_size = sizeof(struct S(header));
   struct S(header) * m = malloc(mem_block_size);
   m->capacity = cap;
   m->size = 0;
@@ -57,70 +59,59 @@ struct cee_list * cee_list_mk_e (struct cee_state * st, enum cee_del_policy o, s
   m->cs.trace = S(trace);
   m->cs.resize_method = CEE_RESIZE_WITH_MALLOC;
   m->cs.mem_block_size = mem_block_size;
+
+  struct cee_list *ret = (struct cee_list *)&(m->_);
+  ret->a = malloc(cap * sizeof(void *));
   
-  return (struct cee_list *)(m->_);
+  return ret;
 }
 
 struct cee_list * cee_list_mk (struct cee_state * s, size_t cap) {
   return cee_list_mk_e(s, CEE_DP_DEL_RC, cap);
 }
 
-struct cee_list * cee_list_append (struct cee_list ** l, void *e) {
-  struct cee_list * v = *l;
-    
+void cee_list_append (struct cee_list *v, void *e) {
   struct S(header) * m = FIND_HEADER(v);
   size_t capacity = m->capacity;
   size_t extra_cap = capacity ? capacity : 1;
   if (m->size == m->capacity) {
-    size_t new_mem_block_size = m->cs.mem_block_size + extra_cap * sizeof(void *);
-    struct S(header) * m1 = S(resize)(m, new_mem_block_size);
-    m1->capacity = capacity + extra_cap;
-    *l = (struct cee_list *)m1->_;
-    m = m1;
+    m->capacity = capacity + extra_cap;    
+    void *a = realloc(v->a, m->capacity * sizeof(void *));
+    v->a = a;
   }
-  m->_[m->size] = e;
+  v->a->_[m->size] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  return *l;
 }
 
-struct cee_list * cee_list_insert(struct cee_state * s, struct cee_list ** l, int index, void *e) {
-  struct cee_list * v = *l;
-  if (v == NULL) {
-    v = cee_list_mk(s, 10);
-    cee_use_realloc(v);
-  }
-  
+void cee_list_insert(struct cee_list *v, int index, void *e) {
   struct S(header) * m = FIND_HEADER(v);
   size_t capacity = m->capacity;
   size_t extra_cap = capacity ? capacity : 1;
   if (m->size == m->capacity) {
-    size_t new_mem_block_size = m->cs.mem_block_size + extra_cap * sizeof(void *);
-    struct S(header) * m1 = S(resize)(m, new_mem_block_size);
-    m1->capacity = capacity + extra_cap;
-    *l = (struct cee_list *)m1->_;
-    m = m1;
+    m->capacity = capacity + extra_cap;
+    void *a = realloc(v->a, m->capacity * sizeof(void *));
+    v->a = a;
   }
   int i;
   for (i = m->size; i > index; i--)
-    m->_[i] = m->_[i-1];
+    v->a->_[i] = v->a->_[i-1];
   
-  m->_[index] = e;
+  v->a->_[index] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
-  return *l;
 }
 
-bool cee_list_remove(struct cee_list * v, int index) {
+bool cee_list_remove(struct cee_list *v, int index) {
   if (!v) return false;
-  struct S(header) * m = FIND_HEADER(v);
+  struct S(header) *m = FIND_HEADER(v);
   if (index >= m->size) return false;
  
-  void * e = m->_[index];
-  m->_[index] = 0;
+  void *e = v->a->_[index];
+  v->a->_[index] = 0;
   int i;
   for (i = index; i < (m->size - 1); i++)
-    m->_[i] = m->_[i+1];
+    v->a->_[i] = v->a->_[i+1];
   
   m->size --;
   cee_decr_indegree(m->del_policy, e);
@@ -146,16 +137,16 @@ void cee_list_iterate (struct cee_list *x, void *ctx,
   struct S(header) *m = FIND_HEADER(x);
   int i;
   for (i = 0; i < m->size; i++)
-    f(ctx, i, m->_[i]);
+    f(ctx, i, x->a->_[i]);
   return;
 }
 
 static void S(_add_v)(void *cxt, int idx, void *e) {
-  struct cee_list **l = cxt;
+  struct cee_list *l = cxt;
   cee_list_append(l, e);
 }
 
-void cee_list_merge (struct cee_list **dest, struct cee_list *src)
+void cee_list_merge (struct cee_list *dest, struct cee_list *src)
 {
   cee_list_iterate (src, dest, S(_add_v));
 }

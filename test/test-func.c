@@ -119,7 +119,7 @@ TEST str__concatenate_strings(void)
 TEST list__persistent_element_values_and_position(void)
 {
   struct cee_state *st = cee_state_mk(10);
-  struct cee_list *list = cee_list_mk(st, 10);
+  struct cee_list *list = cee_list_mk(st, 5);
   struct cee_str *s[] = { 
     cee_str_mk(st, "%s", "1"),
     cee_str_mk(st, "%s", "2"),
@@ -138,7 +138,7 @@ TEST list__persistent_element_values_and_position(void)
   const unsigned arr_len = sizeof(s) / sizeof(struct cee_str*);
 
   for (int i=0; i < arr_len; ++i) {
-    cee_list_append(&list, s[i]);
+    cee_list_append(list, s[i]);
   }
   ASSERT(cee_list_size(list) == arr_len);
 
@@ -146,7 +146,7 @@ TEST list__persistent_element_values_and_position(void)
     char num[32];
     printf("%d\n", i);
     snprintf(num, sizeof(num), "%d", i+1);
-    ASSERT_STR_EQ(num, (char *)list->_[i]);
+    ASSERT_STR_EQ(num, (char *)list->a->_[i]);
   }
   cee_del(st);
   PASS();
@@ -158,16 +158,16 @@ TEST list__retrieve_heterogeneous_elements(void)
   struct cee_list *list = cee_list_mk(st, 10);
 
   /* heterogeneous list [ 10, 10.1, "10"] */
-  cee_list_append(&list, cee_tagged_mk(st, INT32, cee_boxed_from_i32(st, 10)));
-  cee_list_append(&list, cee_tagged_mk(st, FLOAT, cee_boxed_from_float(st, 10.1f)));
-  cee_list_append(&list, cee_tagged_mk(st, STRING, cee_str_mk(st, "10")));
-  struct cee_tagged *tv = list->_[0];
+  cee_list_append(list, cee_tagged_mk(st, INT32, cee_boxed_from_i32(st, 10)));
+  cee_list_append(list, cee_tagged_mk(st, FLOAT, cee_boxed_from_float(st, 10.1f)));
+  cee_list_append(list, cee_tagged_mk(st, STRING, cee_str_mk(st, "10")));
+  struct cee_tagged *tv = list->a->_[0];
   ASSERT_EQ(INT32, tv->tag);
   ASSERT_EQ(10, cee_boxed_to_i32(tv->ptr.boxed));
-  tv = list->_[1];
+  tv = list->a->_[1];
   ASSERT_EQ(FLOAT, tv->tag);
   ASSERT_EQ(10.1f, cee_boxed_to_float(tv->ptr.boxed));
-  tv = list->_[2];
+  tv = list->a->_[2];
   ASSERT_STR_EQ("10", (char*)tv->ptr.str);
   cee_del(st);
   PASS();
@@ -188,7 +188,7 @@ TEST set__find_element_by_value(char *str_list[], const unsigned n_str)
   ASSERT(cee_set_size(set) == cee_list_size(set_values));
 
   for (unsigned i=0; i < cee_list_size(set_values); ++i) {
-    p = cee_set_find(set, set_values->_[i]);
+    p = cee_set_find(set, set_values->a->_[i]);
     ASSERT(p != NULL);
   }
   cee_del(st);

@@ -187,40 +187,40 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
         }
         struct cee_list * ar = cee_json_to_array(top->_[1]);
         
-        if(c==tock_str)  {
-          cee_list_append(&ar, cee_json_str_mk(st, tock.str));
+        if(c==tock_str) {
+          cee_list_append(ar, cee_json_str_mk(st, tock.str));
           state=st_array_close_or_comma_expected;
         } 
         else if(c==tock_true) {
-          cee_list_append(&ar, cee_json_true());
+          cee_list_append(ar, cee_json_true());
           state=st_array_close_or_comma_expected;
         } 
         else if(c==tock_false) {
-          cee_list_append(&ar, cee_json_false());
+          cee_list_append(ar, cee_json_false());
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_null) {
-          cee_list_append(&ar, cee_json_null());
+          cee_list_append(ar, cee_json_null());
           state=st_array_close_or_comma_expected;
         }
         else if(c==tock_number) {
           if (tock.type == NUMBER_IS_I64)
-            cee_list_append(&ar, cee_json_i64_mk(st, tock.number.i64));
+            cee_list_append(ar, cee_json_i64_mk(st, tock.number.i64));
           else if (tock.type == NUMBER_IS_U64)
-            cee_list_append(&ar, cee_json_u64_mk(st, tock.number.u64));
+            cee_list_append(ar, cee_json_u64_mk(st, tock.number.u64));
           else
-            cee_list_append(&ar, cee_json_double_mk(st, tock.number.real));
+            cee_list_append(ar, cee_json_double_mk(st, tock.number.real));
           state=st_array_close_or_comma_expected;
         }
         else if(c=='[') {
           struct cee_json * a = cee_json_array_mk(st, ARR_LEN);
-          cee_list_append(&ar, a);
+          cee_list_append(ar, a);
           state=st_array_value_or_close_expected;
           cee_stack_push(sp, SPI(st, st_array_close_or_comma_expected,a));
         }
         else if(c=='{') {
           struct cee_json * o = cee_json_object_mk(st);
-          cee_list_append(&ar, o);
+          cee_list_append(ar, o);
           state=st_object_key_or_close_expected;
           cee_stack_push(sp, SPI(st, st_array_close_or_comma_expected,o));
         }

@@ -162,7 +162,7 @@ static void S(get_value) (void * cxt, const void *nodep, const VISIT which, cons
     case preorder:
     case leaf:
       p = *(void **)nodep;
-      cee_list_append((struct cee_list **)cxt, p);
+      cee_list_append((struct cee_list *)cxt, p);
       break;
     default:
       break;
@@ -174,7 +174,7 @@ struct cee_list * cee_set_values(struct cee_set * m) {
   struct S(header) * h = FIND_HEADER(m);
   struct cee_list *values = cee_list_mk(h->cs.state, s);
   cee_use_realloc(values);
-  musl_twalk(&values, h->_[0], S(get_value));
+  musl_twalk(values, h->_[0], S(get_value));
   return values;
 }
 
@@ -200,10 +200,10 @@ struct cee_set * cee_set_union_set (struct cee_state * s, struct cee_set * s1, s
     struct cee_list * v2 = cee_set_values(s2);
     int i;
     for (i = 0; i < cee_list_size(v1); i++)
-      cee_set_add(s0, v1->_[i]);
+      cee_set_add(s0, v1->a->_[i]);
     
     for (i = 0; i < cee_list_size(v2); i++)
-      cee_set_add(s0, v2->_[i]);
+      cee_set_add(s0, v2->a->_[i]);
     
     cee_del(v1);
     cee_del(v2);
