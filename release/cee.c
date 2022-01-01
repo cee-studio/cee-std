@@ -203,9 +203,7 @@ extern struct cee_str * cee_str_replace (struct cee_str *, const char *fmt, ...)
   
 /* an auto expandable list */
 struct cee_list {
-  struct {
-    void *_[1]; /* an array of `void *` s */
-  } *a; /* a stands for array, this value may change */
+  void* *a;
 };
 
 /*
@@ -2758,10 +2756,10 @@ struct cee_set * cee_set_union_set (struct cee_state * s, struct cee_set * s1, s
     struct cee_list * v2 = cee_set_values(s2);
     int i;
     for (i = 0; i < cee_list_size(v1); i++)
-      cee_set_add(s0, v1->a->_[i]);
+      cee_set_add(s0, v1->a[i]);
 
     for (i = 0; i < cee_list_size(v2); i++)
-      cee_set_add(s0, v2->a->_[i]);
+      cee_set_add(s0, v2->a[i]);
 
     cee_del(v1);
     cee_del(v2);
@@ -3453,7 +3451,7 @@ static void _cee_list_trace (void * v, enum cee_trace_action ta) {
       break;
     case CEE_TRACE_DEL_FOLLOW:
       for (i = 0; i < m->size; i++)
-        cee_del_e(m->del_policy, m->_.a->_[i]);
+        cee_del_e(m->del_policy, m->_.a[i]);
       _cee_list_de_chain(m);
       free(m->_.a);
       free(m);
@@ -3462,7 +3460,7 @@ static void _cee_list_trace (void * v, enum cee_trace_action ta) {
     default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < m->size; i++)
-        cee_trace(m->_.a->_[i], ta);
+        cee_trace(m->_.a[i], ta);
       break;
   }
 }
@@ -3499,7 +3497,7 @@ void cee_list_append (struct cee_list *v, void *e) {
     void *a = realloc(v->a, m->capacity * sizeof(void *));
     v->a = a;
   }
-  v->a->_[m->size] = e;
+  v->a[m->size] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
 }
@@ -3515,9 +3513,9 @@ void cee_list_insert(struct cee_list *v, int index, void *e) {
   }
   int i;
   for (i = m->size; i > index; i--)
-    v->a->_[i] = v->a->_[i-1];
+    v->a[i] = v->a[i-1];
 
-  v->a->_[index] = e;
+  v->a[index] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
 }
@@ -3527,11 +3525,11 @@ bool cee_list_remove(struct cee_list *v, int index) {
   struct _cee_list_header *m = (struct _cee_list_header *)((void *)((char *)(v) - (__builtin_offsetof(struct _cee_list_header, _))));
   if (index >= m->size) return false;
 
-  void *e = v->a->_[index];
-  v->a->_[index] = 0;
+  void *e = v->a[index];
+  v->a[index] = 0;
   int i;
   for (i = index; i < (m->size - 1); i++)
-    v->a->_[i] = v->a->_[i+1];
+    v->a[i] = v->a[i+1];
 
   m->size --;
   cee_decr_indegree(m->del_policy, e);
@@ -3557,7 +3555,7 @@ void cee_list_iterate (struct cee_list *x, void *ctx,
   struct _cee_list_header *m = (struct _cee_list_header *)((void *)((char *)(x) - (__builtin_offsetof(struct _cee_list_header, _))));
   int i;
   for (i = 0; i < m->size; i++)
-    f(ctx, i, x->a->_[i]);
+    f(ctx, i, x->a[i]);
   return;
 }
 

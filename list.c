@@ -33,7 +33,7 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
       break;
     case CEE_TRACE_DEL_FOLLOW:
       for (i = 0; i < m->size; i++)
-        cee_del_e(m->del_policy, m->_.a->_[i]);
+        cee_del_e(m->del_policy, m->_.a[i]);
       S(de_chain)(m);
       free(m->_.a);
       free(m);
@@ -42,7 +42,7 @@ static void S(trace) (void * v, enum cee_trace_action ta) {
     default:
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       for (i = 0; i < m->size; i++)
-        cee_trace(m->_.a->_[i], ta);
+        cee_trace(m->_.a[i], ta);
       break;
   }
 }
@@ -79,7 +79,7 @@ void cee_list_append (struct cee_list *v, void *e) {
     void *a = realloc(v->a, m->capacity * sizeof(void *));
     v->a = a;
   }
-  v->a->_[m->size] = e;
+  v->a[m->size] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
 }
@@ -95,9 +95,9 @@ void cee_list_insert(struct cee_list *v, int index, void *e) {
   }
   int i;
   for (i = m->size; i > index; i--)
-    v->a->_[i] = v->a->_[i-1];
+    v->a[i] = v->a[i-1];
   
-  v->a->_[index] = e;
+  v->a[index] = e;
   m->size ++;
   cee_incr_indegree(m->del_policy, e);
 }
@@ -107,11 +107,11 @@ bool cee_list_remove(struct cee_list *v, int index) {
   struct S(header) *m = FIND_HEADER(v);
   if (index >= m->size) return false;
  
-  void *e = v->a->_[index];
-  v->a->_[index] = 0;
+  void *e = v->a[index];
+  v->a[index] = 0;
   int i;
   for (i = index; i < (m->size - 1); i++)
-    v->a->_[i] = v->a->_[i+1];
+    v->a[i] = v->a[i+1];
   
   m->size --;
   cee_decr_indegree(m->del_policy, e);
@@ -137,7 +137,7 @@ void cee_list_iterate (struct cee_list *x, void *ctx,
   struct S(header) *m = FIND_HEADER(x);
   int i;
   for (i = 0; i < m->size; i++)
-    f(ctx, i, x->a->_[i]);
+    f(ctx, i, x->a[i]);
   return;
 }
 

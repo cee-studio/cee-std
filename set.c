@@ -200,10 +200,10 @@ struct cee_set * cee_set_union_set (struct cee_state * s, struct cee_set * s1, s
     struct cee_list * v2 = cee_set_values(s2);
     int i;
     for (i = 0; i < cee_list_size(v1); i++)
-      cee_set_add(s0, v1->a->_[i]);
+      cee_set_add(s0, v1->a[i]);
     
     for (i = 0; i < cee_list_size(v2); i++)
-      cee_set_add(s0, v2->a->_[i]);
+      cee_set_add(s0, v2->a[i]);
     
     cee_del(v1);
     cee_del(v2);

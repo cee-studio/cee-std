@@ -194,9 +194,7 @@ extern struct cee_str * cee_str_replace (struct cee_str *, const char *fmt, ...)
   
 /* an auto expandable list */
 struct cee_list {
-  struct {
-    void *_[1]; /* an array of `void *` s */
-  } *a; /* a stands for array, this value may change */
+  void* *a;
 };
 
 /*

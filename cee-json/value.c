@@ -445,7 +445,7 @@ struct cee_json* cee_json_array_get (struct cee_json *j, int i) {
   if (!o)
     cee_segfault();
   if (0 <= i && i < cee_list_size(o))
-    return o->a->_[i];
+    return o->a[i];
   else
     return NULL;
 }
