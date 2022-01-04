@@ -724,3 +724,18 @@ cee_sqlite3_read_op(struct cee_sqlite3 *cs,
 				    status,
 				    cee_sqlite3_select_wrapper);
 }
+
+
+struct cee_sqlite3_db_op*
+new_cee_sqlite3_db_op(struct cee_state *state,
+		      struct cee_sqlite3_db_op *op,
+		      size_t size_of_bind_infos)
+{
+  struct db_op *new_op = cee_block_mk(state, sizeof (struct db_op));
+  memcpy(new_op, op, sizeof(*op));
+  size_t s = sizeof(struct cee_sqlite3_bind_data) *
+    size_of_bind_infos/(sizeof (struct cee_sqlite3_bind_info));
+  new_op->data = cee_block_mk(state, s);
+  memset(new_op->data, 0, s);
+  return new_op;
+}
