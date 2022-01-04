@@ -657,3 +657,70 @@ int cee_sqlite3_get_pragma_variable(sqlite3 *db, char *name) {
   sqlite3_finalize(sql_stmt);
   return value;
 }
+
+
+
+int cee_sqlite3_create_op(struct cee_sqlite3 *cs,
+			  struct cee_sqlite3_db_op *op,
+			  struct cee_json *input,
+			  struct cee_json **status) {
+  int rc = cee_sqlite3_generic_opcode(cs, input,
+				      op->info,
+				      op->data,
+				      op->stmts,
+				      status,
+				      cee_sqlite3_insert);
+  cee_json_object_rename(*status, "last_insert_rowid", "id");
+  return rc;
+}
+
+int cee_sqlite3_update_or_create_op(struct cee_sqlite3 *cs,
+				    struct cee_sqlite3_db_op *op,
+				    struct cee_json *input,
+				    struct cee_json **status) {
+  return cee_sqlite3_generic_opcode(cs, input,
+				    op->info,
+				    op->data,
+				    op->stmts,
+				    status,
+				    cee_sqlite3_update_or_insert);
+}
+
+int
+cee_sqlite3_update_op(struct cee_sqlite3 *cs,
+		      struct cee_sqlite3_db_op *op,
+		      struct cee_json *input,
+		      struct cee_json **status) {
+  return cee_sqlite3_generic_opcode(cs, input,
+				    op->info,
+				    op->data,
+				    op->stmts,
+				    status,
+				    cee_sqlite3_update);
+}
+
+int
+cee_sqlite3_update_if_exists_op(struct cee_sqlite3 *cs,
+				struct cee_sqlite3_db_op *op,
+				struct cee_json *input,
+				struct cee_json **status) {
+  return cee_sqlite3_generic_opcode(cs, input,
+				    op->info,
+				    op->data,
+				    op->stmts,
+				    status,
+				    cee_sqlite3_update_if_exists);
+}
+
+int
+cee_sqlite3_read_op(struct cee_sqlite3 *cs,
+		    struct cee_sqlite3_db_op *op,
+		    struct cee_json *json,
+		    struct cee_json **status) {
+  return cee_sqlite3_generic_opcode(cs, input,
+				    op->info,
+				    op->data,
+				    op->stmts,
+				    status,
+				    cee_sqlite3_select_wrapper);
+}
