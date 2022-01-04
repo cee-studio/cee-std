@@ -661,77 +661,77 @@ int cee_sqlite3_get_pragma_variable(sqlite3 *db, char *name) {
 
 
 int cee_sqlite3_create_op(struct cee_sqlite3 *cs,
-			  struct cee_sqlite3_db_op *op,
-			  struct cee_json *input,
-			  struct cee_json **status) {
+                          struct cee_sqlite3_db_op *op,
+                          struct cee_json *input,
+                          struct cee_json **status) {
   int rc = cee_sqlite3_generic_opcode(cs, input,
-				      op->info,
-				      op->data,
-				      op->stmts,
-				      status,
-				      cee_sqlite3_insert);
+                                      op->info,
+                                      op->data,
+                                      op->stmts,
+                                      status,
+                                      cee_sqlite3_insert);
   cee_json_object_rename(*status, "last_insert_rowid", "id");
   return rc;
 }
 
 int cee_sqlite3_update_or_create_op(struct cee_sqlite3 *cs,
-				    struct cee_sqlite3_db_op *op,
-				    struct cee_json *input,
-				    struct cee_json **status) {
+                                    struct cee_sqlite3_db_op *op,
+                                    struct cee_json *input,
+                                    struct cee_json **status) {
   return cee_sqlite3_generic_opcode(cs, input,
-				    op->info,
-				    op->data,
-				    op->stmts,
-				    status,
-				    cee_sqlite3_update_or_insert);
+                                    op->info,
+                                    op->data,
+                                    op->stmts,
+                                    status,
+                                    cee_sqlite3_update_or_insert);
 }
 
 int
 cee_sqlite3_update_op(struct cee_sqlite3 *cs,
-		      struct cee_sqlite3_db_op *op,
-		      struct cee_json *input,
-		      struct cee_json **status) {
+                      struct cee_sqlite3_db_op *op,
+                      struct cee_json *input,
+                      struct cee_json **status) {
   return cee_sqlite3_generic_opcode(cs, input,
-				    op->info,
-				    op->data,
-				    op->stmts,
-				    status,
-				    cee_sqlite3_update);
+                                    op->info,
+                                    op->data,
+                                    op->stmts,
+                                    status,
+                                    cee_sqlite3_update);
 }
 
 int
 cee_sqlite3_update_if_exists_op(struct cee_sqlite3 *cs,
-				struct cee_sqlite3_db_op *op,
-				struct cee_json *input,
-				struct cee_json **status) {
+                                struct cee_sqlite3_db_op *op,
+                                struct cee_json *input,
+                                struct cee_json **status) {
   return cee_sqlite3_generic_opcode(cs, input,
-				    op->info,
-				    op->data,
-				    op->stmts,
-				    status,
-				    cee_sqlite3_update_if_exists);
+                                    op->info,
+                                    op->data,
+                                    op->stmts,
+                                    status,
+                                    cee_sqlite3_update_if_exists);
 }
 
 int
 cee_sqlite3_read_op(struct cee_sqlite3 *cs,
-		    struct cee_sqlite3_db_op *op,
-		    struct cee_json *json,
-		    struct cee_json **status) {
+                    struct cee_sqlite3_db_op *op,
+                    struct cee_json *input,
+                    struct cee_json **status) {
   return cee_sqlite3_generic_opcode(cs, input,
-				    op->info,
-				    op->data,
-				    op->stmts,
-				    status,
-				    cee_sqlite3_select_wrapper);
+                                    op->info,
+                                    op->data,
+                                    op->stmts,
+                                    status,
+                                    cee_sqlite3_select_wrapper);
 }
 
 
 struct cee_sqlite3_db_op*
 new_cee_sqlite3_db_op(struct cee_state *state,
-		      struct cee_sqlite3_db_op *op,
-		      size_t size_of_bind_infos)
+                      struct cee_sqlite3_db_op *op,
+                      size_t size_of_bind_infos)
 {
-  struct db_op *new_op = cee_block_mk(state, sizeof (struct db_op));
+  struct cee_sqlite3_db_op *new_op = cee_block_mk(state, sizeof (struct cee_sqlite3_db_op));
   memcpy(new_op, op, sizeof(*op));
   size_t s = sizeof(struct cee_sqlite3_bind_data) *
     size_of_bind_infos/(sizeof (struct cee_sqlite3_bind_info));
