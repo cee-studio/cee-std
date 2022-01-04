@@ -297,6 +297,29 @@ int cee_sqlite3_update(struct cee_sqlite3 *cs,
   return rc;
 }
 
+int cee_sqlite3_update_if_exist(struct cee_sqlite3 *cs,
+				struct cee_sqlite3_bind_info *info,
+				struct cee_sqlite3_bind_data *data,
+				struct cee_sqlite3_stmt_strs *stmts,
+				struct cee_json **status)
+{
+  int rc;
+  struct cee_json *result = NULL;
+  sqlite3 *db = cs->db;
+
+  accept_result(cs->state, status, &result);
+
+  rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->select_stmt, NULL, status);
+  if (rc == SQLITE_ROW) {
+    char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
+    if (!update) cee_segfault();
+    rc = cee_sqlite3_bind_run_sql(cs, info, data, update, NULL, status);
+    if (rc != SQLITE_DONE)
+      cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, update, sqlite3_errmsg(db));
+  }
+  return rc;
+}
+
 static bool
 dont_return_colum(struct cee_sqlite3_bind_info *info, char *colum_name)
 {
