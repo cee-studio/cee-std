@@ -267,7 +267,7 @@ int cee_sqlite3_delete(struct cee_sqlite3 *cs,
   rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->delete_stmt, NULL, status);
   if (rc != SQLITE_DONE)
     cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s",
-		       rc, stmts->delete_stmt, sqlite3_errmsg(db));
+                       rc, stmts->delete_stmt, sqlite3_errmsg(db));
   return rc;
 }
 
@@ -297,11 +297,11 @@ int cee_sqlite3_update(struct cee_sqlite3 *cs,
   return rc;
 }
 
-int cee_sqlite3_update_if_exist(struct cee_sqlite3 *cs,
-				struct cee_sqlite3_bind_info *info,
-				struct cee_sqlite3_bind_data *data,
-				struct cee_sqlite3_stmt_strs *stmts,
-				struct cee_json **status)
+int cee_sqlite3_update_if_exists(struct cee_sqlite3 *cs,
+                                struct cee_sqlite3_bind_info *info,
+                                struct cee_sqlite3_bind_data *data,
+                                struct cee_sqlite3_stmt_strs *stmts,
+                                struct cee_json **status)
 {
   int rc;
   struct cee_json *result = NULL;

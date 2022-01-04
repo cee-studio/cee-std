@@ -105,38 +105,38 @@ cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
 
 extern int
 cee_sqlite3_insert(struct cee_sqlite3 *cs,
-		   struct cee_sqlite3_bind_info *info,
-		   struct cee_sqlite3_bind_data *data,
-		   struct cee_sqlite3_stmt_strs *stmts,
-		   struct cee_json **status);
+                   struct cee_sqlite3_bind_info *info,
+                   struct cee_sqlite3_bind_data *data,
+                   struct cee_sqlite3_stmt_strs *stmts,
+                   struct cee_json **status);
 
 extern int
 cee_sqlite3_delete(struct cee_sqlite3 *cs,
-		   struct cee_sqlite3_bind_info *info,
-		   struct cee_sqlite3_bind_data *data,
-		   struct cee_sqlite3_stmt_strs *stmts,
-		   struct cee_json **status);
+                   struct cee_sqlite3_bind_info *info,
+                   struct cee_sqlite3_bind_data *data,
+                   struct cee_sqlite3_stmt_strs *stmts,
+                   struct cee_json **status);
 
 extern int
 cee_sqlite3_update(struct cee_sqlite3 *cs,
                    struct cee_sqlite3_bind_info *info,
                    struct cee_sqlite3_bind_data *data,
                    struct cee_sqlite3_stmt_strs *stmts,
-		   struct cee_json **status);
+                   struct cee_json **status);
 
 extern int
-cee_sqlite3_update_if_exist(struct cee_sqlite3 *cs,
-			    struct cee_sqlite3_bind_info *info,
-			    struct cee_sqlite3_bind_data *data,
-			    struct cee_sqlite3_stmt_strs *stmts,
-			    struct cee_json **status);
+cee_sqlite3_update_if_exists(struct cee_sqlite3 *cs,
+                            struct cee_sqlite3_bind_info *info,
+                            struct cee_sqlite3_bind_data *data,
+                            struct cee_sqlite3_stmt_strs *stmts,
+                            struct cee_json **status);
 
 extern int
 cee_sqlite3_update_or_insert(struct cee_sqlite3 *cs,
                              struct cee_sqlite3_bind_info *info,
                              struct cee_sqlite3_bind_data *data,
                              struct cee_sqlite3_stmt_strs *stmts,
-			     struct cee_json **status);
+                             struct cee_json **status);
 
   
 /*
@@ -144,20 +144,20 @@ cee_sqlite3_update_or_insert(struct cee_sqlite3 *cs,
  */
 int 
 cee_sqlite3_select(struct cee_sqlite3 *cs,
-		   struct cee_sqlite3_bind_info *info,
-		   struct cee_sqlite3_bind_data *data,
-		   char *sql,
-		   struct cee_json **status);
+                   struct cee_sqlite3_bind_info *info,
+                   struct cee_sqlite3_bind_data *data,
+                   char *sql,
+                   struct cee_json **status);
 
 /*
  * this is used to pass to generic_opcode function
  */
 extern int
 cee_sqlite3_select_wrapper(struct cee_sqlite3 *cs,
-			   struct cee_sqlite3_bind_info *info,
-			   struct cee_sqlite3_bind_data *data,
-			   struct cee_sqlite3_stmt_strs *stmts,
-			   struct cee_json **status);
+                           struct cee_sqlite3_bind_info *info,
+                           struct cee_sqlite3_bind_data *data,
+                           struct cee_sqlite3_stmt_strs *stmts,
+                           struct cee_json **status);
 
 /*
  * the returned value is a json_array if select succeeds,
@@ -168,23 +168,23 @@ cee_sqlite3_select_or_insert(struct cee_sqlite3 *cs,
                              struct cee_sqlite3_bind_info *info,
                              struct cee_sqlite3_bind_data *data,
                              struct cee_sqlite3_stmt_strs *stmts,
-			     struct cee_json **status);
+                             struct cee_json **status);
 
 /*
  * use JSON to bind sqlite3 stmts
  */
 extern int
 cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
-			   struct cee_json *json,
-			   struct cee_sqlite3_bind_info *info,
-			   struct cee_sqlite3_bind_data *data,
-			   struct cee_sqlite3_stmt_strs *stmts,
-			   struct cee_json **status,
-			   int (*f)(struct cee_sqlite3 *cs,
-				    struct cee_sqlite3_bind_info *info,
-				    struct cee_sqlite3_bind_data *data,
-				    struct cee_sqlite3_stmt_strs *stmts,
-				    struct cee_json **status));
+                           struct cee_json *json,
+                           struct cee_sqlite3_bind_info *info,
+                           struct cee_sqlite3_bind_data *data,
+                           struct cee_sqlite3_stmt_strs *stmts,
+                           struct cee_json **status,
+                           int (*f)(struct cee_sqlite3 *cs,
+                                    struct cee_sqlite3_bind_info *info,
+                                    struct cee_sqlite3_bind_data *data,
+                                    struct cee_sqlite3_stmt_strs *stmts,
+                                    struct cee_json **status));
 
 
 /*
