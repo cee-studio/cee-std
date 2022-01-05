@@ -290,7 +290,7 @@ int cee_sqlite3_update(struct cee_sqlite3 *cs,
       cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, update, sqlite3_errmsg(db));
   }
   else
-    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, sqlite3_errmsg(db));
+    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, stmts->select_stmt, sqlite3_errmsg(db));
   return rc;
 }
 
