@@ -5,7 +5,6 @@
 
 sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts)
 {
-  sqlite3_stmt *res;
   sqlite3 *db;
 
   int rc = sqlite3_open(dbname, &db);
