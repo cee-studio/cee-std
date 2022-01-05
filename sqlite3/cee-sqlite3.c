@@ -180,13 +180,10 @@ static void accept_result(struct cee_state *state,
                           struct cee_json **status, struct cee_json **result_p) {
   if (status) {
     /* the caller wants to receive executions status and result */
-    if (*status == NULL) {
-      /* the caller wants callees to allocate memory */
-      *result_p = cee_json_object_mk(state);
-      *status = *result_p;
-    }
-    else
-      *result_p = *status;
+    if (*status == NULL) 
+      *status = cee_json_object_mk(state);
+
+    *result_p = *status;
   }
   else
     *result_p = NULL;
