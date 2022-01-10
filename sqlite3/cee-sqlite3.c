@@ -203,7 +203,13 @@ int cee_sqlite3_update_or_insert(struct cee_sqlite3 *cs,
   rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->select_stmt, NULL, status);
   if (rc == SQLITE_ROW) {
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
-    if (!update) cee_segfault();
+    if (!update) {
+      if (status) {
+        cee_json_object_set_strf(*status, "warning", "nothing to update %s", stmts->table_name);
+        return SQLITE_DONE;
+      }
+      cee_segfault();
+    }
     rc = cee_sqlite3_bind_run_sql(cs, info, data, update, NULL, status);
     if (rc != SQLITE_DONE)
       cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, update, sqlite3_errmsg(db));
@@ -283,7 +289,13 @@ int cee_sqlite3_update(struct cee_sqlite3 *cs,
   rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->select_stmt, NULL, status);
   if (rc == SQLITE_ROW) {
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
-    if (!update) cee_segfault();
+    if (!update) {
+      if (status) {
+        cee_json_object_set_strf(*status, "warning", "nothing to update %s", stmts->table_name);
+        return SQLITE_DONE;
+      }
+      cee_segfault();
+    }
     rc = cee_sqlite3_bind_run_sql(cs, info, data, update, NULL, status);
     if (rc != SQLITE_DONE)
       cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, update, sqlite3_errmsg(db));
@@ -308,7 +320,13 @@ int cee_sqlite3_update_if_exists(struct cee_sqlite3 *cs,
   rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->select_stmt, NULL, status);
   if (rc == SQLITE_ROW) {
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
-    if (!update) cee_segfault();
+    if (!update) {
+      if (status) {
+        cee_json_object_set_strf(*status, "warning", "nothing to update %s", stmts->table_name);
+        return SQLITE_DONE;
+      }
+      cee_segfault();
+    }
     rc = cee_sqlite3_bind_run_sql(cs, info, data, update, NULL, status);
     if (rc != SQLITE_DONE)
       cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, update, sqlite3_errmsg(db));
@@ -582,8 +600,12 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
   cee_json_object_iterate(json, &aaa, populate_usage);
   compose_dyn_stmts(json, &aaa);
 
-  if (stmts->update_template)
-    stmts->update_stmt_x = (char*)cee_str_mk(state, stmts->update_template, aaa.update_set);
+  if (stmts->update_template) {
+    if (strlen(aaa.update_set->_))
+      stmts->update_stmt_x = (char*)cee_str_mk(state, stmts->update_template, aaa.update_set);
+    else
+      stmts->update_stmt_x = NULL;
+  }
 
   if (stmts->insert_dynamic)
     stmts->insert_stmt_x = (char*)cee_str_mk(state, "insert into %s (%s) values (%s)",
