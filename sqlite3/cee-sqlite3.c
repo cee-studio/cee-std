@@ -405,6 +405,26 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
   return rc;
 }
 
+/*
+ * returned value is a JSON object
+ */
+int cee_sqlite3_select1(struct cee_sqlite3 *cs,
+			struct cee_sqlite3_bind_info *info,
+			struct cee_sqlite3_bind_data *data,
+			char *sql,
+			struct cee_json **status)
+{
+  struct cee_json *error;
+  int rc = cee_sqlite3_select(cs, info, data, sql, status);
+  
+  if ((error = cee_json_select(*status, ".error")))
+    return rc;
+  
+  struct cee_json *result = cee_json_select(cee_sqlite3_get_selected(*status), "[0]");
+  if (result)
+    *status = result;
+  return rc;
+}
 
 /*
  * returned value is a JSON array

@@ -150,6 +150,16 @@ cee_sqlite3_select(struct cee_sqlite3 *cs,
                    struct cee_json **status);
 
 /*
+ * the returned value is a json_object
+ */
+int 
+cee_sqlite3_select1(struct cee_sqlite3 *cs,
+		    struct cee_sqlite3_bind_info *info,
+		    struct cee_sqlite3_bind_data *data,
+		    char *sql,
+		    struct cee_json **status);
+
+/*
  * this is used to pass to generic_opcode function
  */
 extern int
