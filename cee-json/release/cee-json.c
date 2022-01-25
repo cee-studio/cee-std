@@ -366,11 +366,20 @@ static void* merge_json_value (void *ctx, void *oldv, void *newv)
  *
  */
 bool cee_json_merge (struct cee_json *dest, struct cee_json *src) {
-  if (dest->t == src->t && dest->t == CEE_JSON_OBJECT) {
-    struct cee_map *dest_map = cee_json_to_object(dest);
-    struct cee_map *src_map = cee_json_to_object(src);
-    cee_map_merge(dest_map, src_map, NULL, merge_json_value);
-    return true;
+  if (dest->t == src->t) {
+    if (dest->t == CEE_JSON_OBJECT) {
+      struct cee_map *dest_map = cee_json_to_object(dest);
+      struct cee_map *src_map = cee_json_to_object(src);
+      cee_map_merge(dest_map, src_map, NULL, merge_json_value);
+      return true;
+    }
+    else if (dest->t == CEE_JSON_ARRAY) {
+      struct cee_list *dest_list = cee_json_to_array(dest);
+      struct cee_list *src_list = cee_json_to_array(src);
+      cee_list_merge(dest_list, src_list);
+      return true;
+    }
+    return false;
   }
   else
     return false;
