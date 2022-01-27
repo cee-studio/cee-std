@@ -471,13 +471,20 @@ int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
   struct cee_state *state = cs->state;
   sqlite3 *db = cs->db;  
   sqlite3_stmt *sql_stmt;
-  struct cee_json *result = NULL;
+  struct cee_json *result = NULL, *error;
   int rc = cee_sqlite3_select1(cs, info, data, stmts->select_stmt, &result);
   
   if (result) {
     if (status) {
+      if ((error = cee_json_select(result, ".error"))) {
+	if (*status)
+	  cee_json_object_append(*status, "error", error);
+	else
+	  *status = result;
+	return rc;
+      }
       if (*status)
-	cee_json_merge(*status, cee_json_select(result, "[0]"));
+	cee_json_merge(*status, result);
       else
 	*status = result;
     }
