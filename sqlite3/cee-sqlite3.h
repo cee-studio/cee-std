@@ -198,11 +198,11 @@ cee_sqlite3_select_wrapper(struct cee_sqlite3 *cs,
  * or a json_object with last_insert_rowid set.
  */
 extern int
-cee_sqlite3_select_or_insert(struct cee_sqlite3 *cs,
-                             struct cee_sqlite3_bind_info *info,
-                             struct cee_sqlite3_bind_data *data,
-                             struct cee_sqlite3_stmt_strs *stmts,
-                             struct cee_json **status);
+cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
+			      struct cee_sqlite3_bind_info *info,
+			      struct cee_sqlite3_bind_data *data,
+			      struct cee_sqlite3_stmt_strs *stmts,
+			      struct cee_json **status);
 
 /*
  * use JSON to bind sqlite3 stmts
@@ -224,8 +224,8 @@ cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
 /*
  *  extract selected raw from status
  */
-extern struct cee_json*
-cee_sqlite3_get_selected(struct cee_json *status);
+//extern struct cee_json*
+//cee_sqlite3_get_selected(struct cee_json *status);
 
 /*
  * return true if status contained at least one selected result
