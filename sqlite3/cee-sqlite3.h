@@ -150,6 +150,17 @@ cee_sqlite3_select(struct cee_sqlite3 *cs,
                    struct cee_json **status);
 
 /*
+ * status -> { key: list of selected items }
+ */
+int 
+cee_sqlite3_select_as(struct cee_sqlite3 *cs,
+		      struct cee_sqlite3_bind_info *info,
+		      struct cee_sqlite3_bind_data *data,
+		      char *sql,
+		      struct cee_json **status,
+		      char *key);
+
+/*
  * the returned value is a json_object
  */
 int 

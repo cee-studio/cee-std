@@ -777,3 +777,26 @@ new_cee_sqlite3_db_op(struct cee_state *state,
   memset(new_op->data, 0, s);
   return new_op;
 }
+
+
+int 
+cee_sqlite3_select_as(struct cee_sqlite3 *cs,
+		      struct cee_sqlite3_bind_info *info,
+		      struct cee_sqlite3_bind_data *data,
+		      char *sql,
+		      struct cee_json **status,
+		      char *key) {
+
+  struct cee_json *result = NULL, *array = NULL;
+  int ret = cee_sqlite3_select(cs, info, data, sql, &array);
+
+  if (cee_json_select(array, ".error") && status) {
+    *status = array;
+    return ret;
+  }
+
+  accept_result(cs->state, status, &result);
+  if (status)
+    cee_json_object_set(*status, key, cee_sqlite3_get_selected(array));
+  return ret;
+}

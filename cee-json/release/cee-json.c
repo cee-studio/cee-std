@@ -123,6 +123,7 @@ extern void cee_json_object_set_double (struct cee_json *, char *, double);
 extern void cee_json_object_set_i64 (struct cee_json *, char *, int64_t);
 extern void cee_json_object_set_u64 (struct cee_json *, char *, uint64_t);
 extern bool cee_json_object_rename (struct cee_json *, char *old_key, char *new_key);
+extern bool cee_json_object_convert_to_i64 (struct cee_json*, char *key);
 
 extern void cee_json_set_error(struct cee_json **o, const char *fmt, ...);
 
@@ -448,6 +449,38 @@ bool cee_json_object_rename(struct cee_json *j, char *old_key, char *new_key) {
   bool t = cee_map_rename(o, old_str, new_str);
   cee_del(old_str);
   return t;
+}
+
+static int str2i64(char *s, int64_t *ip) {
+  int64_t i = 0;
+  char c ;
+  int scanned = sscanf(s, "%" SCNd64 "%c", &i, &c);
+  if (scanned == 1) {
+    if (ip) *ip = i;
+    return 0;
+  }
+  if (scanned > 1) {
+    return 1;
+  }
+  return 1;
+}
+
+bool cee_json_object_convert_to_i64(struct cee_json *j, char *key) {
+  struct cee_map *o = cee_json_to_object(j);
+  if (!o)
+    return false;
+
+  struct cee_json *old_val = cee_json_object_get(j, key);
+  int64_t i64 = 0;
+  if (cee_json_to_i64(old_val, &i64))
+    return true;
+
+  if (j->t == CEE_JSON_STRING && !str2i64(j->value.string->_, &i64)) {
+    cee_json_object_set_i64(j, key, i64);
+    cee_del(old_val);
+    return true;
+  }
+  return false;
 }
 
 struct cee_json* cee_json_object_get(struct cee_json *j, char *key)
