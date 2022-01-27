@@ -455,8 +455,11 @@ int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
   
   int rc = cee_sqlite3_select(cs, info, data, stmts->select_stmt, status);
 
-  if (result && cee_json_select(result, "[0]"))
+  if (result && cee_json_select(result, "[0]")) {
+    if (status)
+      cee_json_merge(*status, cee_json_select(result, "[0]"));
     return rc;
+  }
 
   char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;  
   rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
