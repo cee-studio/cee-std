@@ -796,8 +796,14 @@ cee_sqlite3_select1_as(struct cee_sqlite3 *cs,
   }
 
   accept_result(cs->state, status, &result);
-  if (status)
-    cee_json_object_set(*status, key, one);
+  if (status) {
+    struct cee_json *old = cee_json_object_get(*status, key);
+    if (old)
+      cee_json_merge(old, one);
+    else
+      old = one;
+    cee_json_object_set(*status, key, old);
+  }
   return ret;
 }
 

@@ -151,6 +151,7 @@ cee_sqlite3_select(struct cee_sqlite3 *cs,
 
 /*
  * status -> { key: list of selected items }
+ * if key exists, the values are merged.
  */
 int 
 cee_sqlite3_select_as(struct cee_sqlite3 *cs,
