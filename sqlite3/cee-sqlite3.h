@@ -170,6 +170,18 @@ cee_sqlite3_select1(struct cee_sqlite3 *cs,
 		    char *sql,
 		    struct cee_json **status);
 
+
+/*
+ * status -> { key: the selected value }
+ */
+int 
+cee_sqlite3_select1_as(struct cee_sqlite3 *cs,
+		       struct cee_sqlite3_bind_info *info,
+		       struct cee_sqlite3_bind_data *data,
+		       char *sql,
+		       struct cee_json **status,
+		       char *key);
+
 /*
  * this is used to pass to generic_opcode function
  */

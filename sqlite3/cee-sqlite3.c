@@ -780,6 +780,28 @@ new_cee_sqlite3_db_op(struct cee_state *state,
 
 
 int 
+cee_sqlite3_select1_as(struct cee_sqlite3 *cs,
+		       struct cee_sqlite3_bind_info *info,
+		       struct cee_sqlite3_bind_data *data,
+		       char *sql,
+		       struct cee_json **status,
+		       char *key) {
+  
+  struct cee_json *result = NULL, *one = NULL;
+  int ret = cee_sqlite3_select1(cs, info, data, sql, &one);
+
+  if (cee_json_select(one, ".error") && status) {
+    *status = one;
+    return ret;
+  }
+
+  accept_result(cs->state, status, &result);
+  if (status)
+    cee_json_object_set(*status, key, one);
+  return ret;
+}
+
+int 
 cee_sqlite3_select_as(struct cee_sqlite3 *cs,
 		      struct cee_sqlite3_bind_info *info,
 		      struct cee_sqlite3_bind_data *data,
