@@ -609,6 +609,8 @@ bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how)
  *      cee_json *myobj = cee_json_select(root,".properties[*].*", index, fieldname);
  */
 struct cee_json* cee_json_select(struct cee_json *o, char *fmt, ...) {
+  if (!o) return NULL;
+
   enum next_selector_token {
     JSEL_INVALID = 0,
     JSEL_OBJ = 1,            /* "." */
