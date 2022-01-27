@@ -354,6 +354,11 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
                        char *sql,
                        struct cee_json **status)
 {
+  if (status && *status) {
+    /* we don't support *status is not null */
+    cee_segfault();
+  }
+  
   struct cee_state *state = cs->state;
   sqlite3 *db = cs->db;  
   sqlite3_stmt *stmt = NULL;
@@ -453,9 +458,9 @@ int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
   struct cee_json *result = NULL;
   accept_result(state, status, &result);
   
-  int rc = cee_sqlite3_select(cs, info, data, stmts->select_stmt, status);
+  int rc = cee_sqlite3_select(cs, info, data, stmts->select_stmt, &result);
 
-  if (result && cee_json_select(result, "[0]")) {
+  if (cee_json_select(result, "[0]")) {
     if (status)
       cee_json_merge(*status, cee_json_select(result, "[0]"));
     return rc;
