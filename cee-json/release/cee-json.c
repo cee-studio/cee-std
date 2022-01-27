@@ -142,6 +142,7 @@ extern void cee_json_array_append_strf (struct cee_json *, const char *fmt, ...)
 extern void cee_json_array_append_double (struct cee_json *, double);
 extern void cee_json_array_append_i64 (struct cee_json *, int64_t);
 extern void cee_json_array_append_u64 (struct cee_json *, uint64_t);
+extern void cee_json_array_concat (struct cee_json *, struct cee_json *);
 
 /* remove an element from a json array */
 extern void cee_json_array_remove (struct cee_json *, int index);
@@ -527,14 +528,21 @@ void cee_json_object_set(struct cee_json *j, char *key, struct cee_json *v) {
 }
 
 void cee_json_object_append(struct cee_json *j, char *key, struct cee_json *v) {
-  if (!j) return;
+  if (!j || !v) return;
   struct cee_json *old_value = cee_json_object_get(j, key);
   if (old_value) {
-    if (cee_json_to_array(old_value))
-      cee_json_array_append(old_value, v);
+    if (cee_json_to_array(old_value)) {
+      if (cee_json_to_array(v))
+ cee_json_array_concat(old_value, v);
+      else
+ cee_json_array_append(old_value, v);
+    }
     else {
       struct cee_json *llist = cee_json_listify(old_value);
-      cee_json_array_append(llist, v);
+      if (cee_json_to_array(v))
+ cee_json_array_concat(llist, v);
+      else
+ cee_json_array_append(llist, v);
       cee_json_object_set(j, key, llist);
     }
   }
@@ -697,6 +705,18 @@ void cee_json_array_iterate (struct cee_json *j, void *ctx,
   typedef void (*fnt)(void *, int, void*);
   cee_list_iterate(o, ctx, (fnt)f);
 };
+
+void cee_json_array_concat (struct cee_json *dest, struct cee_json *src)
+{
+  struct cee_list *d = cee_json_to_array(dest);
+  struct cee_list *s = cee_json_to_array(src);
+  if (!d || !s)
+    cee_segfault();
+
+  int i;
+  for (i = 0; i < cee_list_size(s); i++)
+    cee_list_append(d, s->a[i]);
+}
 
 /*
  * this function assume the file pointer points to the begin of a file

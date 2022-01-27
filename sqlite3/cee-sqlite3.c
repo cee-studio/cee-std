@@ -354,20 +354,22 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
                        char *sql,
                        struct cee_json **status)
 {
-  if (status && *status) {
-    /* we don't support *status is not null */
-    cee_segfault();
+  if (status) {
+    if (*status && cee_json_to_array(*status))
+      /* we don't support *status is not an array */
+      cee_segfault();
   }
   
   struct cee_state *state = cs->state;
   sqlite3 *db = cs->db;  
   sqlite3_stmt *stmt = NULL;
-  struct cee_json *result = NULL, *array = cee_json_array_mk(state, 1);
+  struct cee_json *result = NULL, *my_status = NULL, *array = cee_json_array_mk(state, 1);
   
-  int rc = cee_sqlite3_bind_run_sql(cs, info, data, sql, &stmt, status);
+  int rc = cee_sqlite3_bind_run_sql(cs, info, data, sql, &stmt, &my_status);
   if (rc != SQLITE_ROW && rc != SQLITE_DONE) {
     if (status) {
       accept_result(state, status, &result);
+      cee_json_object_append(*status, "error", cee_json_select(my_status, ".error"));
       cee_json_set_error(status, "sqlite3:[%d]'%s' %s", rc, sql, sqlite3_errmsg(db));
     }
     return rc;
@@ -407,8 +409,12 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
   }
   sqlite3_finalize(stmt);
 
-  if (status)
-    *status = array;
+  if (status) {
+    if (*status)
+      cee_json_merge(*status, array);
+    else
+      *status = array;
+  }
   
   return rc;
 }
@@ -422,15 +428,25 @@ int cee_sqlite3_select1(struct cee_sqlite3 *cs,
 			char *sql,
 			struct cee_json **status)
 {
-  struct cee_json *error;
-  int rc = cee_sqlite3_select(cs, info, data, sql, status);
+  struct cee_json *error, *result = NULL, *x = NULL;
   
-  if ((error = cee_json_select(*status, ".error")))
+  int rc = cee_sqlite3_select(cs, info, data, sql, &result);
+  
+  if ((error = cee_json_select(result, ".error"))) {
+    if (status) {
+      accept_result(cs->state, status, &x);
+      cee_json_object_append(*status, "error", error);
+    }
     return rc;
+  }
   
-  struct cee_json *result = cee_json_select(*status, "[0]");
-  if (result)
-    *status = result;
+  struct cee_json *one = cee_json_select(result, "[0]");
+  if (one && status) {
+    if (*status)
+      cee_json_merge(*status, one);
+    else
+      *status = one;
+  }
   return rc;
 }
 
@@ -456,16 +472,19 @@ int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
   sqlite3 *db = cs->db;  
   sqlite3_stmt *sql_stmt;
   struct cee_json *result = NULL;
-  accept_result(state, status, &result);
+  int rc = cee_sqlite3_select1(cs, info, data, stmts->select_stmt, &result);
   
-  int rc = cee_sqlite3_select(cs, info, data, stmts->select_stmt, &result);
-
-  if (cee_json_select(result, "[0]")) {
-    if (status)
-      cee_json_merge(*status, cee_json_select(result, "[0]"));
+  if (result) {
+    if (status) {
+      if (*status)
+	cee_json_merge(*status, cee_json_select(result, "[0]"));
+      else
+	*status = result;
+    }
     return rc;
   }
 
+  accept_result(state, status, &result);
   char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;  
   rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
 
@@ -676,25 +695,6 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
 }
 
 
-struct cee_json* cee_sqlite3_get_selected(struct cee_json *status)
-{
-  return cee_json_select(status, ".sqlite3_selected");
-}
-
-bool
-cee_sqlite3_has_selected_result(struct cee_json *status)
-{
-  struct cee_json* a;
-
-  if (cee_json_select(status, ".error"))
-    return false;
-  else if ((a = cee_sqlite3_get_selected(status)))
-    return cee_json_select(a, "[0]") != NULL;
-  else
-    return false;
-}
-
-
 int cee_sqlite3_get_pragma_variable(sqlite3 *db, char *name) {
   char *err_msg=NULL;
   sqlite3_stmt *sql_stmt = NULL;
@@ -830,13 +830,18 @@ cee_sqlite3_select_as(struct cee_sqlite3 *cs,
   int ret = cee_sqlite3_select(cs, info, data, sql, &array);
 
   if (cee_json_select(array, ".error") && status) {
-    *status = array;
+    if (*status)
+      cee_json_object_append(*status, "error", cee_json_select(array, ".error"));
+    else
+      *status = array;
     return ret;
   }
 
   if (status) {
-    accept_result(cs->state, status, &result);
-    cee_json_object_set(*status, key, array);
+    if (*status)
+      cee_json_object_append(*status, key, array);
+    else
+      *status = array;
   }
   return ret;
 }

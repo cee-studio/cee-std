@@ -221,18 +221,6 @@ cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
                                     struct cee_json **status));
 
 
-/*
- *  extract selected raw from status
- */
-//extern struct cee_json*
-//cee_sqlite3_get_selected(struct cee_json *status);
-
-/*
- * return true if status contained at least one selected result
- */
-extern bool
-cee_sqlite3_has_selected_result(struct cee_json *status);
-
 extern int
 cee_sqlite3_get_pragma_variable(sqlite3 *db, char *name);
 
