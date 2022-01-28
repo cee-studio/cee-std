@@ -561,8 +561,10 @@ bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how)
   cee_json_snprint (st, p, s+1, j, how);
   if (fwrite(p, s+1, 1, f) != 1) {
     fprintf(stderr, "%s", strerror(errno));
+    free(p);
     return false;
   }
+  free(p);
   return true;
 }
 
