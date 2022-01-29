@@ -55,6 +55,7 @@ extern struct cee_json * cee_json_load_from_buffer (int size, char *, int line);
 extern int cee_json_cmp (struct cee_json *, struct cee_json *);
 
 extern bool cee_json_merge (struct cee_json *dest, struct cee_json *src);
+extern bool cee_json_merge_or_return (struct cee_json **dest_p, struct cee_json *src);
 
 extern struct cee_json * cee_list_to_json (struct cee_list *v);
 extern struct cee_json * cee_map_to_json (struct cee_map *v);

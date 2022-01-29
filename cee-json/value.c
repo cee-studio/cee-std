@@ -199,6 +199,15 @@ bool cee_json_merge (struct cee_json *dest, struct cee_json *src) {
     return false;
 }
 
+bool cee_json_merge_or_return (struct cee_json **dest_p, struct cee_json *src) {
+  if (NULL == src || NULL == dest_p) return false;
+  if (NULL == *dest_p) {
+    *dest_p = src;
+    return true;
+  }
+  return cee_json_merge (*dest_p, src);
+}
+
 
 struct cee_json * cee_json_double_mk (struct cee_state *st, double d) {
   struct cee_boxed * p = cee_boxed_from_double (st, d);
