@@ -374,11 +374,10 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
     }
     return rc;
   }
-  
   while (rc != SQLITE_DONE) {
     struct cee_json *obj = cee_json_object_mk(state);
     cee_json_array_append(array, obj);
-    
+
     int i, num_cols = sqlite3_column_count(stmt);
     for (i = 0; i < num_cols; i++) {
       char *name = (char *)sqlite3_column_name(stmt, i);
@@ -423,10 +422,10 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
  * returned value is a JSON object
  */
 int cee_sqlite3_select1(struct cee_sqlite3 *cs,
-			struct cee_sqlite3_bind_info *info,
-			struct cee_sqlite3_bind_data *data,
-			char *sql,
-			struct cee_json **status)
+                        struct cee_sqlite3_bind_info *info,
+                        struct cee_sqlite3_bind_data *data,
+                        char *sql,
+                        struct cee_json **status)
 {
   struct cee_json *error, *result = NULL, *x = NULL;
   
@@ -463,10 +462,10 @@ int cee_sqlite3_select_wrapper(struct cee_sqlite3 *cs,
 }
 
 int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
-				  struct cee_sqlite3_bind_info *info,
-				  struct cee_sqlite3_bind_data *data,
-				  struct cee_sqlite3_stmt_strs *stmts,
-				  struct cee_json **status)
+                                  struct cee_sqlite3_bind_info *info,
+                                  struct cee_sqlite3_bind_data *data,
+                                  struct cee_sqlite3_stmt_strs *stmts,
+                                  struct cee_json **status)
 {
   struct cee_state *state = cs->state;
   sqlite3 *db = cs->db;  
@@ -477,16 +476,16 @@ int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
   if (result) {
     if (status) {
       if ((error = cee_json_select(result, ".error"))) {
-	if (*status)
-	  cee_json_object_append(*status, "error", error);
-	else
-	  *status = result;
-	return rc;
+        if (*status)
+          cee_json_object_append(*status, "error", error);
+        else
+          *status = result;
+        return rc;
       }
       if (*status)
-	cee_json_merge(*status, result);
+        cee_json_merge(*status, result);
       else
-	*status = result;
+        *status = result;
     }
     return rc;
   }
@@ -799,11 +798,11 @@ new_cee_sqlite3_db_op(struct cee_state *state,
 
 int 
 cee_sqlite3_select1_as(struct cee_sqlite3 *cs,
-		       struct cee_sqlite3_bind_info *info,
-		       struct cee_sqlite3_bind_data *data,
-		       char *sql,
-		       struct cee_json **status,
-		       char *key) {
+                       struct cee_sqlite3_bind_info *info,
+                       struct cee_sqlite3_bind_data *data,
+                       char *sql,
+                       struct cee_json **status,
+                       char *key) {
   
   struct cee_json *result = NULL, *one = NULL;
   int ret = cee_sqlite3_select1(cs, info, data, sql, &one);
@@ -827,11 +826,11 @@ cee_sqlite3_select1_as(struct cee_sqlite3 *cs,
 
 int 
 cee_sqlite3_select_as(struct cee_sqlite3 *cs,
-		      struct cee_sqlite3_bind_info *info,
-		      struct cee_sqlite3_bind_data *data,
-		      char *sql,
-		      struct cee_json **status,
-		      char *key) {
+                      struct cee_sqlite3_bind_info *info,
+                      struct cee_sqlite3_bind_data *data,
+                      char *sql,
+                      struct cee_json **status,
+                      char *key) {
 
   struct cee_json *result = NULL, *array = NULL;
   int ret = cee_sqlite3_select(cs, info, data, sql, &array);
