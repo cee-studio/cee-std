@@ -179,6 +179,7 @@ static void* merge_json_value (void *ctx, void *oldv, void *newv)
  *
  */
 bool cee_json_merge (struct cee_json *dest, struct cee_json *src) {
+  if (NULL == dest || NULL == src) return false;
   if (dest->t == src->t) {
     if (dest->t == CEE_JSON_OBJECT) {
       struct cee_map *dest_map = cee_json_to_object(dest);
