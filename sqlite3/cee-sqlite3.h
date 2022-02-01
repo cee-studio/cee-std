@@ -108,14 +108,16 @@ cee_sqlite3_insert(struct cee_sqlite3 *cs,
                    struct cee_sqlite3_bind_info *info,
                    struct cee_sqlite3_bind_data *data,
                    char *insert_sql,
-                   struct cee_json **status);
+                   struct cee_json **status,
+		   char *key);
 
 extern int
 cee_sqlite3_delete(struct cee_sqlite3 *cs,
                    struct cee_sqlite3_bind_info *info,
                    struct cee_sqlite3_bind_data *data,
                    char *delete_sql,
-                   struct cee_json **status);
+                   struct cee_json **status,
+		   char *key);
 
 extern int
 cee_sqlite3_update(struct cee_sqlite3 *cs,
