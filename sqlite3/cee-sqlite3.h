@@ -107,14 +107,14 @@ extern int
 cee_sqlite3_insert(struct cee_sqlite3 *cs,
                    struct cee_sqlite3_bind_info *info,
                    struct cee_sqlite3_bind_data *data,
-                   struct cee_sqlite3_stmt_strs *stmts,
+                   char *insert_sql,
                    struct cee_json **status);
 
 extern int
 cee_sqlite3_delete(struct cee_sqlite3 *cs,
                    struct cee_sqlite3_bind_info *info,
                    struct cee_sqlite3_bind_data *data,
-                   struct cee_sqlite3_stmt_strs *stmts,
+                   char *delete_sql,
                    struct cee_json **status);
 
 extern int
@@ -183,6 +183,7 @@ cee_sqlite3_select1_as(struct cee_sqlite3 *cs,
 		       struct cee_json **status,
 		       char *key);
 
+#if 0
 /*
  * this is used to pass to generic_opcode function
  */
@@ -192,6 +193,7 @@ cee_sqlite3_select_wrapper(struct cee_sqlite3 *cs,
                            struct cee_sqlite3_bind_data *data,
                            struct cee_sqlite3_stmt_strs *stmts,
                            struct cee_json **status);
+#endif
 
 /*
  * the returned value is a json_array if select succeeds,

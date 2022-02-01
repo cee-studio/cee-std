@@ -231,7 +231,7 @@ int cee_sqlite3_update_or_insert(struct cee_sqlite3 *cs,
 int cee_sqlite3_insert(struct cee_sqlite3 *cs,
                        struct cee_sqlite3_bind_info *info,
                        struct cee_sqlite3_bind_data *data,
-                       struct cee_sqlite3_stmt_strs *stmts,
+                       char *insert,
                        struct cee_json **status)
 {
   struct cee_state *state = cs->state;
@@ -241,7 +241,6 @@ int cee_sqlite3_insert(struct cee_sqlite3 *cs,
   struct cee_json *result = NULL;
 
   accept_result(state, status, &result);
-  char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;
   rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
   if (rc != SQLITE_DONE)
     cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, insert, sqlite3_errmsg(db));
@@ -256,20 +255,20 @@ int cee_sqlite3_insert(struct cee_sqlite3 *cs,
 int cee_sqlite3_delete(struct cee_sqlite3 *cs,
                        struct cee_sqlite3_bind_info *info,
                        struct cee_sqlite3_bind_data *data,
-                       struct cee_sqlite3_stmt_strs *stmts,
+                       char *delete_sql,
                        struct cee_json **status)
 {
   struct cee_state *state = cs->state;
   sqlite3 *db = cs->db;
-  sqlite3_stmt *sql_stmt;
   int rc;
   struct cee_json *result = NULL;
 
   accept_result(state, status, &result);
-  rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->delete_stmt, NULL, status);
+  rc = cee_sqlite3_bind_run_sql(cs, info, data, delete_sql, NULL, status);
   if (rc != SQLITE_DONE)
     cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s",
-                       rc, stmts->delete_stmt, sqlite3_errmsg(db));
+		       rc, delete_sql, sqlite3_errmsg(db));
+  cee_json_object_set_i64(result, "deleted", sqlite3_changes(cs->db));
   return rc;
 }
 
@@ -459,6 +458,16 @@ int cee_sqlite3_select_wrapper(struct cee_sqlite3 *cs,
                                struct cee_json **status)
 {
   return cee_sqlite3_select(cs, info, data, stmts->select_stmt, status);
+}
+
+int cee_sqlite3_insert_wrapper(struct cee_sqlite3 *cs,
+                               struct cee_sqlite3_bind_info *info,
+                               struct cee_sqlite3_bind_data *data,
+                               struct cee_sqlite3_stmt_strs *stmts,
+                               struct cee_json **status)
+{
+  char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;
+  return cee_sqlite3_insert(cs, info, data, insert, status);
 }
 
 int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
@@ -724,7 +733,7 @@ int cee_sqlite3_create_op(struct cee_sqlite3 *cs,
                                       op->data,
                                       op->stmts,
                                       status,
-                                      cee_sqlite3_insert);
+                                      cee_sqlite3_insert_wrapper);
   cee_json_object_rename(*status, "last_insert_rowid", "id");
   return rc;
 }
