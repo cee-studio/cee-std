@@ -361,7 +361,7 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
                        struct cee_json **status)
 {
   if (status) {
-    if (*status && cee_json_to_array(*status))
+    if (*status && (NULL == cee_json_to_array(*status)))
       /* we don't support *status is not an array */
       cee_segfault();
   }
