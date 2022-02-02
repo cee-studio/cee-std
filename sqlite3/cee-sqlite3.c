@@ -474,7 +474,7 @@ int cee_sqlite3_insert_wrapper(struct cee_sqlite3 *cs,
                                struct cee_json **status)
 {
   char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;
-  return cee_sqlite3_insert(cs, info, data, insert, status, stmts->table_name);
+  return cee_sqlite3_insert(cs, info, data, insert, status, NULL);
 }
 
 int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
