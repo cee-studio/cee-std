@@ -485,7 +485,6 @@ int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
 {
   struct cee_state *state = cs->state;
   sqlite3 *db = cs->db;  
-  sqlite3_stmt *sql_stmt;
   struct cee_json *result = NULL, *error;
   int rc = cee_sqlite3_select1(cs, info, data, stmts->select_stmt, &result);
   
