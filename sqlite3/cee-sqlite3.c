@@ -906,7 +906,8 @@ cee_json_to_bind_info(struct cee_json *input) {
   struct cee_state *state = cee_get_state(input->value.object);
   uintptr_t size = cee_map_size(cee_json_to_object(input));
   struct cee_block *block =
-    cee_block_mk(state, size * sizeof(struct cee_sqlite3_bind_info));
+    cee_block_mk(state, (size + 1) * sizeof(struct cee_sqlite3_bind_info));
+  
   struct info_state is = {
     .state = state,
     .info = (void *)block,
@@ -914,5 +915,8 @@ cee_json_to_bind_info(struct cee_json *input) {
   };
 
   cee_json_object_iterate(input, &is, f);
+  is.info[size].var_name = NULL;
+  is.info[size].col_name = NULL;
+  
   return (void *)block;
 }
