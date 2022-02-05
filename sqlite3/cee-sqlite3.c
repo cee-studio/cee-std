@@ -915,10 +915,5 @@ cee_json_to_bind_info(struct cee_json *input) {
   struct info_state is = { .state = state, .info = (void *)block, .size = size };
   memset(block->_, 0, m_size);
   cee_json_object_iterate(input, &is, f);
-  for (int i = 0; i < size; i++) {
-    fprintf(stderr, "%s:", is.info[i].var_name);
-    fprintf(stderr, "%s\n", is.info[i].col_name);
-  }
-  
   return (void *)block;
 }
