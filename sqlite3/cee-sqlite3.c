@@ -287,27 +287,10 @@ int cee_sqlite3_update(struct cee_sqlite3 *cs,
                        struct cee_json **status)
 {
   int rc;
-  struct cee_json *result = NULL;
-  sqlite3 *db = cs->db;
-
-  accept_result(cs->state, status, &result);
-
-  rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->select_stmt, NULL, status);
-  if (rc == SQLITE_ROW) {
-    char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
-    if (!update) {
-      if (status) {
-        cee_json_object_set_strf(*status, "warning", "nothing to update %s", stmts->table_name);
-        return SQLITE_DONE;
-      }
-      cee_segfault();
-    }
-    rc = cee_sqlite3_bind_run_sql(cs, info, data, update, NULL, status);
-    if (rc != SQLITE_DONE)
-      cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, update, sqlite3_errmsg(db));
-  }
-  else
-    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, stmts->select_stmt, sqlite3_errmsg(db));
+  rc = cee_sqlite3_update_if_exists(cs, info, data, stmts, status);
+  if (rc == SQLITE_OK)
+    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, stmts->select_stmt,
+                       sqlite3_errmsg(cs->db));
   return rc;
 }
 
