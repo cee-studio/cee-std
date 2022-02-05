@@ -881,7 +881,7 @@ static void f (void *cxt, struct cee_str *key, struct cee_json *val) {
   for (int i = 0; i < is->size; i++) {
     if (info[i].var_name) continue;
 
-    info[i].col_name = key->_;
+    info[i].col_name = cee_str_mk(is->state,  "%s", key->_)->_;
     info[i].var_name = cee_str_mk(is->state, "@%s", key->_)->_;
     info[i].data.has_value = 1;
     switch (val->t) {
