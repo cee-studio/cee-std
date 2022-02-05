@@ -866,3 +866,53 @@ cee_sqlite3_select_as(struct cee_sqlite3 *cs,
   }
   return ret;
 }
+
+
+struct info_state {
+  struct cee_state *state;
+  struct cee_sqlite3_bind_info *info;
+  int size;
+};
+
+static void f (void *cxt, struct cee_str *key, struct cee_json *val) {
+  struct info_state *is = cxt;
+  struct cee_sqlite3_bind_info *info = is->info;
+
+  for (int i = 0; i < is->size; i++) {
+    if (info[i].var_name) continue;
+
+    info[i].col_name = key->_;
+    info[i].var_name = cee_str_mk(is->state, "@%s", key->_)->_;
+    info[i].data.has_value = 1;
+    switch (val->t) {
+      case CEE_JSON_I64:
+        if (!cee_json_to_int(val, &info[i].data.i))
+          cee_segfault();
+        info[i].type = CEE_SQLITE3_INT;
+        break;
+      case CEE_JSON_STRING:
+        info[i].data.value = cee_json_to_str(val)->_;
+        info[i].type = CEE_SQLITE3_TEXT;
+        break;
+      default:
+        cee_segfault();
+    }
+    return;
+  }
+}
+
+struct cee_sqlite3_bind_info *
+cee_json_to_bind_info(struct cee_json *input) {
+  struct cee_state *state = cee_get_state(input->value.object);
+  uintptr_t size = cee_map_size(cee_json_to_object(input));
+  struct cee_block *block =
+    cee_block_mk(state, size * sizeof(struct cee_sqlite3_bind_info));
+  struct info_state is = {
+    .state = state,
+    .info = (void *)block,
+    .size = size,
+  };
+
+  cee_json_object_iterate(input, &is, f);
+  return (void *)block;
+}

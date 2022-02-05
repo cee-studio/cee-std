@@ -275,4 +275,7 @@ extern struct cee_sqlite3_db_op*
 new_cee_sqlite3_db_op(struct cee_state *state,
 		      struct cee_sqlite3_db_op *op,
 		      size_t size_of_bind_infos);
+
+extern struct cee_sqlite3_bind_info*
+cee_json_to_bind_info(struct cee_json *);
 #endif
