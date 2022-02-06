@@ -767,12 +767,12 @@ cee_sqlite3_update_if_exists_op(struct cee_sqlite3 *cs,
                                     cee_sqlite3_update_if_exists);
 }
 
-int
-cee_sqlite3_read_op(struct cee_sqlite3 *cs,
-                    struct cee_sqlite3_db_op *op,
-                    struct cee_json *input,
-                    struct cee_json **status) {
-  return cee_sqlite3_generic_opcode(cs, input,
+int 
+cee_sqlite3_select_op(struct cee_sqlite3 *cs,
+                     struct cee_sqlite3_db_op *op,
+                     struct cee_json *json,
+                     struct cee_json **status) {
+  return cee_sqlite3_generic_opcode(cs, json,
                                     op->info,
                                     op->data,
                                     op->stmts,
