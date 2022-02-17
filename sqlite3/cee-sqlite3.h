@@ -14,6 +14,7 @@
  */
 
 struct cee_sqlite3 {
+  char db_name[64];
   sqlite3 *db;
   struct cee_state *state;
 };
@@ -278,4 +279,11 @@ new_cee_sqlite3_db_op(struct cee_state *state,
 
 extern struct cee_sqlite3_bind_info*
 cee_json_to_bind_info(struct cee_json *);
+
+
+/*
+ *
+ *
+ */
+extern void cee_sqlite3_join(struct cee_json *, char *key);
 #endif

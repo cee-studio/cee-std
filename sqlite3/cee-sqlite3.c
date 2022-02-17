@@ -9,7 +9,7 @@ sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts)
 
   int rc = sqlite3_open(dbname, &db);
   if (rc != SQLITE_OK) {
-    fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+    fprintf(stderr, "open %s: %s\n", dbname, sqlite3_errmsg(db));
     sqlite3_close(db);
     db = NULL;
     return NULL;
@@ -21,7 +21,7 @@ sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts)
   char *err_msg=NULL;
   rc = sqlite3_exec(db, "begin transaction;", 0, 0, &err_msg);
   if (rc != SQLITE_OK) {
-    fprintf(stderr, "SQL error: %s\n", err_msg);
+    fprintf(stderr, "SQL error: %s:%s\n", dbname, err_msg);
     sqlite3_free(err_msg);
     sqlite3_close(db);
     return NULL;
@@ -29,7 +29,7 @@ sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts)
 
   rc = sqlite3_exec(db, sqlstmts, 0, 0, &err_msg);
   if (rc != SQLITE_OK) {
-    fprintf(stderr, "SQL error: %s\n", err_msg);
+    fprintf(stderr, "SQL error: %s:%s\n", dbname, err_msg);
     sqlite3_free(err_msg);
     sqlite3_close(db);
     return NULL;
@@ -37,7 +37,7 @@ sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts)
 
   rc = sqlite3_exec(db, "commit;", 0, 0, &err_msg);
   if (rc != SQLITE_OK) {
-    fprintf(stderr, "SQL error: %s\n", err_msg);
+    fprintf(stderr, "SQL error: %s:%s\n", dbname, err_msg);
     sqlite3_free(err_msg);
     sqlite3_close(db);
     return NULL;
@@ -170,7 +170,7 @@ int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
     return rc;
   }
   else
-    cee_json_set_error(ret, "sqlite3:[%d]'%s' -> %s", rc, sql, sqlite3_errmsg(db));
+    cee_json_set_error(ret, "SQL:%s:[%d]'%s' -> %s", cs->db_name, rc, sql, sqlite3_errmsg(db));
   return rc;
 }
 
@@ -212,14 +212,14 @@ int cee_sqlite3_update_or_insert(struct cee_sqlite3 *cs,
     }
     rc = cee_sqlite3_bind_run_sql(cs, info, data, update, NULL, status);
     if (rc != SQLITE_DONE)
-      cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, update, sqlite3_errmsg(db));
+      cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s", cs->db_name, rc, update, sqlite3_errmsg(db));
   }
   else {
     char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;
     rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
     if (rc != SQLITE_DONE)
-      cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s",
-                         rc, insert, sqlite3_errmsg(db));
+      cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s",
+                         cs->db_name, rc, insert, sqlite3_errmsg(db));
     else if (result) {
       int row_id = sqlite3_last_insert_rowid(db);
       cee_json_object_set_i64(result, "last_insert_rowid", row_id);
@@ -243,7 +243,7 @@ int cee_sqlite3_insert(struct cee_sqlite3 *cs,
   accept_result(state, status, &result);
   rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
   if (rc != SQLITE_DONE)
-    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, insert, sqlite3_errmsg(db));
+    cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s", cs->db_name, rc, insert, sqlite3_errmsg(db));
   else if (result) {
     int row_id = sqlite3_last_insert_rowid(db);
     if (key)
@@ -270,8 +270,8 @@ int cee_sqlite3_delete(struct cee_sqlite3 *cs,
   accept_result(state, status, &result);
   rc = cee_sqlite3_bind_run_sql(cs, info, data, delete_sql, NULL, status);
   if (rc != SQLITE_DONE)
-    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s",
-		       rc, delete_sql, sqlite3_errmsg(db));
+    cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s",
+		       cs->db_name, rc, delete_sql, sqlite3_errmsg(db));
   if (key)
     cee_json_object_set_i64(result, key, sqlite3_changes(cs->db));
   else
@@ -289,7 +289,8 @@ int cee_sqlite3_update(struct cee_sqlite3 *cs,
   int rc;
   rc = cee_sqlite3_update_if_exists(cs, info, data, stmts, status);
   if (rc == SQLITE_OK)
-    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, stmts->select_stmt,
+    cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s",
+                       cs->db_name, rc, stmts->select_stmt,
                        sqlite3_errmsg(cs->db));
   return rc;
 }
@@ -318,7 +319,8 @@ int cee_sqlite3_update_if_exists(struct cee_sqlite3 *cs,
     }
     rc = cee_sqlite3_bind_run_sql(cs, info, data, update, NULL, status);
     if (rc != SQLITE_DONE)
-      cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s", rc, update, sqlite3_errmsg(db));
+      cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s", 
+                         cs->db_name, rc, update, sqlite3_errmsg(db));
   }
   return rc;
 }
@@ -359,7 +361,7 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
     if (status) {
       accept_result(state, status, &result);
       cee_json_object_append(*status, "error", cee_json_select(my_status, ".error"));
-      cee_json_set_error(status, "sqlite3:[%d]'%s' %s", rc, sql, sqlite3_errmsg(db));
+      cee_json_set_error(status, "SQL:%s:[%d]'%s' %s", cs->db_name, rc, sql, sqlite3_errmsg(db));
     }
     return rc;
   }
@@ -493,8 +495,8 @@ int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
   rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
 
   if (rc != SQLITE_DONE)
-    cee_json_set_error(status, "sqlite3:[%d]'%s' -> %s",
-                       rc, insert, sqlite3_errmsg(db));
+    cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s",
+                       cs->db_name, rc, insert, sqlite3_errmsg(db));
   else if (result) {
     int row_id = sqlite3_last_insert_rowid(db);
     cee_json_object_set_i64(*status, "last_insert_rowid", row_id);
