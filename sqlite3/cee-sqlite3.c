@@ -77,6 +77,12 @@ static enum stmt_type get_stmt_type(const char *stmt) {
   cee_segfault();
 }
 
+void cee_sqlite3_init(struct cee_sqlite3 *x, char *db_name, struct cee_state *state, sqlite3 *db)
+{
+   x->db_name = db_name;
+   x->state = state;
+   x->db = db;
+}
 
 int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
                              struct cee_sqlite3_bind_info *info,
