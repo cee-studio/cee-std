@@ -245,7 +245,7 @@ extern size_t cee_list_capacity (struct cee_list *);
  * applies f to each element of the list with cxt
  * if the list is null, return immediately
  */
-extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, int idx, void * e));
+extern int cee_list_iterate (struct cee_list *, void *ctx, int (*f)(void *cxt, int idx, void *e));
 
 extern void cee_list_merge (struct cee_list *dest, struct cee_list *src);
   
@@ -403,8 +403,10 @@ extern struct cee_list * cee_map_values(struct cee_map *m);
 /*
  * applies f to each (k,v) of the map m with ctx
  * if the map is null, return immediately
+ * if f return 0, the process succeeds and the iteration continue
+ * if f return none zero, the process fails and the iteration stop
  */
-extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, void *key, void *value));
+extern int cee_map_iterate(struct cee_map *m, void *ctx, int (*f)(void *ctx, void *key, void *value));
 
 /*
  *

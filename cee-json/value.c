@@ -431,14 +431,14 @@ void cee_json_object_set_u64 (struct cee_json *j, char *key, uint64_t real) {
   cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_u64_mk(st, real));
 }
 
-void cee_json_object_iterate (struct cee_json *j, void *ctx,
-                              void (*f)(void *ctx, struct cee_str *key, struct cee_json *value))
+int cee_json_object_iterate (struct cee_json *j, void *ctx,
+                              int (*f)(void *ctx, struct cee_str *key, struct cee_json *value))
 {
   struct cee_map *o = cee_json_to_object(j);
   if (NULL == o)
     cee_segfault();
-  typedef void (*fnt)(void *, void*, void*);
-  cee_map_iterate(o, ctx, (fnt)f);
+  typedef int (*fnt)(void *, void*, void*);
+  return cee_map_iterate(o, ctx, (fnt)f);
 };
 
 void cee_json_array_append (struct cee_json * j, struct cee_json *v) {
@@ -517,14 +517,14 @@ void cee_json_array_remove(struct cee_json *j, int i) {
     cee_list_remove(o, i);
 }
 
-void cee_json_array_iterate (struct cee_json *j, void *ctx,
-                             void (*f)(void *ctx, int index, struct cee_json *value))
+int cee_json_array_iterate (struct cee_json *j, void *ctx,
+                            int (*f)(void *ctx, int index, struct cee_json *value))
 {
   struct cee_list *o = cee_json_to_array(j);
   if (NULL == o)
     cee_segfault();
-  typedef void (*fnt)(void *, int, void*);
-  cee_list_iterate(o, ctx, (fnt)f);
+  typedef int (*fnt)(void *, int, void*);
+  return cee_list_iterate(o, ctx, (fnt)f);
 };
 
 void cee_json_array_concat (struct cee_json *dest, struct cee_json *src)

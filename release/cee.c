@@ -254,7 +254,7 @@ extern size_t cee_list_capacity (struct cee_list *);
  * applies f to each element of the list with cxt
  * if the list is null, return immediately
  */
-extern void cee_list_iterate (struct cee_list *, void *ctx, void (*f)(void *cxt, int idx, void * e));
+extern int cee_list_iterate (struct cee_list *, void *ctx, int (*f)(void *cxt, int idx, void *e));
 
 extern void cee_list_merge (struct cee_list *dest, struct cee_list *src);
   
@@ -412,8 +412,10 @@ extern struct cee_list * cee_map_values(struct cee_map *m);
 /*
  * applies f to each (k,v) of the map m with ctx
  * if the map is null, return immediately
+ * if f return 0, the process succeeds and the iteration continue
+ * if f return none zero, the process fails and the iteration stop
  */
-extern void cee_map_iterate(struct cee_map *m, void *ctx, void (*f)(void *ctx, void *key, void *value));
+extern int cee_map_iterate(struct cee_map *m, void *ctx, int (*f)(void *ctx, void *key, void *value));
 
 /*
  *
@@ -2438,7 +2440,8 @@ struct cee_list* cee_map_values(struct cee_map *m) {
  */
 struct _cee_map_fn_ctx {
   void *ctx;
-  void (*f)(void *ctx, void *key, void *value);
+  int (*f)(void *ctx, void *key, void *value);
+  int ret;
 };
 
 /*
@@ -2447,12 +2450,16 @@ struct _cee_map_fn_ctx {
 static void _cee_map_apply_each (void *ctx, const void *nodep, const VISIT which, const int depth) {
   struct cee_tuple *p;
   struct _cee_map_fn_ctx * fn_ctx_p = ctx;
+  if (fn_ctx_p->ret)
+    /* the previous iteration has an error, skip the rest iterations */
+    return;
+
   switch(which)
   {
   case preorder:
   case leaf:
     p = *(void **)nodep;
-    fn_ctx_p->f(fn_ctx_p->ctx, p->_[0], p->_[1]);
+    fn_ctx_p->ret = fn_ctx_p->f(fn_ctx_p->ctx, p->_[0], p->_[1]);
     break;
   default:
     break;
@@ -2462,14 +2469,14 @@ static void _cee_map_apply_each (void *ctx, const void *nodep, const VISIT which
 /*
  * iterate
  */
-void cee_map_iterate(struct cee_map *m, void *ctx,
-                     void (*f)(void *ctx, void *key, void *value))
+int cee_map_iterate(struct cee_map *m, void *ctx,
+                    int (*f)(void *ctx, void *key, void *value))
 {
-  if (!m) return;
+  if (!m) return 0;
   struct _cee_map_header *b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
-  struct _cee_map_fn_ctx fn_ctx = { .ctx = ctx, .f = f };
+  struct _cee_map_fn_ctx fn_ctx = { .ctx = ctx, .f = f, .ret = 0 };
   musl_twalk(&fn_ctx, b->_[0], _cee_map_apply_each);
-  return;
+  return fn_ctx.ret;
 }
 
 
@@ -2479,10 +2486,11 @@ struct _cee_map_merge_ctx {
   void* (*merge)(void *ctx, void *old_value, void *new_value);
 };
 
-static void _cee_map__add_kv(void *ctx, void *key, void *value)
+static int _cee_map__add_kv(void *ctx, void *key, void *value)
 {
   struct _cee_map_merge_ctx *mctx = ctx;
   cee_map_add_e(mctx->dest_map, key, value, mctx->merge_ctx, mctx->merge);
+  return 0;
 }
 
 /*
@@ -3549,19 +3557,22 @@ size_t cee_list_capacity (struct cee_list *x) {
   return h->capacity;
 }
 
-void cee_list_iterate (struct cee_list *x, void *ctx,
-         void (*f)(void *cxt, int idx, void *e)) {
-  if (!x) return;
+int cee_list_iterate (struct cee_list *x, void *ctx,
+         int (*f)(void *cxt, int idx, void *e)) {
+  if (!x) return 0;
   struct _cee_list_header *m = (struct _cee_list_header *)((void *)((char *)(x) - (__builtin_offsetof(struct _cee_list_header, _))));
-  int i;
-  for (i = 0; i < m->size; i++)
-    f(ctx, i, x->a[i]);
-  return;
+  int i, ret;
+  for (i = 0; i < m->size; i++) {
+    ret = f(ctx, i, x->a[i]);
+    if (ret) break;
+  }
+  return ret;
 }
 
-static void _cee_list__add_v(void *cxt, int idx, void *e) {
+static int _cee_list__add_v(void *cxt, int idx, void *e) {
   struct cee_list *l = cxt;
   cee_list_append(l, e);
+  return 0;
 }
 
 void cee_list_merge (struct cee_list *dest, struct cee_list *src)
