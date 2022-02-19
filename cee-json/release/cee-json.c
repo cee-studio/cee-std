@@ -167,6 +167,11 @@ extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p, size_t *buf_s
 extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
                            bool force_eof, int *error_at_line);
 
+/*
+ * return non-null pointer if this json has this key in anyone of its children
+ */
+extern void* cee_json_has(struct cee_json *, char *key);
+
 #endif /* CEE_JSON_H */
  
 #ifndef CEE_JSON_TOKENIZER_H
@@ -256,6 +261,46 @@ struct cee_json* cee_json_listify(struct cee_json *j)
   }
   default:
     cee_segfault();
+  }
+}
+
+struct json_has_ctx {
+  char *key;
+  void *found;
+};
+
+static int find_in_elem(void *ctx, int idx, void *val) {
+  struct json_has_ctx *has_ctx = ctx;
+  has_ctx->found = cee_json_has(val, has_ctx->key);
+  return (NULL != has_ctx->found); /* stop if found is not null */
+}
+
+static int match_key(void *ctx, void *key, void *val) {
+  struct json_has_ctx *has_ctx = ctx;
+  if (strcmp(key, has_ctx->key) == 0) {
+    has_ctx->found = val;
+    return 1; /* stop */
+  }
+  has_ctx->found = cee_json_has(val, has_ctx->key);
+  return (NULL != has_ctx->found); /* stop if found is not null */
+}
+
+void* cee_json_has(struct cee_json *j, char *key) {
+  struct json_has_ctx ctx = {0};
+  ctx.key = key;
+  int ret;
+
+  switch (j->t) {
+  case CEE_JSON_ARRAY: {
+    cee_list_iterate(j->value.array, &ctx, find_in_elem);
+    return ctx.found;
+  }
+  case CEE_JSON_OBJECT: {
+    cee_map_iterate(j->value.object, &ctx, match_key);
+    return ctx.found;
+  }
+  default:
+    return NULL;
   }
 }
 
@@ -622,7 +667,7 @@ void cee_json_object_set_u64 (struct cee_json *j, char *key, uint64_t real) {
 }
 
 int cee_json_object_iterate (struct cee_json *j, void *ctx,
-                             int (*f)(void *ctx, struct cee_str *key, struct cee_json *value))
+                              int (*f)(void *ctx, struct cee_str *key, struct cee_json *value))
 {
   struct cee_map *o = cee_json_to_object(j);
   if (NULL == o)
