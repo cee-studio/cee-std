@@ -288,5 +288,8 @@ cee_json_to_bind_info(struct cee_json *);
  *
  *
  */
-extern void cee_sqlite3_join(struct cee_json *, char *key);
+extern void cee_sqlite3_join_json_table(struct cee_sqlite3 *cs,
+					struct cee_list *list,
+					struct cee_sqlite3_bind_info *pairs,
+					char *sql);
 #endif
