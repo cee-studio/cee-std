@@ -529,7 +529,7 @@ struct _combo {
   struct cee_str *insert_values;
 };
 
-static void
+static int
 populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
   struct _combo *p = ctx;
   struct cee_sqlite3_bind_info *info = p->info;
@@ -544,39 +544,46 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
             cee_json_array_append_strf(p->used,"%s", info[i].col_name);
             data[i].has_value = 1;
           }
-          else
+          else {
             cee_json_array_append_strf(p->errors, "'%s' should be int",
                                        info[i].col_name);
+            return 1;
+          }
           break;
         case CEE_SQLITE3_INT64:
           if (cee_json_to_i64(value, &data[i].i64)) {
             cee_json_array_append_strf(p->used,"%s", info[i].col_name);
             data[i].has_value = 1;
           }
-          else
+          else {
             cee_json_array_append_strf(p->errors, "'%s' should be int64",
                                        info[i].col_name);
+            return 1;
+          }
           break;
         case CEE_SQLITE3_TEXT:
           if ((data[i].value = cee_json_to_str(value)->_)) {
             cee_json_array_append_strf(p->used,"%s", info[i].col_name);
             data[i].has_value = 1;
           }
-          else
+          else {
             cee_json_array_append_strf(p->errors, "'%s' should be text",
                                        info[i].col_name);
+            return 1;
+          }
           break;
         case CEE_SQLITE3_BLOB:
           // decode the string as base64 encoding
           cee_json_array_append_strf(p->errors, "'%s' should be blob and is not supported yet",
                                      info[i].col_name);
-          break;
+          return 1;
       }
-      return;
+      return 0;
     }
   }
   // report this value is ignored
   cee_json_array_append(p->unused, cee_json_str_mkf(p->state, "%s", key->_));
+  return 0;
 }
 
 
@@ -867,7 +874,7 @@ struct info_state {
   int size;
 };
 
-static void f (void *cxt, struct cee_str *key, struct cee_json *val) {
+static int f (void *cxt, struct cee_str *key, struct cee_json *val) {
   struct info_state *is = cxt;
   struct cee_sqlite3_bind_info *info = is->info;
 
@@ -884,7 +891,7 @@ static void f (void *cxt, struct cee_str *key, struct cee_json *val) {
         info[i].type = CEE_SQLITE3_TEXT;
         break;
       case CEE_JSON_NULL:
-        return;
+        return 0;
       default:
         fprintf(stderr, "%d", val->t);
         cee_segfault();
@@ -892,8 +899,8 @@ static void f (void *cxt, struct cee_str *key, struct cee_json *val) {
     info[i].col_name = cee_str_mk(is->state,  "%s", key->_)->_;
     info[i].var_name = cee_str_mk(is->state, "@%s", key->_)->_;
     info[i].data.has_value = 1;
-    return;
   }
+  return 0;
 }
 
 struct cee_sqlite3_bind_info *
