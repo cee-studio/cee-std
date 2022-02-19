@@ -18,6 +18,7 @@ cee-json.h
 cee-json.c"
 
 sqlite3_list="
+join.c
 cee-sqlite3.h
 cee-sqlite3.c"
 
