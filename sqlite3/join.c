@@ -15,17 +15,18 @@ static int join_one (void *ctx, int idx, void *elem) {
   for (i = 0; pairs[i].var_name; i++) {
     if (0 == pairs[i].data.has_value)
       continue;
-    struct cee_json *value = cee_json_object_get(elem, pairs[i].col_name);
+    struct cee_json *value = cee_json_object_get(elem, pairs[i].ext_name);
     if (NULL == value) {
       cee_json_object_set_strf(one, "error",
-                               "cannot find json key %s", pairs[i].col_name);
+                               "cannot find json key %s", pairs[i].ext_name);
       return 1; /* stop */
     }
     switch(value->t) {
       case CEE_JSON_I64:
         if (!cee_json_to_int(value, &pairs[i].data.i)) {
           cee_json_object_set_strf(one, "error",
-                                   "failed to convert json key %s's value to int", pairs[i].col_name);
+                                   "failed to convert json key %s's value to int", 
+                                   pairs[i].ext_name);
           return 1; /* stop */
         }
         break; /* switch */
