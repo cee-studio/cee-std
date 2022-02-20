@@ -13,13 +13,14 @@ static int join_one (void *ctx, int idx, void *elem) {
 
   int i;
   for (i = 0; pairs[i].var_name; i++) {
+    if (0 == pairs[i].data.has_value)
+      continue;
     struct cee_json *value = cee_json_object_get(elem, pairs[i].col_name);
     if (NULL == value) {
       cee_json_object_set_strf(one, "error",
                                "cannot find json key %s", pairs[i].col_name);
       return 1; /* stop */
     }
-    pairs[i].data.has_value = 1;
     switch(value->t) {
       case CEE_JSON_I64:
         if (!cee_json_to_int(value, &pairs[i].data.i)) {
@@ -53,9 +54,6 @@ void cee_sqlite3_json_array_join_table(struct cee_sqlite3 *cs,
   join_ctx.cs = cs;
   join_ctx.sql = sql;
   join_ctx.pairs = pairs;
-  int i;
-  for (i = 0; pairs[i].var_name; i++)
-    pairs[i].data.has_value = 0;
   struct cee_list *list = cee_json_to_array(json);
   cee_list_iterate(list, &join_ctx, join_one);
 }
@@ -69,8 +67,5 @@ void cee_sqlite3_json_object_join_table(struct cee_sqlite3 *cs,
   join_ctx.cs = cs;
   join_ctx.sql = sql;
   join_ctx.pairs = pairs;
-  int i;
-  for (i = 0; pairs[i].var_name; i++)
-    pairs[i].data.has_value = 0;
   join_one(&join_ctx, 0, json);
 }
