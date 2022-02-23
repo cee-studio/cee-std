@@ -921,7 +921,7 @@ int
 cee_sqlite3_max_int(struct cee_sqlite3 *cs, char *int_column_name,
 		    char *from_clause, struct cee_json **status) {
   char qx[128];
-  snprintf(qx, sizeof qx, "select max(%s) as max_value from %s;",
+  snprintf(qx, sizeof qx, "select max(%s) as max_value %s;",
            int_column_name, from_clause);
 
   struct cee_json *input = NULL, *max_value = NULL;
