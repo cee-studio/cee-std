@@ -931,6 +931,9 @@ cee_sqlite3_max_int(struct cee_sqlite3 *cs, char *int_column_name,
     return -1;
   }
 
+  if (NULL == input)
+    return 1;
+
   if ((max_value = cee_json_select(input, ".max_value:n"))) {
     int int_value = 0;
     if (cee_json_to_int(max_value, &int_value))
