@@ -108,6 +108,9 @@ extern void * cee_block_mk (struct cee_state * s, size_t n);
  */
 void * cee_block_mk_e (struct cee_state *s, size_t n, void *cxt, void (*init_f)(void *cxt, void *block));
 
+
+size_t cee_block_size (struct cee_block *b);
+
 /*
  * C string is an array of chars, it may or may not be terminated by '\0'.
  * 

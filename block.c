@@ -74,3 +74,10 @@ void * cee_block_mk_e (struct cee_state *s, size_t n, void *cxt, void (*init_f)(
   init_f(cxt, block);
   return block;
 }
+
+
+size_t cee_block_size (struct cee_block *b)
+{
+  struct S(header) *h = FIND_HEADER(b);
+  return h->capacity;
+}
