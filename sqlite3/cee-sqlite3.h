@@ -48,6 +48,7 @@ struct cee_sqlite3_bind_data {
 };
 
 struct cee_sqlite3_bind_info {
+  int index; /* start from 0, it is a help field, it's not used */
   char *var_name; /* name for the binding variable */
   char *col_name; /* db column name */
   char *ext_name; /* external name */
