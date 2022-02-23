@@ -915,3 +915,25 @@ cee_json_to_bind_info(struct cee_json *input) {
   cee_json_object_iterate(input, &is, f);
   return (void *)block;
 }
+
+
+int
+cee_sqlite3_next_int(struct cee_sqlite3 *cs, char *int_column_name,
+		     char *from_clause, struct cee_json **status) {
+  char qx[128];
+  snprintf(qx, sizeof qx, "select max(%s) as max_value from %s;",
+           int_column_name, from_clause);
+
+  struct cee_json *input = NULL, *max_value = NULL;
+  cee_sqlite3_select1(cs, NULL, NULL, qx, &input);
+  if (cee_json_select(input, ".error")) {
+    *status = input;
+    return -1;
+  }
+
+  max_value = cee_json_select(input, ".max_value:n");
+  int int_value = 0;
+  if (max_value)
+    cee_json_to_int(max_value, &int_value);
+  return int_value ++, int_value;
+}
