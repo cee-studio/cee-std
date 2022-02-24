@@ -22,7 +22,7 @@ struct cee_sqlite3 {
 extern void cee_sqlite3_init(struct cee_sqlite3 *x, char *db_name, 
                              struct cee_state *state, sqlite3 *db);
 
-extern sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts);
+extern sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts, bool transaction);
 
 #define cee_sqlite3_begin_transaction(db)  sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL)
 #define cee_sqlite3_end_transaction(db)    sqlite3_exec(db, "end transaction;", NULL, NULL, NULL)
