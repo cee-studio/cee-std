@@ -921,9 +921,15 @@ cee_json_to_bind_info(struct cee_json *input) {
 }
 
 
+/*
+ * from_clause
+ * snprintf(from_clause, sizeof from_clause,
+ *          "from builder_screenshot where user_id=%d", p.user_id);
+ * cee_sqlite3_max_int(cs, "sub_id", from_clause, &status);
+ */
 int
 cee_sqlite3_max_int(struct cee_sqlite3 *cs, char *int_column_name,
-		    char *from_clause, struct cee_json **status) {
+                    char *from_clause, struct cee_json **status) {
   char qx[128];
   snprintf(qx, sizeof qx, "select max(%s) as max_value %s;",
            int_column_name, from_clause);
