@@ -349,11 +349,16 @@ dont_return_colum(struct cee_sqlite3_bind_info *info, char *colum_name)
 /*
  * returned value is a JSON array
  */
-int cee_sqlite3_select(struct cee_sqlite3 *cs,
-                       struct cee_sqlite3_bind_info *info,
-                       struct cee_sqlite3_bind_data *data,
-                       char *sql,
-                       struct cee_json **status)
+int cee_sqlite3_select_iter(struct cee_sqlite3 *cs,
+                            struct cee_sqlite3_bind_info *info,
+                            struct cee_sqlite3_bind_data *data,
+                            char *sql,
+                            void *cls,
+                            int (*f)(void *cls,
+			             struct cee_state *state,
+                                     struct cee_sqlite3_bind_info *info,
+                                     sqlite3_stmt *stmt),
+                            struct cee_json **status)
 {
   if (status) {
     if (*status && (NULL == cee_json_to_array(*status)))
@@ -364,7 +369,7 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
   struct cee_state *state = cs->state;
   sqlite3 *db = cs->db;  
   sqlite3_stmt *stmt = NULL;
-  struct cee_json *result = NULL, *my_status = NULL, *array = cee_json_array_mk(state, 1);
+  struct cee_json *result = NULL, *my_status = NULL;
   
   int rc = cee_sqlite3_bind_run_sql(cs, info, data, sql, &stmt, &my_status);
   if (rc != SQLITE_ROW && rc != SQLITE_DONE) {
@@ -376,14 +381,29 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
     return rc;
   }
   while (rc != SQLITE_DONE) {
-    struct cee_json *obj = cee_json_object_mk(state);
-    cee_json_array_append(array, obj);
+    if (f(cls, state, info, stmt)) {
+      sqlite3_finalize(stmt);
+      return SQLITE_DONE;
+    }
+    rc = sqlite3_step(stmt);
+  }
+  sqlite3_finalize(stmt);
+  return rc;
+}
 
-    int i, num_cols = sqlite3_column_count(stmt);
-    for (i = 0; i < num_cols; i++) {
-      char *name = (char *)sqlite3_column_name(stmt, i);
-      if (dont_return_colum(info, name)) continue;
-      switch(sqlite3_column_type(stmt, i)) {
+static int
+get_a_row (void *cls, struct cee_state *state,
+	   struct cee_sqlite3_bind_info *info,
+	   sqlite3_stmt *stmt) {
+  struct cee_json *array = cls;
+  struct cee_json *obj = cee_json_object_mk(state);
+  cee_json_array_append(array, obj);
+
+  int i, num_cols = sqlite3_column_count(stmt);
+  for (i = 0; i < num_cols; i++) {
+    char *name = (char *)sqlite3_column_name(stmt, i);
+    if (dont_return_colum(info, name)) continue;
+    switch(sqlite3_column_type(stmt, i)) {
       case SQLITE_INTEGER:
         cee_json_object_set_i64(obj, name, sqlite3_column_int64(stmt, i));
         break;
@@ -397,25 +417,33 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
         cee_json_object_set(obj, name, cee_json_null());
         break;
       case SQLITE_BLOB: {
-          size_t bytes = sqlite3_column_bytes(stmt, i);
-          const void *data = sqlite3_column_blob(stmt, i);
-          struct cee_json *blob = cee_json_blob_mk (state, data, bytes);
-          cee_json_object_set(obj, name, blob);
-        }
-        break;
+        size_t bytes = sqlite3_column_bytes(stmt, i);
+        const void *data = sqlite3_column_blob(stmt, i);
+        struct cee_json *blob = cee_json_blob_mk (state, data, bytes);
+        cee_json_object_set(obj, name, blob);
       }
+        break;
     }
-    rc = sqlite3_step(stmt);
   }
-  sqlite3_finalize(stmt);
-
-  if (status) {
+  return 0; /* success */
+}
+/*
+ * returned value is a JSON array
+ */
+int cee_sqlite3_select(struct cee_sqlite3 *cs,
+                       struct cee_sqlite3_bind_info *info,
+                       struct cee_sqlite3_bind_data *data,
+                       char *sql,
+                       struct cee_json **status)
+{
+  struct cee_json *array = cee_json_array_mk(cs->state, 10);
+  int rc = cee_sqlite3_select_iter(cs, info, data, sql, array, get_a_row, status);
+  if (rc == SQLITE_DONE && status) {
     if (*status)
       cee_json_merge(*status, array);
     else
       *status = array;
   }
-  
   return rc;
 }
 

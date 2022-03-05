@@ -145,11 +145,23 @@ cee_sqlite3_update_or_insert(struct cee_sqlite3 *cs,
                              struct cee_sqlite3_stmt_strs *stmts,
                              struct cee_json **status);
 
-  
+
+extern int
+cee_sqlite3_select_iter(struct cee_sqlite3 *cs,
+			struct cee_sqlite3_bind_info *info,
+			struct cee_sqlite3_bind_data *data,
+			char *sql,
+			void *cls,
+			int (*f)(void *cls,
+				 struct cee_state *state,
+				 struct cee_sqlite3_bind_info *info,
+				 sqlite3_stmt *stmt),
+			struct cee_json **status);
+
 /*
  * the returned value is a json_array
  */
-int 
+extern int 
 cee_sqlite3_select(struct cee_sqlite3 *cs,
                    struct cee_sqlite3_bind_info *info,
                    struct cee_sqlite3_bind_data *data,
@@ -160,7 +172,7 @@ cee_sqlite3_select(struct cee_sqlite3 *cs,
  * status -> { key: list of selected items }
  * if key exists, the values are merged.
  */
-int 
+extern int 
 cee_sqlite3_select_as(struct cee_sqlite3 *cs,
                       struct cee_sqlite3_bind_info *info,
                       struct cee_sqlite3_bind_data *data,
@@ -171,7 +183,7 @@ cee_sqlite3_select_as(struct cee_sqlite3 *cs,
 /*
  * the returned value is a json_object
  */
-int 
+extern int
 cee_sqlite3_select1(struct cee_sqlite3 *cs,
                     struct cee_sqlite3_bind_info *info,
                     struct cee_sqlite3_bind_data *data,
@@ -182,7 +194,7 @@ cee_sqlite3_select1(struct cee_sqlite3 *cs,
 /*
  * status -> { key: the selected value }
  */
-int 
+extern int 
 cee_sqlite3_select1_as(struct cee_sqlite3 *cs,
                        struct cee_sqlite3_bind_info *info,
                        struct cee_sqlite3_bind_data *data,
