@@ -40,6 +40,7 @@ enum cee_sqlite3_type {
  * the value of binding data
  */
 struct cee_sqlite3_bind_data {
+  int index; /* start from 0, it is a help field, it's not used */
   int i;
   int64_t i64;
   char *value;
