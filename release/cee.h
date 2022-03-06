@@ -6,6 +6,15 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
+/*
+ * for operations that might fail, this is aligned with
+ * how shell treats the exit of a process.
+ */
+enum cee_status {
+  cee_success = 0,
+  cee_failure = 100
+};
+
 struct cee_state; /* forwarding */
 
 typedef uintptr_t cee_tag_t;
