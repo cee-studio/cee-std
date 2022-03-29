@@ -317,4 +317,9 @@ cee_sqlite3_json_object_join_table(struct cee_sqlite3 *cs,
 extern int
 cee_sqlite3_max_int(struct cee_sqlite3 *cs, char *int_column_name,
 		    char *from_clause, struct cee_json **status);
+
+extern int
+cee_sqlite3_insert_json_array(struct cee_sqlite3 *cs,
+                              char *table_name,
+                              struct cee_json *array);
 #endif

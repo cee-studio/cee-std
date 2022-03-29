@@ -355,7 +355,7 @@ int cee_sqlite3_select_iter(struct cee_sqlite3 *cs,
                             char *sql,
                             void *cls,
                             int (*f)(void *cls,
-			             struct cee_state *state,
+                                     struct cee_state *state,
                                      struct cee_sqlite3_bind_info *info,
                                      sqlite3_stmt *stmt),
                             struct cee_json **status)
@@ -980,4 +980,98 @@ cee_sqlite3_max_int(struct cee_sqlite3 *cs, char *int_column_name,
 
   *status = input;
   return -1;
+}
+
+
+struct insert_columns_values {
+  struct cee_str *insert_colums;
+  struct cee_str *insert_values;
+  struct cee_sqlite3_bind_info info [50];
+  int idx;
+};
+
+static int
+collect_colums_values (void *ctx, struct cee_str *key, struct cee_json *val) {
+  struct insert_columns_values *p = ctx;
+  struct cee_sqlite3_bind_info *info_p = p->info + p->idx;
+  struct cee_state *state = cee_get_state(p->insert_colums);
+  char comma = ',';
+
+  if (strcmp(p->insert_colums->_, "") == 0)
+    comma = ' ';
+
+  p->insert_colums = cee_str_catf(p->insert_colums, "%c%s", comma, key->_);
+
+  switch(val->t) {
+  case CEE_JSON_NULL:
+    p->insert_values = cee_str_catf(p->insert_values, "%cnull", comma);
+    return 0;
+  case CEE_JSON_STRING:
+    p->insert_values = cee_str_catf(p->insert_values, "%c@%s", comma, key->_);
+    info_p->type = CEE_SQLITE3_TEXT;
+    info_p->data.value = val->value.string->_;
+    info_p->data.has_value = 1;
+    break;
+  case CEE_JSON_I64:
+    p->insert_values = cee_str_catf(p->insert_values, "%c@%s", comma, key->_);
+    info_p->type = CEE_SQLITE3_INT64;
+    info_p->data.i64 = val->value.boxed->_.i64;
+    info_p->data.has_value = 1;
+    break;
+  default:
+    cee_segfault();
+  }
+
+  info_p->col_name = key->_;
+  info_p->var_name = cee_str_mk(state, "@%s", key->_)->_;
+  p->idx ++;
+  return 0;
+}
+
+struct insert_more_ctx {
+  char *table_name;
+  struct cee_sqlite3 *cs;
+};
+
+static int
+insert_one_json_object (void *ctx, int idx, struct cee_json *one) {
+  struct insert_more_ctx *p = ctx;
+  struct cee_state *state = cee_state_mk(10);
+  struct cee_block *sql;
+  int size;
+
+  struct insert_columns_values one_ctx = {0};
+  one_ctx.insert_colums = cee_str_mk(state, "");
+  one_ctx.insert_values = cee_str_mk(state, "");
+  cee_json_object_iterate(one, &one_ctx, collect_colums_values);
+  size = snprintf(NULL, 0, "insert into %s (%s) values (%s);",
+                  p->table_name,
+                  one_ctx.insert_colums->_,
+                  one_ctx.insert_values->_);
+  size ++;
+  sql = cee_block_mk(state, size);
+  snprintf(sql->_, size, "insert into %s (%s) values (%s);",
+           p->table_name,
+           one_ctx.insert_colums->_,
+           one_ctx.insert_values->_);
+  char *err_msg = NULL;
+  fprintf(stderr, "%s\n", sql->_);
+  struct cee_json *status = NULL;
+  cee_sqlite3_insert(p->cs, one_ctx.info, NULL, sql->_, &status, NULL);
+  char *buf; size_t len;
+  cee_json_asprint(state, &buf, &len, status, 0);
+  fprintf(stderr, "%s\n", buf);
+  cee_del(state);
+  return 0;
+}
+
+int
+cee_sqlite3_insert_json_array(struct cee_sqlite3 *cs,
+                              char *table_name,
+                              struct cee_json *array)
+{
+  struct insert_more_ctx  ctx;
+  ctx.table_name = table_name;
+  ctx.cs = cs;
+  return cee_json_array_iterate(array, &ctx, insert_one_json_object);
 }
