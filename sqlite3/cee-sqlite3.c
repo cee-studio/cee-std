@@ -573,6 +573,8 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
 
   for (i = 0; info[i].var_name; i++) {
     if (strcmp(key->_, info[i].col_name) == 0) {
+      if (!info[i].not_null && value->t == CEE_JSON_NULL) continue;
+
       switch (info[i].type) {
         case CEE_SQLITE3_INT:
           if (cee_json_to_int(value, &data[i].i)) {
