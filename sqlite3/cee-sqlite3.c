@@ -578,13 +578,12 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
   for (i = 0; info[i].var_name; i++) {
     if (strcmp(key->_, info[i].col_name) == 0) {
       if (value->t == CEE_JSON_NULL) {
-        if (!info[i].not_null)
-          continue;
-        else {
+        if( !info[i].not_null ) {
           cee_json_array_append_strf(p->used, "%s", info[i].col_name);
           data[i].has_value = 1;
           data[i].is_null = 1;
         }
+        return 0;
       }
 
       switch (info[i].type) {
