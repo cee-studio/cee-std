@@ -129,49 +129,53 @@ int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
         else if (info[i].data.has_value)
           data_p = &(info[i].data);
         else if (stmt_type == INSERT && info[i].not_null) {
-          switch(info[i].type)
-            {
-            case CEE_SQLITE3_INT:
-              sqlite3_bind_int(sql_stmt, idx, 0);
-              break;
-            case CEE_SQLITE3_INT64:
-              sqlite3_bind_int64(sql_stmt, idx, 0);
-              break;
-            case CEE_SQLITE3_TEXT:
-              sqlite3_bind_text(sql_stmt, idx, "", 0, SQLITE_STATIC);
-              break;
-            case CEE_SQLITE3_BLOB:
-              sqlite3_bind_blob(sql_stmt, idx, "", 0, SQLITE_STATIC);
-              break;
-            default:
-              cee_segfault();
-              break;
-            }
-          continue;
-        }
-        else
-          continue;
-
-        switch(info[i].type) 
-          {
+          /* use default values for non-null fields */
+          switch(info[i].type) {
           case CEE_SQLITE3_INT:
-            sqlite3_bind_int(sql_stmt, idx, data_p->i);
+            sqlite3_bind_int(sql_stmt, idx, 0);
             break;
           case CEE_SQLITE3_INT64:
-            sqlite3_bind_int64(sql_stmt, idx, data_p->i64);
+            sqlite3_bind_int64(sql_stmt, idx, 0);
             break;
           case CEE_SQLITE3_TEXT:
-            sqlite3_bind_text(sql_stmt, idx, data_p->value, 
-                              data_p->size == 0 ? -1: data_p->size, SQLITE_STATIC);
+            sqlite3_bind_text(sql_stmt, idx, "", 0, SQLITE_STATIC);
             break;
           case CEE_SQLITE3_BLOB:
-            sqlite3_bind_blob(sql_stmt, idx, data_p->value, 
-                              data_p->size, SQLITE_STATIC);
+            sqlite3_bind_blob(sql_stmt, idx, "", 0, SQLITE_STATIC);
             break;
           default:
             cee_segfault();
             break;
           }
+          continue;
+        }
+        else
+          continue;
+
+        if (data_p->is_null && !info[i].not_null) {
+          sqlite3_bind_null(sql_stmt, idx);
+          continue;
+        }
+
+        switch (info[i].type) {
+        case CEE_SQLITE3_INT:
+          sqlite3_bind_int(sql_stmt, idx, data_p->i);
+          break;
+        case CEE_SQLITE3_INT64:
+          sqlite3_bind_int64(sql_stmt, idx, data_p->i64);
+          break;
+        case CEE_SQLITE3_TEXT:
+          sqlite3_bind_text(sql_stmt, idx, data_p->value,
+                            data_p->size == 0 ? -1 : data_p->size,
+                            SQLITE_STATIC);
+          break;
+        case CEE_SQLITE3_BLOB:
+          sqlite3_bind_blob(sql_stmt, idx, data_p->value,
+                            data_p->size, SQLITE_STATIC);
+          break;
+        default:
+          cee_segfault();
+        }
       }
     }
     rc = sqlite3_step(sql_stmt);
@@ -573,7 +577,15 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
 
   for (i = 0; info[i].var_name; i++) {
     if (strcmp(key->_, info[i].col_name) == 0) {
-      if (!info[i].not_null && value->t == CEE_JSON_NULL) continue;
+      if (value->t == CEE_JSON_NULL) {
+        if (!info[i].not_null)
+          continue;
+        else {
+          cee_json_array_append_strf(p->used, "%s", info[i].col_name);
+          data[i].has_value = 1;
+          data[i].is_null = 1;
+        }
+      }
 
       switch (info[i].type) {
         case CEE_SQLITE3_INT:

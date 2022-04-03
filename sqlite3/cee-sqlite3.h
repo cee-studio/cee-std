@@ -46,6 +46,7 @@ struct cee_sqlite3_bind_data {
   char *value;
   size_t size;
   int has_value;
+  int is_null;
 };
 
 struct cee_sqlite3_bind_info {
