@@ -565,7 +565,7 @@ int cee_json_array_iterate (struct cee_json *j, void *ctx,
     cee_segfault();
   typedef int (*fnt)(void *, int, void*);
   return cee_list_iterate(o, ctx, (fnt)f);
-};
+}
 
 void cee_json_array_concat (struct cee_json *dest, struct cee_json *src)
 {
