@@ -3,60 +3,66 @@
 #include <string.h>
 #include <ctype.h>
 
-sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts, bool transaction)
-{
-  sqlite3 *db;
-
-  int rc = sqlite3_open(dbname, &db);
-  if (rc != SQLITE_OK) {
-    fprintf(stderr, "open %s: %s\n", dbname, sqlite3_errmsg(db));
-    sqlite3_close(db);
-    db = NULL;
-    return NULL;
+void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, bool transaction){
+  sqlite3 *db = NULL;
+  int rc;
+  if( db_p != NULL && *db_p != NULL )
+    db = *db_p;
+  else {
+    rc = sqlite3_open(db_file, &db);
+    if( rc != SQLITE_OK ){
+      fprintf(stderr, "open %s: %s\n", db_file, sqlite3_errmsg(*db_p));
+      db = NULL;
+      goto my_ret;
+    }
   }
 
-  if (!sqlstmts)
-    return db;
+  if( sqlstmts == NULL )
+    goto my_ret;
 
   char *err_msg=NULL;
-  if (transaction) {
+  if( transaction ){
     rc = sqlite3_exec(db, "begin transaction;", 0, 0, &err_msg);
-    if (rc != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s:%s\n", dbname, err_msg);
+    if( rc != SQLITE_OK ){
+      fprintf(stderr, "SQL error: %s:%s\n", db_file, err_msg);
       sqlite3_free(err_msg);
-      sqlite3_close(db);
-      return NULL;
+      db = NULL;
+      goto my_ret;
     }
   }
 
   rc = sqlite3_exec(db, sqlstmts, 0, 0, &err_msg);
-  if (rc != SQLITE_OK) {
-    fprintf(stderr, "SQL error: %s:%s\n", dbname, err_msg);
+  if( rc != SQLITE_OK ){
+    fprintf(stderr, "SQL exec %s error: %s:%s\n", sqlstmts, db_file, err_msg);
     sqlite3_free(err_msg);
-    sqlite3_close(db);
-    return NULL;
+    db = NULL;
+    goto my_ret;
   }
 
-  if (transaction) {
+  if( transaction ){
     rc = sqlite3_exec(db, "commit;", 0, 0, &err_msg);
     if (rc != SQLITE_OK) {
-      fprintf(stderr, "SQL error: %s:%s\n", dbname, err_msg);
+      fprintf(stderr, "SQL error: %s:%s\n", db_file, err_msg);
       sqlite3_free(err_msg);
-      sqlite3_close(db);
-      return NULL;
+      db = NULL;
+      goto my_ret;
     }
   }
-  return db;
+
+  my_ret:
+  if( db_p == NULL ){
+    if( db != NULL)
+      sqlite3_close(db);
+  }else
+    *db_p = db;
+  return;
 }
 
-void cee_sqlite3_drop_all_tables(char *dbname) {
+void cee_sqlite3_drop_all_tables(sqlite3 **db, char *db_file){
   char *stmt = "PRAGMA writable_schema = 1;\n"
     "delete from sqlite_master where type in ('table', 'index', 'trigger');\n"
     "PRAGMA writable_schema = 0;\n";
-
-  sqlite3 *db = cee_sqlite3_init_db(dbname, stmt, true);
-  if (db)
-    sqlite3_close(db);
+  cee_sqlite3_init_db(db, db_file, stmt, true);
 }
 
 enum stmt_type {

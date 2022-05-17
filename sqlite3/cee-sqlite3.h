@@ -22,12 +22,12 @@ struct cee_sqlite3 {
 extern void cee_sqlite3_init(struct cee_sqlite3 *x, char *db_name, 
                              struct cee_state *state, sqlite3 *db);
 
-extern sqlite3* cee_sqlite3_init_db(char *dbname, char *sqlstmts, bool transaction);
+extern void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, bool transaction);
 
 #define cee_sqlite3_begin_transaction(db)  sqlite3_exec(db, "begin transaction;", NULL, NULL, NULL)
 #define cee_sqlite3_end_transaction(db)    sqlite3_exec(db, "end transaction;", NULL, NULL, NULL)
 
-extern void cee_sqlite3_drop_all_tables(char *dbname);
+extern void cee_sqlite3_drop_all_tables(sqlite3 **db_p, char *dbname);
 
 enum cee_sqlite3_type {
   CEE_SQLITE3_INT,
