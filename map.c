@@ -145,13 +145,14 @@ void* cee_map_add(struct cee_map * m, void * key, void * value) {
   return cee_map_add_e(m, key, value, NULL, NULL);
 }
 
-void * cee_map_find(struct cee_map * m, void * key) {
+void* cee_map_find(struct cee_map * m, void * key){
+  if( key == NULL ) return NULL;
   struct S(header) * b = FIND_HEADER(m);
   struct cee_tuple t = { key, 0 };
   struct cee_tuple **pp = musl_tfind(b, &t, b->_, S(cmp));
-  if (pp == NULL)
+  if( pp == NULL )
     return NULL;
-  else {
+  else{
     struct cee_tuple *p = *pp;
     return p->_[1];
   }
