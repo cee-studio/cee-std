@@ -2326,6 +2326,7 @@ uintptr_t cee_map_size(struct cee_map * m) {
 
 void* cee_map_add_e(struct cee_map * m, void * key, void * value,
       void *ctx, void* (*merge)(void *ctx, void *old_value, void *new_value)) {
+  if( key == NULL ) return NULL;
   struct _cee_map_header * b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
 
   struct cee_tuple *t, *t1 = NULL, **oldp;
@@ -2349,8 +2350,7 @@ void* cee_map_add_e(struct cee_map * m, void * key, void * value,
     cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); /* do nothing for t[1] */
     cee_del(t);
     return old_value;
-  }
-  else
+  }else
     b->size ++;
   return NULL;
 }
@@ -2359,25 +2359,27 @@ void* cee_map_add(struct cee_map * m, void * key, void * value) {
   return cee_map_add_e(m, key, value, NULL, NULL);
 }
 
-void * cee_map_find(struct cee_map * m, void * key) {
+void* cee_map_find(struct cee_map * m, void * key){
+  if( key == NULL ) return NULL;
   struct _cee_map_header * b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
   struct cee_tuple t = { key, 0 };
   struct cee_tuple **pp = musl_tfind(b, &t, b->_, _cee_map_cmp);
-  if (pp == NULL)
+  if( pp == NULL )
     return NULL;
-  else {
+  else{
     struct cee_tuple *p = *pp;
     return p->_[1];
   }
 }
 
-void * cee_map_remove(struct cee_map * m, void *key) {
+void* cee_map_remove(struct cee_map * m, void *key){
+  if( key == NULL ) return NULL;
   struct _cee_map_header *b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
   struct cee_tuple t = { key, 0 };
   struct cee_tuple **pp = musl_tfind(b, &t, b->_, _cee_map_cmp);
-  if (pp == NULL)
+  if( pp == NULL )
     return NULL;
-  else {
+  else{
     b->size --;
     struct cee_tuple *old_t = *pp;
     musl_tdelete(b, &t, b->_, _cee_map_cmp);
@@ -2391,27 +2393,26 @@ void * cee_map_remove(struct cee_map * m, void *key) {
   }
 }
 
-bool cee_map_rename(struct cee_map *m, void *old_key, void *new_key) {
+bool cee_map_rename(struct cee_map *m, void *old_key, void *new_key){
+  if( old_key == NULL || new_key == NULL ) return false;
   void *v = cee_map_remove(m, old_key);
-  if (v) {
+  if( v ){
     cee_map_add(m, new_key, v);
     return true;
-  }
-  else
+  }else
     return false;
 }
 
 static void _cee_map_get_key (void * ctx, const void *nodep, const VISIT which, const int depth) {
   struct cee_tuple * p;
-  switch (which)
-  {
-    case preorder:
-    case leaf:
-      p = *(void **)nodep;
-      cee_list_append(ctx, p->_[0]);
-      break;
-    default:
-      break;
+  switch (which){
+  case preorder:
+  case leaf:
+    p = *(void **)nodep;
+    cee_list_append(ctx, p->_[0]);
+    break;
+  default:
+    break;
   }
 }
 
@@ -2424,17 +2425,16 @@ struct cee_list * cee_map_keys(struct cee_map * m) {
 }
 
 
-static void _cee_map_get_value (void * ctx, const void *nodep, const VISIT which, const int depth) {
+static void _cee_map_get_value (void * ctx, const void *nodep, const VISIT which, const int depth){
   struct cee_tuple * p;
-  switch (which)
-  {
-    case preorder:
-    case leaf:
-      p = *(void **)nodep;
-      cee_list_append(ctx, p->_[1]);
-      break;
-    default:
-      break;
+  switch (which){
+  case preorder:
+  case leaf:
+    p = *(void **)nodep;
+    cee_list_append(ctx, p->_[1]);
+    break;
+  default:
+    break;
   }
 }
 
@@ -2459,15 +2459,14 @@ struct _cee_map_fn_ctx {
 /*
  * helper function for cee_map_iterate
  */
-static void _cee_map_apply_each (void *ctx, const void *nodep, const VISIT which, const int depth) {
+static void _cee_map_apply_each (void *ctx, const void *nodep, const VISIT which, const int depth){
   struct cee_tuple *p;
   struct _cee_map_fn_ctx * fn_ctx_p = ctx;
   if (fn_ctx_p->ret)
     /* the previous iteration has an error, skip the rest iterations */
     return;
 
-  switch(which)
-  {
+  switch(which){
   case preorder:
   case leaf:
     p = *(void **)nodep;
@@ -2482,8 +2481,7 @@ static void _cee_map_apply_each (void *ctx, const void *nodep, const VISIT which
  * iterate
  */
 int cee_map_iterate(struct cee_map *m, void *ctx,
-                    int (*f)(void *ctx, void *key, void *value))
-{
+                    int (*f)(void *ctx, void *key, void *value)){
   if (!m) return 0;
   struct _cee_map_header *b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
   struct _cee_map_fn_ctx fn_ctx = { .ctx = ctx, .f = f, .ret = 0 };
@@ -2492,14 +2490,13 @@ int cee_map_iterate(struct cee_map *m, void *ctx,
 }
 
 
-struct _cee_map_merge_ctx {
+struct _cee_map_merge_ctx{
   struct cee_map *dest_map;
   void *merge_ctx;
   void* (*merge)(void *ctx, void *old_value, void *new_value);
 };
 
-static int _cee_map__add_kv(void *ctx, void *key, void *value)
-{
+static int _cee_map__add_kv(void *ctx, void *key, void *value){
   struct _cee_map_merge_ctx *mctx = ctx;
   cee_map_add_e(mctx->dest_map, key, value, mctx->merge_ctx, mctx->merge);
   return 0;
@@ -2510,14 +2507,12 @@ static int _cee_map__add_kv(void *ctx, void *key, void *value)
  * and keep the src intact.
  */
 void cee_map_merge(struct cee_map *dest, struct cee_map *src,
-     void *ctx, void* (*merge)(void *ctx, void *old, void *new))
-{
+     void *ctx, void* (*merge)(void *ctx, void *old, void *new)){
   struct _cee_map_merge_ctx mctx = { .dest_map = dest, .merge_ctx = ctx, .merge = merge };
   cee_map_iterate(src, &mctx, _cee_map__add_kv);
 }
 
-struct cee_map* cee_map_clone(struct cee_map *src)
-{
+struct cee_map* cee_map_clone(struct cee_map *src){
   struct _cee_map_header *m = (struct _cee_map_header *)((void *)((char *)(src) - (__builtin_offsetof(struct _cee_map_header, _))));
   struct cee_map *new_map = cee_map_mk_e(cee_get_state(src), m->del_policies.a, m->cmp);
   cee_map_merge(new_map, src, NULL, NULL);
