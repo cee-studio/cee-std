@@ -42,10 +42,16 @@ static int join_one (void *ctx, int idx, void *elem) {
       case CEE_JSON_STRING:
         item->value = cee_json_to_str(value)->_;
         break; /* switch */
+      case CEE_JSON_NULL:
+        cee_json_object_set_strf(
+          one, "error", "unsupported json key %s's value is null",
+          info[i].ext_name);
+        return 1; /* stop */
       default:
         /* change to unspported type errors */
         cee_json_object_set_strf(
-          one, "error", "unsupported json key %s's value type %d", value->t);
+          one, "error", "unsupported json key %s's value type %d",
+          info[i].ext_name, value->t);
         return 1; /* stop */
     }
   }
