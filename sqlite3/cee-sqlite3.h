@@ -312,7 +312,7 @@ cee_sqlite3_json_object_join_table(struct cee_sqlite3 *cs,
 				   struct cee_json *json,
 				   struct cee_sqlite3_bind_info *info,
                                    struct cee_sqlite3_bind_data *data,
-				   char *sql);
+				   char *sql, char *key);
 
 
 extern int
