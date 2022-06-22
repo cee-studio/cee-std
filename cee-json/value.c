@@ -334,7 +334,7 @@ bool cee_json_object_convert_to_i64(struct cee_json *j, char *key) {
   
   struct cee_json *old_val = cee_json_object_get(j, key);
   int64_t i64 = 0;
-  if (cee_json_to_i64(old_val, &i64))
+  if (!cee_json_to_i64x(old_val, &i64))
     return true;
 
   if (j->t == CEE_JSON_STRING && !str2i64(j->value.string->_, &i64)) {
