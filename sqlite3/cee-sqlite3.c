@@ -582,7 +582,7 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
 
       switch (info[i].type) {
       case CEE_SQLITE3_INT:
-        if (cee_json_to_int(value, &data[i].i)) {
+        if (!cee_json_to_intx(value, &data[i].i)) {
           cee_json_array_append_strf(p->used,"%s", info[i].col_name);
           data[i].has_value = 1;
         }else{
@@ -592,7 +592,7 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
         }
         break;
       case CEE_SQLITE3_INT64:
-        if (cee_json_to_i64(value, &data[i].i64)) {
+        if (!cee_json_to_i64x(value, &data[i].i64)) {
           cee_json_array_append_strf(p->used,"%s", info[i].col_name);
           data[i].has_value = 1;
         }else{
@@ -920,7 +920,7 @@ static int f (void *cxt, struct cee_str *key, struct cee_json *val) {
     if (info[i].var_name) continue;
     switch (val->t) {
     case CEE_JSON_I64:
-      if (!cee_json_to_int(val, &info[i].data.i))
+      if ( cee_json_to_intx(val, &info[i].data.i))
         cee_segfault();
       info[i].type = CEE_SQLITE3_INT;
       break;
@@ -978,7 +978,7 @@ cee_sqlite3_next_int(struct cee_sqlite3 *cs, char *int_column_name,
 
   if ((max_value = cee_json_select(input, ".max_value:n"))) {
     int int_value = 0;
-    if (cee_json_to_int(max_value, &int_value))
+    if(!cee_json_to_intx(max_value, &int_value))
       return int_value + 1;
   }else if (cee_json_select(input, ".max_value:!")) {
     /* no rows */

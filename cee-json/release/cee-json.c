@@ -83,11 +83,11 @@ extern struct cee_block* cee_json_to_blob (struct cee_json *);
  */
 extern struct cee_json* cee_json_listify(struct cee_json *);
 
-extern bool cee_json_to_double (struct cee_json *, double *);
-extern bool cee_json_to_int (struct cee_json*, int *);
-extern bool cee_json_to_i64 (struct cee_json*, int64_t *);
-extern bool cee_json_to_u64 (struct cee_json*, uint64_t *);
-extern bool cee_json_to_bool(struct cee_json*, bool *);
+extern int cee_json_to_doublex (struct cee_json *, double *);
+extern int cee_json_to_intx (struct cee_json*, int *);
+extern int cee_json_to_i64x (struct cee_json*, int64_t *);
+extern int cee_json_to_u64x (struct cee_json*, uint64_t *);
+extern int cee_json_to_boolx(struct cee_json*, bool *);
 
 extern struct cee_json * cee_json_true ();
 extern struct cee_json * cee_json_false ();
@@ -344,53 +344,53 @@ int cee_json_empty(struct cee_json *p) {
 }
 
 
-bool cee_json_to_double (struct cee_json *p, double *r) {
+int cee_json_to_doublex (struct cee_json *p, double *r) {
   if (p->t == CEE_JSON_DOUBLE) {
     *r = cee_boxed_to_double(p->value.boxed);
-    return true;
+    return 0;
   }
   else
-    return false;
+    return EINVAL;
 }
 
-bool cee_json_to_int (struct cee_json *p, int *r) {
+int cee_json_to_intx (struct cee_json *p, int *r) {
   if (p->t == CEE_JSON_I64) {
     *r = (int)cee_boxed_to_i64(p->value.boxed);
-    return true;
+    return 0;
   }
   else
-    return false;
+    return EINVAL;
 }
 
-bool cee_json_to_i64 (struct cee_json *p, int64_t *r) {
+int cee_json_to_i64x (struct cee_json *p, int64_t *r) {
   if (p->t == CEE_JSON_I64) {
     *r = cee_boxed_to_i64(p->value.boxed);
-    return true;
+    return 0;
   }
   else
-    return false;
+    return EINVAL;
 }
 
-bool cee_json_to_u64 (struct cee_json *p, uint64_t *r) {
+int cee_json_to_u64x (struct cee_json *p, uint64_t *r) {
   if (p->t == CEE_JSON_U64) {
     *r = cee_boxed_to_u64(p->value.boxed);
-    return true;
+    return 0;
   }
   else
-    return false;
+    return EINVAL;
 }
 
-bool cee_json_to_bool(struct cee_json *p, bool *r) {
+int cee_json_to_boolx(struct cee_json *p, bool *r) {
   if (p == cee_json_true()) {
     *r = true;
-    return true;
+    return 0;
   }
   else if (p == cee_json_false()) {
     *r = false;
-    return true;
+    return 0;
   }
   else
-    return false;
+    return EINVAL;
 }
 
 static void* merge_json_value (void *ctx, void *oldv, void *newv)

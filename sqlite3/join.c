@@ -32,7 +32,7 @@ static int join_one (void *ctx, int idx, void *elem) {
     }
     switch (value->t) {
       case CEE_JSON_I64:
-        if (!cee_json_to_int(value, &item->i)) {
+        if( cee_json_to_intx(value, &item->i) ){
           cee_json_object_set_strf(
             one, "error", "failed to convert json key %s's value to int",
             info[i].key);
