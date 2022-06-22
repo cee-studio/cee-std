@@ -5,6 +5,7 @@ struct join_ctx {
   char *sql;
   struct cee_sqlite3_bind_info *info;
   struct cee_sqlite3_bind_data *data;
+  char *key;
 };
 
 static int join_one (void *ctx, int idx, void *elem) {
@@ -25,8 +26,8 @@ static int join_one (void *ctx, int idx, void *elem) {
 
     struct cee_json *value = cee_json_object_get(elem, info[i].ext_name);
     if (value == NULL) {
-      cee_json_object_set_strf(one, "error", "cannot find json key %s",
-                               info[i].ext_name);
+      cee_json_object_set_strf(one, "error", "cannot find json key %s for %s:%s",
+                               info[i].ext_name, info[i].var_name, info[i].col_name);
       return 1; /* stop */
     }
     switch (value->t) {
@@ -48,9 +49,19 @@ static int join_one (void *ctx, int idx, void *elem) {
         return 1; /* stop */
     }
   }
-  cee_sqlite3_select1(join_ctx->cs, info, data, join_ctx->sql, &one);
-  if (cee_json_select(one, ".error"))
-    return 1;
+  if( join_ctx->key == NULL ){
+    cee_sqlite3_select1(join_ctx->cs, info, data, join_ctx->sql, &one);
+    if (cee_json_select(one, ".error"))
+      return 1;
+  }else{
+    struct cee_json *rows = NULL;
+    cee_sqlite3_select(join_ctx->cs, info, data, join_ctx->sql, &rows);
+    if (cee_json_select(rows, ".error"))
+      return 1;
+    cee_json_object_set(one, join_ctx->key, rows);
+  }
+
+
   return 0;
 }
 
@@ -58,8 +69,9 @@ void cee_sqlite3_json_array_join_table(struct cee_sqlite3 *cs,
                                        struct cee_json *json,
                                        struct cee_sqlite3_bind_info *info,
                                        struct cee_sqlite3_bind_data *data,
-                                       char *sql) {
+                                       char *sql, char *key) {
   struct join_ctx join_ctx = {0};
+  join_ctx.key = key;
   join_ctx.cs = cs;
   join_ctx.sql = sql;
   join_ctx.info = info;
