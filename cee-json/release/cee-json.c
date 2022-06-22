@@ -1419,7 +1419,7 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
           pad(&offset, buf, ccnt, f);
           char * s = "false";
           bool b;
-          cee_json_to_bool(cur_json, &b);
+          cee_json_to_boolx(cur_json, &b);
           if (b)
             s = "true";
           if (buf)
