@@ -30,9 +30,9 @@ extern void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, b
 extern void cee_sqlite3_drop_all_tables(sqlite3 **db_p, char *dbname);
 
 enum cee_sqlite3_type {
+  CEE_SQLITE3_TEXT = 0,
   CEE_SQLITE3_INT,
   CEE_SQLITE3_INT64,
-  CEE_SQLITE3_TEXT,
   CEE_SQLITE3_BLOB
 };
   
