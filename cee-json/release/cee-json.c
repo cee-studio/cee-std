@@ -164,8 +164,8 @@ extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
 extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p, size_t *buf_size_p,
                                  struct cee_json *json, enum cee_json_fmt);
 
-extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
-                           bool force_eof, int *error_at_line);
+extern int cee_json_parsex(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
+			   bool force_eof, int *error_at_line);
 
 /*
  * return non-null pointer if this json has this key in anyone of its children
@@ -789,7 +789,7 @@ struct cee_json * cee_json_load_from_file (struct cee_state * st,
 
   int line = 0;
   struct cee_json * j = NULL;
-  if (!cee_json_parse(st, b, size, &j, true, &line)) {
+  if( cee_json_parsex(st, b, size, &j, true, &line) ){
     /*  report error */
     fprintf(stderr, "failed to parse at %d\n", line);
     j = NULL;
@@ -974,8 +974,8 @@ static const uintptr_t cee_json_max_depth = 512;
 
 
 
-bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee_json **out, bool force_eof,
-                    int *error_at_line)
+int cee_json_parsex(struct cee_state * st, char * buf, uintptr_t len, struct cee_json **out, bool force_eof,
+      int *error_at_line)
 {
   struct tokenizer tock = {0};
   tock.buf = buf;
@@ -1194,15 +1194,15 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
     if(force_eof) {
       if(cee_json_next_token(st, &tock)!=tock_eof) {
         *error_at_line=tock.line;
-        return false;
+        return EINVAL;
       }
     }
     *out = (struct cee_json *)(result->_[1]);
     cee_del(result);
-    return true;
+    return 0;
   }
   *error_at_line=tock.line;
-  return false;
+  return EINVAL;
 }
 /* JSON snprint
    C reimplementation of cppcms's json.cpp

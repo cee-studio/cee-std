@@ -151,8 +151,8 @@ extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
 extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p, size_t *buf_size_p,
                                  struct cee_json *json, enum cee_json_fmt);
 
-extern bool cee_json_parse(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
-                           bool force_eof, int *error_at_line);
+extern int cee_json_parsex(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
+			   bool force_eof, int *error_at_line);
 
 /*
  * return non-null pointer if this json has this key in anyone of its children

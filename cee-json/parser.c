@@ -7,6 +7,7 @@
 #include "tokenizer.h"
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 #endif
 
 enum state_type {
@@ -28,8 +29,8 @@ static const uintptr_t cee_json_max_depth = 512;
 #define SPI(st, state, j)  cee_tuple_mk_e(st, (enum cee_del_policy [2]){CEE_DP_NOOP, CEE_DP_NOOP}, (void *)state, j)
 #define ARR_LEN 20
 
-bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee_json **out, bool force_eof,
-                    int *error_at_line)
+int cee_json_parsex(struct cee_state * st, char * buf, uintptr_t len, struct cee_json **out, bool force_eof,
+		    int *error_at_line)
 {
   struct tokenizer tock = {0};
   tock.buf = buf;
@@ -248,13 +249,13 @@ bool cee_json_parse(struct cee_state * st, char * buf, uintptr_t len, struct cee
     if(force_eof) {
       if(cee_json_next_token(st, &tock)!=tock_eof) {
         *error_at_line=tock.line;
-        return false;
+        return EINVAL;
       }
     }
     *out = (struct cee_json *)(result->_[1]);
     cee_del(result);
-    return true;
+    return 0;
   }
   *error_at_line=tock.line;
-  return false;
+  return EINVAL;
 }
