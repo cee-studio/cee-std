@@ -658,6 +658,23 @@ compose_dyn_stmts(struct cee_json *input, struct _combo *p) {
   }
 }
 
+int cee_sqlite3_bind_data_from_json(struct cee_sqlite3_bind_info *info,
+                                    struct cee_sqlite3_bind_data *data,
+                                    struct cee_json *json)
+{
+  struct _combo aaa = {
+    .state = NULL,
+    .json_in = json,
+    .stmts = NULL,
+    .data = data,
+    .info = info,
+    .update_set = NULL,
+    .insert_colums = NULL,
+    .insert_values = NULL
+  };
+  cee_json_object_iterate(json, &aaa, populate_usage);
+  return 0;
+}
 /*
  * @param json the input json
  * using the input json to populate data and run opcode

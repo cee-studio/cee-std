@@ -323,4 +323,9 @@ extern int
 cee_sqlite3_insert_json_array(struct cee_sqlite3 *cs,
                               char *table_name,
                               struct cee_json *array);
+
+extern int
+cee_sqlite3_bind_data_from_json(struct cee_sqlite3_bind_info *info,
+                                struct cee_sqlite3_bind_data *data,
+                                struct cee_json *json);
 #endif
