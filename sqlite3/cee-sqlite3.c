@@ -136,6 +136,8 @@ int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
         else if (stmt_type == INSERT && info[i].not_null) {
           /* use default values for non-null fields */
           switch(info[i].type) {
+          case CEE_SQLITE3_UNDEF:
+            cee_segfault();
           case CEE_SQLITE3_INT:
             sqlite3_bind_int(sql_stmt, idx, 0);
             break;
@@ -162,6 +164,8 @@ int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
         }
 
         switch (info[i].type) {
+        case CEE_SQLITE3_UNDEF:
+          cee_segfault();
         case CEE_SQLITE3_INT:
           sqlite3_bind_int(sql_stmt, idx, data_p->i);
           break;
@@ -581,6 +585,8 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
       }
 
       switch (info[i].type) {
+      case CEE_SQLITE3_UNDEF:
+        cee_segfault();
       case CEE_SQLITE3_INT:
         if (!cee_json_to_intx(value, &data[i].i)) {
           cee_json_array_append_strf(p->used,"%s", info[i].col_name);
