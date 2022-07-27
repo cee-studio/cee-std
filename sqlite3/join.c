@@ -60,11 +60,13 @@ static int join_one (void *ctx, int idx, void *elem) {
     if (cee_json_select(one, ".error"))
       return 1;
   }else{
-    struct cee_json *rows = NULL;
+    struct cee_json *rows = NULL, *error = NULL;
     cee_sqlite3_select(join_ctx->cs, info, data, join_ctx->sql, &rows);
-    if (cee_json_select(rows, ".error"))
-      return 1;
     cee_json_object_set(one, join_ctx->key, rows);
+    if( (error = cee_json_select(rows, ".error")) ){
+      return 1;
+    }
+    
   }
 
 
