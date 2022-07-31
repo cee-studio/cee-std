@@ -5,7 +5,7 @@
 
 void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, bool transaction){
   sqlite3 *db = NULL;
-  int rc;
+  int rc, has_error = 0;
   if( db_p != NULL && *db_p != NULL )
     db = *db_p;
   else {
@@ -24,6 +24,7 @@ void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, bool tra
   if( transaction ){
     rc = sqlite3_exec(db, "begin transaction;", 0, 0, &err_msg);
     if( rc != SQLITE_OK ){
+      has_error = 1;
       fprintf(stderr, "SQL error: %s:%s\n", db_file, err_msg);
       sqlite3_free(err_msg);
       db = NULL;
@@ -33,6 +34,7 @@ void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, bool tra
 
   rc = sqlite3_exec(db, sqlstmts, 0, 0, &err_msg);
   if( rc != SQLITE_OK ){
+    has_error = 1;
     fprintf(stderr, "SQL exec %s error: %s:%s\n", sqlstmts, db_file, err_msg);
     sqlite3_free(err_msg);
     db = NULL;
@@ -42,6 +44,7 @@ void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, bool tra
   if( transaction ){
     rc = sqlite3_exec(db, "commit;", 0, 0, &err_msg);
     if (rc != SQLITE_OK) {
+      has_error = 1;
       fprintf(stderr, "SQL error: %s:%s\n", db_file, err_msg);
       sqlite3_free(err_msg);
       db = NULL;
@@ -55,6 +58,8 @@ void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, bool tra
       sqlite3_close(db);
   }else
     *db_p = db;
+  if( has_error )
+    cee_segfault();
   return;
 }
 
