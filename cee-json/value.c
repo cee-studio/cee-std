@@ -757,3 +757,11 @@ notfound:
   o = NULL;
   goto cleanup;
 }
+
+
+int cee_json_select_as_int(struct cee_json *o, int *x, char *fmt){
+  struct cee_json *i = cee_json_select(o, fmt);
+  if( i )
+    return cee_json_to_intx(i, x);
+  return 1;
+}

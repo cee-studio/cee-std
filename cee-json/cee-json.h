@@ -47,6 +47,8 @@ enum cee_json_fmt {
  */
 extern struct cee_json* cee_json_select (struct cee_json *, char *selector, ...);
 
+extern int cee_json_select_as_int (struct cee_json *, int *, char *selector);
+
 extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int how);
 extern struct cee_json * cee_json_load_from_file (struct cee_state *,
                                                   FILE *, bool force_eof, 
