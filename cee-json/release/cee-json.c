@@ -60,6 +60,8 @@ enum cee_json_fmt {
  */
 extern struct cee_json* cee_json_select (struct cee_json *, char *selector, ...);
 
+extern int cee_json_select_as_int (struct cee_json *, int *, char *selector);
+
 extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int how);
 extern struct cee_json * cee_json_load_from_file (struct cee_state *,
                                                   FILE *, bool force_eof, 
@@ -951,6 +953,14 @@ cleanup:
 notfound:
   o = NULL;
   goto cleanup;
+}
+
+
+int cee_json_select_as_int(struct cee_json *o, int *x, char *fmt){
+  struct cee_json *i = cee_json_select(o, fmt);
+  if( i )
+    return cee_json_to_intx(i, x);
+  return 1;
 }
 /* cee_json parser
    C reimplementation of cppcms's json.cpp
