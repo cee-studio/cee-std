@@ -1135,9 +1135,10 @@ cee_sqlite3_insert_json_array(struct cee_sqlite3 *cs,
   return cee_json_array_iterate(array, &ctx, insert_one_json_object);
 }
 
-int cee_sqlite3_attach_db(struct cee_sqlite3 *cs, char *db_name, char *buf, size_t size, char **errmsg){
+int cee_sqlite3_attach_db(struct cee_sqlite3 *cs, char *db_file, char *as_name,
+                          char *buf, size_t size, char **errmsg){
   const char *filename = sqlite3_db_filename(cs->db, NULL);
-  snprintf(buf, size, "attach database \"%.*s/cms.db\" as cms;",
-           strrchr(filename, '/') - filename, filename);
+  snprintf(buf, size, "attach database \"%.*s/%s\" as %s;",
+           strrchr(filename, '/') - filename, filename, db_file, as_name);
   return sqlite3_exec(cs->db, buf, NULL, NULL, errmsg);
 }
