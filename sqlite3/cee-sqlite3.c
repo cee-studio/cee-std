@@ -578,10 +578,10 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
   struct cee_sqlite3_bind_data *data = p->data;
   int i;
 
-  for (i = 0; info[i].var_name; i++) {
-    if (strcmp(key->_, info[i].col_name) == 0) {
-      if (value->t == CEE_JSON_NULL) {
-        if( !info[i].not_null ) {
+  for( i = 0; info[i].var_name; i++ ){
+    if( strcmp(key->_, info[i].col_name) == 0 ){
+      if( value->t == CEE_JSON_NULL ){
+        if( !info[i].not_null ){
           cee_json_array_append_strf(p->used, "%s", info[i].col_name);
           data[i].has_value = 1;
           data[i].is_null = 1;
@@ -589,12 +589,13 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
         return 0;
       }
 
-      switch (info[i].type) {
+      switch( info[i].type ){
       case CEE_SQLITE3_UNDEF:
         cee_segfault();
       case CEE_SQLITE3_INT:
-        if (!cee_json_to_intx(value, &data[i].i)) {
-          cee_json_array_append_strf(p->used,"%s", info[i].col_name);
+        if( !cee_json_to_intx(value, &data[i].i) ){
+          if( p->used )
+            cee_json_array_append_strf(p->used,"%s", info[i].col_name);
           data[i].has_value = 1;
         }else{
           cee_json_array_append_strf(p->errors, "'%s' should be int",
@@ -603,8 +604,9 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
         }
         break;
       case CEE_SQLITE3_INT64:
-        if (!cee_json_to_i64x(value, &data[i].i64)) {
-          cee_json_array_append_strf(p->used,"%s", info[i].col_name);
+        if( !cee_json_to_i64x(value, &data[i].i64) ){
+          if( p->used )
+            cee_json_array_append_strf(p->used,"%s", info[i].col_name);
           data[i].has_value = 1;
         }else{
           cee_json_array_append_strf(p->errors, "'%s' should be int64",
@@ -613,7 +615,8 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
         }
         break;
       case CEE_SQLITE3_TEXT:
-        if ((data[i].value = cee_json_to_str(value)->_)) {
+        if( (data[i].value = cee_json_to_str(value)->_) ){
+          if( p->used )
           cee_json_array_append_strf(p->used,"%s", info[i].col_name);
           data[i].has_value = 1;
         }else{
@@ -632,7 +635,8 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
     }
   }
   // report this value is ignored
-  cee_json_array_append(p->unused, cee_json_str_mkf(p->state, "%s", key->_));
+  if( p->unused )
+    cee_json_array_append(p->unused, cee_json_str_mkf(p->state, "%s", key->_));
   return 0;
 }
 
@@ -671,7 +675,9 @@ compose_dyn_stmts(struct cee_json *input, struct _combo *p) {
 
 int cee_sqlite3_bind_data_from_json(struct cee_sqlite3_bind_info *info,
                                     struct cee_sqlite3_bind_data *data,
-                                    struct cee_json *json)
+                                    struct cee_json *json,
+                                    struct cee_json **used_keys,
+                                    struct cee_json **unused_keys)
 {
   struct _combo aaa = {
     .state = NULL,
@@ -683,6 +689,23 @@ int cee_sqlite3_bind_data_from_json(struct cee_sqlite3_bind_info *info,
     .insert_colums = NULL,
     .insert_values = NULL
   };
+  aaa.state = cee_get_state(cee_json_to_object(json));
+  if( used_keys ){
+    if( *used_keys )
+      aaa.used = *used_keys;
+    else{
+      aaa.used = cee_json_array_mk(aaa.state, 10);
+      *used_keys = aaa.used;
+    }
+  }
+  if( unused_keys ){
+    if( *unused_keys )
+      aaa.unused = *unused_keys;
+    else{
+      aaa.unused = cee_json_array_mk(aaa.state, 10);
+      *unused_keys = aaa.unused;
+    }
+  }
   cee_json_object_iterate(json, &aaa, populate_usage);
   return 0;
 }
