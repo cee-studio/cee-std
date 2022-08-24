@@ -74,7 +74,8 @@ enum stmt_type {
   SELECT = 0,
   INSERT,
   UPDATE,
-  DELETE
+  DELETE,
+  OTHER,
 };
 
 static enum stmt_type get_stmt_type(const char *stmt) {
@@ -89,7 +90,8 @@ static enum stmt_type get_stmt_type(const char *stmt) {
     return UPDATE;
   else if ((loc = strcasestr(p, "delete")) == p)
     return DELETE;
-  cee_segfault();
+  else
+    return OTHER;
 }
 
 void cee_sqlite3_init(struct cee_sqlite3 *x, char *db_name, struct cee_state *state, sqlite3 *db)
@@ -1131,4 +1133,11 @@ cee_sqlite3_insert_json_array(struct cee_sqlite3 *cs,
   ctx.table_name = table_name;
   ctx.cs = cs;
   return cee_json_array_iterate(array, &ctx, insert_one_json_object);
+}
+
+int cee_sqlite3_attach_db(struct cee_sqlite3 *cs, char *db_name, char *buf, size_t size, char **errmsg){
+  const char *filename = sqlite3_db_filename(cs->db, NULL);
+  snprintf(buf, size, "attach database \"%.*s/cms.db\" as cms;",
+           strrchr(filename, '/') - filename, filename);
+  return sqlite3_exec(cs->db, buf, NULL, NULL, errmsg);
 }

@@ -331,4 +331,7 @@ cee_sqlite3_bind_data_from_json(struct cee_sqlite3_bind_info *info,
                                 struct cee_json *json,
                                 struct cee_json **used_keys,
                                 struct cee_json **unused_keys);
+
+extern int
+cee_sqlite3_attach_db(struct cee_sqlite3 *cs, char *db_name, char *buf, size_t size, char **errmsg);
 #endif
