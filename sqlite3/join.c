@@ -24,10 +24,10 @@ static int join_one (void *ctx, int idx, void *elem) {
 
     if (item == NULL) continue;
 
-    struct cee_json *value = cee_json_object_get(elem, info[i].key);
+    struct cee_json *value = cee_json_object_get(elem, info[i].col_name);
     if (value == NULL) {
-      cee_json_object_set_strf(one, "error", "cannot find json key %s for %s:%s",
-                               info[i].key, info[i].var_name, info[i].col_name);
+      cee_json_object_set_strf(one, "error", "cannot find json key %s for %s",
+                               info[i].col_name, info[i].var_name);
       return 1; /* stop */
     }
     switch (value->t) {
@@ -35,7 +35,7 @@ static int join_one (void *ctx, int idx, void *elem) {
         if( cee_json_to_intx(value, &item->i) ){
           cee_json_object_set_strf(
             one, "error", "failed to convert json key %s's value to int",
-            info[i].key);
+            info[i].col_name);
           return 1; /* stop */
         }
         break; /* switch */
@@ -45,13 +45,13 @@ static int join_one (void *ctx, int idx, void *elem) {
       case CEE_JSON_NULL:
         cee_json_object_set_strf(
           one, "error", "unsupported json key %s's value is null",
-          info[i].key);
+          info[i].col_name);
         return 1; /* stop */
       default:
         /* change to unspported type errors */
         cee_json_object_set_strf(
           one, "error", "unsupported json key %s's value type %d",
-          info[i].key, value->t);
+          info[i].col_name, value->t);
         return 1; /* stop */
     }
   }

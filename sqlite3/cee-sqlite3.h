@@ -53,8 +53,8 @@ struct cee_sqlite3_bind_data {
 struct cee_sqlite3_bind_info {
   int index; /* start from 0, it is a help field, it's not used */
   char *var_name; /* name for the binding variable */
-  char *col_name; /* db column name */
-  char *key; /* key of key/value pair, used to bind value to sql variable */
+  char *col_name; /* db column name or json key name */
+  //char *key; /* key of key/value pair, used to bind value to sql variable */
   enum cee_sqlite3_type type;
   struct cee_sqlite3_bind_data data; /* default data is used if external data is not provided */
   bool no_update; /* dont update this field if it's true, it's only effective for update */
