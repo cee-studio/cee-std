@@ -259,7 +259,7 @@ int cee_sqlite3_insert(struct cee_sqlite3 *cs,
                        struct cee_sqlite3_bind_data *data,
                        char *insert,
                        struct cee_json **status,
-                       char *key)
+                       char *key, int *id)
 {
   struct cee_state *state = cs->state;
   sqlite3 *db = cs->db;
@@ -268,14 +268,16 @@ int cee_sqlite3_insert(struct cee_sqlite3 *cs,
 
   accept_result(state, status, &result);
   rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
-  if (rc != SQLITE_DONE)
+  if( rc != SQLITE_DONE )
     cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s", cs->db_name, rc, insert, sqlite3_errmsg(db));
-  else if (result) {
+  else if( result ){
     int row_id = sqlite3_last_insert_rowid(db);
-    if (key)
+    if( key )
       cee_json_object_set_i64(result, key, row_id);
     else
       cee_json_object_set_i64(result, "last_insert_rowid", row_id);
+    if( id )
+      *id = row_id;
   }
   return rc;
 }
@@ -510,7 +512,7 @@ int cee_sqlite3_insert_wrapper(struct cee_sqlite3 *cs,
                                struct cee_sqlite3_stmt_strs *stmts,
                                struct cee_json **status){
   char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;
-  return cee_sqlite3_insert(cs, info, data, insert, status, NULL);
+  return cee_sqlite3_insert(cs, info, data, insert, status, NULL, NULL);
 }
 
 int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
@@ -679,7 +681,8 @@ int cee_sqlite3_bind_data_from_json(struct cee_sqlite3_bind_info *info,
                                     struct cee_sqlite3_bind_data *data,
                                     struct cee_json *json,
                                     struct cee_json **used_keys,
-                                    struct cee_json **unused_keys)
+                                    struct cee_json **unused_keys,
+                                    struct cee_json **errors)
 {
   struct _combo aaa = {
     .state = NULL,
@@ -706,6 +709,14 @@ int cee_sqlite3_bind_data_from_json(struct cee_sqlite3_bind_info *info,
     else{
       aaa.unused = cee_json_array_mk(aaa.state, 10);
       *unused_keys = aaa.unused;
+    }
+  }
+  if( errors ){
+    if( *errors )
+      aaa.errors = *errors;
+    else{
+      aaa.errors = cee_json_array_mk(aaa.state, 10);
+      *errors = aaa.errors;
     }
   }
   cee_json_object_iterate(json, &aaa, populate_usage);
@@ -1117,7 +1128,7 @@ insert_one_json_object (void *ctx, int idx, struct cee_json *one) {
   char *err_msg = NULL;
   fprintf(stderr, "%s\n", sql->_);
   struct cee_json *status = NULL;
-  cee_sqlite3_insert(p->cs, one_ctx.info, NULL, sql->_, &status, NULL);
+  cee_sqlite3_insert(p->cs, one_ctx.info, NULL, sql->_, &status, NULL, NULL);
   char *buf; size_t len;
   cee_json_asprint(state, &buf, &len, status, 0);
   fprintf(stderr, "%s\n", buf);
