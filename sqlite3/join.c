@@ -8,7 +8,7 @@ struct join_ctx {
   char *key;
 };
 
-static int join_one (void *ctx, int idx, void *elem) {
+static int join_one (void *ctx, void *elem, int idx) {
   struct join_ctx *join_ctx = ctx;
   struct cee_sqlite3_bind_info *info = join_ctx->info;
   struct cee_sqlite3_bind_data *data = join_ctx->data, *item = NULL;
@@ -99,5 +99,5 @@ void cee_sqlite3_json_object_join_table(struct cee_sqlite3 *cs,
   join_ctx.sql = sql;
   join_ctx.info = info;
   join_ctx.data = data;
-  join_one(&join_ctx, 0, json);
+  join_one(&join_ctx, json, 0);
 }
