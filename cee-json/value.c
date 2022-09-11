@@ -74,13 +74,13 @@ struct json_has_ctx {
   void *found;
 };
 
-static int find_in_elem(void *ctx, int idx, void *val) {
+static int find_in_elem(void *ctx, void *val, int idx){
   struct json_has_ctx *has_ctx = ctx;
   has_ctx->found = cee_json_has(val, has_ctx->key);
   return (NULL != has_ctx->found); /* stop if found is not null */
 }
 
-static int match_key(void *ctx, void *key, void *val) {
+static int match_key(void *ctx, void *key, void *val){
   struct json_has_ctx *has_ctx = ctx;
   if (strcmp(key, has_ctx->key) == 0) {
     has_ctx->found = val;
