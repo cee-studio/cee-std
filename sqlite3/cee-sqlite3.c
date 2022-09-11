@@ -1105,7 +1105,7 @@ struct insert_more_ctx {
 };
 
 static int
-insert_one_json_object (void *ctx, int idx, struct cee_json *one) {
+insert_one_json_object (void *ctx, struct cee_json *one, int idx) {
   struct insert_more_ctx *p = ctx;
   struct cee_state *state = cee_state_mk(10);
   struct cee_block *sql;

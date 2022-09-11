@@ -132,18 +132,18 @@ size_t cee_list_capacity (struct cee_list *x) {
 }
 
 int cee_list_iterate (struct cee_list *x, void *ctx,
-		       int (*f)(void *cxt, int idx, void *e)) {
+		       int (*f)(void *cxt, void *e, int idx)) {
   if (!x) return 0;
   struct S(header) *m = FIND_HEADER(x);
   int i, ret;
   for (i = 0; i < m->size; i++) {
-    ret = f(ctx, i, x->a[i]);
+    ret = f(ctx, x->a[i], i);
     if (ret) break;
   }
   return ret;
 }
 
-static int S(_add_v)(void *cxt, int idx, void *e) {
+static int S(_add_v)(void *cxt, void *e, int idx){
   struct cee_list *l = cxt;
   cee_list_append(l, e);
   return 0;

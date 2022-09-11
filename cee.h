@@ -257,7 +257,7 @@ extern size_t cee_list_capacity (struct cee_list *);
  * applies f to each element of the list with cxt
  * if the list is null, return immediately
  */
-extern int cee_list_iterate (struct cee_list *, void *ctx, int (*f)(void *cxt, int idx, void *e));
+extern int cee_list_iterate (struct cee_list *, void *ctx, int (*f)(void *cxt, void *e, int idx));
 
 extern void cee_list_merge (struct cee_list *dest, struct cee_list *src);
   
