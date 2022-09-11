@@ -558,12 +558,12 @@ void cee_json_array_remove(struct cee_json *j, int i) {
 }
 
 int cee_json_array_iterate (struct cee_json *j, void *ctx,
-                            int (*f)(void *ctx, int index, struct cee_json *value))
+                            int (*f)(void *ctx, struct cee_json *value, int index))
 {
   struct cee_list *o = cee_json_to_array(j);
   if (NULL == o)
     cee_segfault();
-  typedef int (*fnt)(void *, int, void*);
+  typedef int (*fnt)(void *, void*, int);
   return cee_list_iterate(o, ctx, (fnt)f);
 }
 

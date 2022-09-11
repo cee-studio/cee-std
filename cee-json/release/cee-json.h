@@ -140,7 +140,7 @@ extern void cee_json_array_remove (struct cee_json *, int index);
 extern size_t cee_json_array_length (struct cee_json *);
 extern struct cee_json* cee_json_array_get(struct cee_json *, int);
 extern int cee_json_array_iterate (struct cee_json *, void *ctx,
-                                   int (*f)(void *ctx, int index, struct cee_json *val));
+                                   int (*f)(void *ctx, struct cee_json *val, int index));
 
 extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
 				 size_t size, struct cee_json *json,

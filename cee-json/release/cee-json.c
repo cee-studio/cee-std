@@ -153,7 +153,7 @@ extern void cee_json_array_remove (struct cee_json *, int index);
 extern size_t cee_json_array_length (struct cee_json *);
 extern struct cee_json* cee_json_array_get(struct cee_json *, int);
 extern int cee_json_array_iterate (struct cee_json *, void *ctx,
-                                   int (*f)(void *ctx, int index, struct cee_json *val));
+                                   int (*f)(void *ctx, struct cee_json *val, int index));
 
 extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
 				 size_t size, struct cee_json *json,
@@ -271,13 +271,13 @@ struct json_has_ctx {
   void *found;
 };
 
-static int find_in_elem(void *ctx, int idx, void *val) {
+static int find_in_elem(void *ctx, void *val, int idx){
   struct json_has_ctx *has_ctx = ctx;
   has_ctx->found = cee_json_has(val, has_ctx->key);
   return (NULL != has_ctx->found); /* stop if found is not null */
 }
 
-static int match_key(void *ctx, void *key, void *val) {
+static int match_key(void *ctx, void *key, void *val){
   struct json_has_ctx *has_ctx = ctx;
   if (strcmp(key, has_ctx->key) == 0) {
     has_ctx->found = val;
@@ -755,12 +755,12 @@ void cee_json_array_remove(struct cee_json *j, int i) {
 }
 
 int cee_json_array_iterate (struct cee_json *j, void *ctx,
-                            int (*f)(void *ctx, int index, struct cee_json *value))
+                            int (*f)(void *ctx, struct cee_json *value, int index))
 {
   struct cee_list *o = cee_json_to_array(j);
   if (NULL == o)
     cee_segfault();
-  typedef int (*fnt)(void *, int, void*);
+  typedef int (*fnt)(void *, void*, int);
   return cee_list_iterate(o, ctx, (fnt)f);
 }
 
