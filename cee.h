@@ -121,7 +121,12 @@ void * cee_block_mk_e (struct cee_state *s, size_t n, void *cxt, void (*init_f)(
 size_t cee_block_size (struct cee_block *b);
 
 /*
+ *
  * C string is an array of chars, it may or may not be terminated by '\0'.
+ *
+ * struct cee_str behavors extract like an array of chars, all standard 
+ * string.h functions can be directly applied to it without any wrappers
+ *
  * 
  * if it's not terminated by null strlen will read memory out of its bounds.
  *
