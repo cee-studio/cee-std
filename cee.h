@@ -208,7 +208,18 @@ extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
  * replace the existing string with a new string
  */
 extern struct cee_str * cee_str_replace (struct cee_str *, const char *fmt, ...);
-  
+
+
+struct cee_strview {
+  size_t count;
+  const char *data;
+};
+
+
+
+
+
+
 /* an auto expandable list */
 struct cee_list {
   void* *a;
