@@ -130,7 +130,12 @@ void * cee_block_mk_e (struct cee_state *s, size_t n, void *cxt, void (*init_f)(
 size_t cee_block_size (struct cee_block *b);
 
 /*
+ *
  * C string is an array of chars, it may or may not be terminated by '\0'.
+ *
+ * struct cee_str behavors extract like an array of chars, all standard 
+ * string.h functions can be directly applied to it without any wrappers
+ *
  * 
  * if it's not terminated by null strlen will read memory out of its bounds.
  *
@@ -212,7 +217,18 @@ extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
  * replace the existing string with a new string
  */
 extern struct cee_str * cee_str_replace (struct cee_str *, const char *fmt, ...);
-  
+
+
+struct cee_strview {
+  size_t count;
+  const char *data;
+};
+
+
+
+
+
+
 /* an auto expandable list */
 struct cee_list {
   void* *a;

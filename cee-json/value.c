@@ -71,7 +71,7 @@ struct cee_json* cee_json_listify(struct cee_json *j)
 
 struct json_has_ctx {
   char *key;
-  void *found;
+  struct cee_json* found;
 };
 
 static int find_in_elem(void *ctx, void *val, int idx){
@@ -90,7 +90,7 @@ static int match_key(void *ctx, void *key, void *val){
   return (NULL != has_ctx->found); /* stop if found is not null */
 }
 
-void* cee_json_has(struct cee_json *j, char *key) {
+struct cee_json* cee_json_has(struct cee_json *j, char *key) {
   struct json_has_ctx ctx = {0};
   ctx.key = key;
   int ret;
