@@ -157,7 +157,8 @@ extern int cee_json_parsex(struct cee_state *st, char *buf, uintptr_t len, struc
 			   bool force_eof, int *error_at_line);
 
 /*
- * return non-null pointer if this json has this key in anyone of its children
+ * return the value if this json has this key in anyone of its children
+ * transitively and recursively
  */
 extern struct cee_json* cee_json_has(struct cee_json *, char *key);
 

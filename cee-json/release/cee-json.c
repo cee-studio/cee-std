@@ -170,7 +170,8 @@ extern int cee_json_parsex(struct cee_state *st, char *buf, uintptr_t len, struc
 			   bool force_eof, int *error_at_line);
 
 /*
- * return non-null pointer if this json has this key in anyone of its children
+ * return the value if this json has this key in anyone of its children
+ * transitively and recursively
  */
 extern struct cee_json* cee_json_has(struct cee_json *, char *key);
 
@@ -1465,7 +1466,8 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
       case CEE_JSON_BLOB:
         {
           /* TODO: encode as base64 */
-          char *str = "error:blob is not handled in print";
+          struct cee_block *blob = cee_json_to_blob(cur_json);
+          char *str = (char*)cee_str_mk(st, "blob:%d bytes", cee_block_size(blob));
           pad(&offset, buf, ccnt, f);
           str_append(buf, &offset, str, strlen(str));
           if (ccnt->more_siblings)
