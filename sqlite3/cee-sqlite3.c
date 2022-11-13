@@ -2,6 +2,7 @@
 #define _GNU_SOURCE
 #include <string.h>
 #include <ctype.h>
+#include <alloca.h>
 
 void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, bool transaction){
   sqlite3 *db = NULL;
@@ -131,10 +132,18 @@ int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
 
   if( rc == SQLITE_OK ){
     if( info ){
+      /* if any parameter is unbound, the query does not
+       * do what we want, this might be a typo, we need
+       * to report it as an error
+       */
+      int total_parameters = sqlite3_bind_parameter_count(sql_stmt);
+      char *bound = alloca(total_parameters);
+      memset(bound, 0, total_parameters);
       for( int i = 0; info[i].var_name; i++ ){
         idx = sqlite3_bind_parameter_index(sql_stmt, info[i].var_name);
         if( idx <= 0 )
           continue;
+        bound[idx-1] = 1;
 
         if (data && data[i].has_value)
           data_p = data+i;
@@ -190,6 +199,13 @@ int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
           break;
         default:
           cee_segfault();
+        }
+      }
+      for( int i = 0; i < total_parameters; i++ ){
+        if( bound[i] == 0 ){ // this parameter is not bound.
+          const char *parameter = sqlite3_bind_parameter_name(sql_stmt, i+1);
+          cee_json_set_error(ret, "SQL:%s:'%s' the %dth parameter '%s' is not bound", cs->db_name, sql, i+1, parameter);
+          return SQLITE_ERROR;
         }
       }
     }
