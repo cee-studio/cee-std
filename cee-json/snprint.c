@@ -249,7 +249,8 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
       case CEE_JSON_BLOB:
         {
           /* TODO: encode as base64 */
-          char *str = "error:blob is not handled in print";
+          struct cee_block *blob = cee_json_to_blob(cur_json);
+          char *str = (char*)cee_str_mk(st, "blob:%d bytes", cee_block_size(blob));
           pad(&offset, buf, ccnt, f);
           str_append(buf, &offset, str, strlen(str));
           if (ccnt->more_siblings)
