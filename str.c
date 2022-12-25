@@ -185,21 +185,23 @@ struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   size_t s = vsnprintf(NULL, 0, fmt, ap);
+  va_end(ap);
   s ++; /* including the null terminator */
 
   va_start(ap, fmt);
-  if (slen + s < b->capacity) {
+  if( slen + s < b->capacity ){
     vsnprintf(b->_ + slen, s, fmt, ap);
+    va_end(ap);
     return str;
-  }
-  else {
+  }else{
     struct S(header) * b1 = S(resize)(b, _CEE_NEWSIZE(b->cs.mem_block_size, s));
     vsnprintf(b1->_ + slen, s, fmt, ap);
+    va_end(ap);
     return (struct cee_str *)(b1->_);
   }
 }
 
-struct cee_str * cee_str_ncat (struct cee_str * str, char * s, size_t slen) {
+struct cee_str * cee_str_ncat(struct cee_str * str, char * s, size_t slen){
   return NULL;
 }
 
