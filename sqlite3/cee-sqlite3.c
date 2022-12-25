@@ -602,7 +602,8 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
     if( strcmp(key->_, info[i].col_name) == 0 ){
       if( value->t == CEE_JSON_NULL ){
         if( !info[i].not_null ){
-          cee_json_array_append_strf(p->used, "%s", info[i].col_name);
+          if( p->used )
+            cee_json_array_append_strf(p->used, "%s", info[i].col_name);
           data[i].has_value = 1;
           data[i].is_null = 1;
         }
@@ -611,6 +612,9 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
 
       switch( info[i].type ){
       case CEE_SQLITE3_UNDEF:
+        if( p->errors )
+          cee_json_array_append_strf(p->errors, "'%s' should not be undef",
+                                     info[i].col_name);
         cee_segfault();
       case CEE_SQLITE3_INT:
         if( !cee_json_to_intx(value, &data[i].i) ){
@@ -618,8 +622,9 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
             cee_json_array_append_strf(p->used,"%s", info[i].col_name);
           data[i].has_value = 1;
         }else{
-          cee_json_array_append_strf(p->errors, "'%s' should be int",
-                                     info[i].col_name);
+          if( p->errors )
+            cee_json_array_append_strf(p->errors, "'%s' should be int",
+                                       info[i].col_name);
           return 1;
         }
         break;
@@ -629,19 +634,21 @@ populate_usage(void *ctx, struct cee_str *key, struct cee_json *value) {
             cee_json_array_append_strf(p->used,"%s", info[i].col_name);
           data[i].has_value = 1;
         }else{
-          cee_json_array_append_strf(p->errors, "'%s' should be int64",
-                                     info[i].col_name);
+          if( p->errors )
+            cee_json_array_append_strf(p->errors, "'%s' should be int64",
+                                       info[i].col_name);
           return 1;
         }
         break;
       case CEE_SQLITE3_TEXT:
         if( (data[i].value = cee_json_to_str(value)->_) ){
           if( p->used )
-          cee_json_array_append_strf(p->used,"%s", info[i].col_name);
+            cee_json_array_append_strf(p->used,"%s", info[i].col_name);
           data[i].has_value = 1;
         }else{
-          cee_json_array_append_strf(p->errors, "'%s' should be text",
-                                     info[i].col_name);
+          if( p->errors )
+            cee_json_array_append_strf(p->errors, "'%s' should be text",
+                                       info[i].col_name);
           return 1;
         }
         break;
