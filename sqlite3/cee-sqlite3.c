@@ -1177,7 +1177,7 @@ int cee_sqlite3_attach_db(struct cee_sqlite3 *cs, char *db_file, char *as_name,
   return sqlite3_exec(cs->db, buf, NULL, NULL, errmsg);
 }
 
-int cee_sqlite3_attach_db(struct cee_sqlite3 *cs, char *as_name,
+int cee_sqlite3_detach_db(struct cee_sqlite3 *cs, char *as_name,
                           char *buf, size_t size, char **errmsg){
   snprintf(buf, size, "detach database '%s';", as_name);
   return sqlite3_exec(cs->db, buf, NULL, NULL, errmsg);
