@@ -1912,12 +1912,11 @@ struct cee_str * cee_str_mk_e (struct cee_state * st, size_t n, const char * fmt
 
   _cee_str_chain(m, st);
 
-  m->capacity = mem_block_size - sizeof(struct _cee_str_header);
-  if (fmt) {
+  m->capacity = m->cs.mem_block_size - sizeof(struct _cee_str_header);
+  if( fmt ){
     va_start(ap, fmt);
-    vsnprintf(m->_, mem_block_size, fmt, ap);
-  }
-  else {
+    vsnprintf(m->_, m->capacity, fmt, ap);
+  }else{
     m->_[0] = '\0'; /* terminates with '\0' */
   }
   return (struct cee_str *)(m->_);
@@ -1957,14 +1956,13 @@ char * cee_str_end(struct cee_str * str) {
 struct cee_str * cee_str_add(struct cee_str * str, char c) {
   struct _cee_str_header * b = (struct _cee_str_header *)((void *)((char *)(str) - (__builtin_offsetof(struct _cee_str_header, _))));
   uint32_t slen = strlen((char *)str);
-  if (slen < b->capacity) {
+  if( slen < b->capacity ){
     b->_[slen] = c;
     b->_[slen+1] = '\0';
     return (struct cee_str *)(b->_);
-  }
-  else {
+  }else{
     struct _cee_str_header * b1 = _cee_str_resize(b, (2 * ((b->cs.mem_block_size) > (64) ? (b->cs.mem_block_size): (64))));
-    b1->capacity = b->capacity + 64;
+    b1->capacity = b1->cs.mem_block_size - sizeof(struct _cee_str_header);
     b1->_[b->capacity] = c;
     b1->_[b->capacity+1] = '\0';
     return (struct cee_str *)(b1->_);
@@ -1981,21 +1979,24 @@ struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   size_t s = vsnprintf(NULL, 0, fmt, ap);
+  va_end(ap);
   s ++; /* including the null terminator */
 
   va_start(ap, fmt);
-  if (slen + s < b->capacity) {
+  if( slen + s < b->capacity ){
     vsnprintf(b->_ + slen, s, fmt, ap);
+    va_end(ap);
     return str;
-  }
-  else {
+  }else{
     struct _cee_str_header * b1 = _cee_str_resize(b, (2 * ((b->cs.mem_block_size) > (s) ? (b->cs.mem_block_size): (s))));
+    b1->capacity = b1->cs.mem_block_size - sizeof(struct _cee_str_header);
     vsnprintf(b1->_ + slen, s, fmt, ap);
+    va_end(ap);
     return (struct cee_str *)(b1->_);
   }
 }
 
-struct cee_str * cee_str_ncat (struct cee_str * str, char * s, size_t slen) {
+struct cee_str * cee_str_ncat(struct cee_str * str, char * s, size_t slen){
   return NULL;
 }
 
@@ -2010,12 +2011,12 @@ struct cee_str* cee_str_replace(struct cee_str *str, const char *fmt, ...) {
   s ++; /* including the null terminator */
 
   va_start(ap, fmt);
-  if (s < b->capacity) {
+  if( s < b->capacity ){
     vsnprintf(b->_, s, fmt, ap);
     return str;
-  }
-  else {
+  }else{
     struct _cee_str_header *b1 = _cee_str_resize(b, (2 * ((b->cs.mem_block_size) > (s) ? (b->cs.mem_block_size): (s))));
+    b1->capacity = b1->cs.mem_block_size - sizeof(struct _cee_str_header);
     vsnprintf(b1->_, s, fmt, ap);
     return (struct cee_str *)(b1->_);
   }

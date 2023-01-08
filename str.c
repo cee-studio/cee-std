@@ -116,12 +116,11 @@ struct cee_str * cee_str_mk_e (struct cee_state * st, size_t n, const char * fmt
   
   S(chain)(m, st);
   
-  m->capacity = mem_block_size - sizeof(struct S(header));
-  if (fmt) {
+  m->capacity = m->cs.mem_block_size - sizeof(struct S(header));
+  if( fmt ){
     va_start(ap, fmt);
-    vsnprintf(m->_, mem_block_size, fmt, ap);
-  } 
-  else {
+    vsnprintf(m->_, m->capacity, fmt, ap);
+  }else{
     m->_[0] = '\0'; /* terminates with '\0' */
   }
   return (struct cee_str *)(m->_);
@@ -161,14 +160,13 @@ char * cee_str_end(struct cee_str * str) {
 struct cee_str * cee_str_add(struct cee_str * str, char c) {
   struct S(header) * b = FIND_HEADER(str);
   uint32_t slen = strlen((char *)str);
-  if (slen < b->capacity) {
+  if( slen < b->capacity ){
     b->_[slen] = c;
     b->_[slen+1] = '\0';
     return (struct cee_str *)(b->_);
-  } 
-  else {
+  }else{
     struct S(header) * b1 = S(resize)(b, _CEE_NEWSIZE(b->cs.mem_block_size, CEE_BLOCK));
-    b1->capacity = b->capacity + CEE_BLOCK;
+    b1->capacity = b1->cs.mem_block_size - sizeof(struct S(header));
     b1->_[b->capacity] = c;
     b1->_[b->capacity+1] = '\0';
     return (struct cee_str *)(b1->_);
@@ -195,6 +193,7 @@ struct cee_str * cee_str_catf(struct cee_str * str, const char * fmt, ...) {
     return str;
   }else{
     struct S(header) * b1 = S(resize)(b, _CEE_NEWSIZE(b->cs.mem_block_size, s));
+    b1->capacity = b1->cs.mem_block_size - sizeof(struct S(header));
     vsnprintf(b1->_ + slen, s, fmt, ap);
     va_end(ap);
     return (struct cee_str *)(b1->_);
@@ -216,12 +215,12 @@ struct cee_str* cee_str_replace(struct cee_str *str, const char *fmt, ...) {
   s ++; /* including the null terminator */
 
   va_start(ap, fmt);
-  if (s < b->capacity) {
+  if( s < b->capacity ){
     vsnprintf(b->_, s, fmt, ap);
     return str;
-  }
-  else {
+  }else{
     struct S(header) *b1 = S(resize)(b, _CEE_NEWSIZE(b->cs.mem_block_size, s));
+    b1->capacity = b1->cs.mem_block_size - sizeof(struct S(header));
     vsnprintf(b1->_, s, fmt, ap);
     return (struct cee_str *)(b1->_);
   }
