@@ -234,6 +234,9 @@ extern void cee_str_ltrim(struct cee_str *);
 
 extern struct cee_str* cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *s);
 
+extern struct cee_str*
+cee_str_replace_all(struct cee_str *str, const char * old_substr, const char * new_substr);
+
 
 
 struct cee_strview {
