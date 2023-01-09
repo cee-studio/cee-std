@@ -260,11 +260,32 @@ void cee_str_ltrim(struct cee_str *s){
  * s
  */ 
 struct cee_str*
-cee_str_replace_n(struct cee_str *str, size_t offset, size_t len, char *s){
+cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *new_substr){
   struct cee_state *state = cee_get_state(str);
-  struct cee_str *rest = cee_str_mk(state, "%.*s", strlen(str->_) - (offset + len), str->_ + (offset + len));
-  return cee_str_replace(str, "%.*s%s%s", offset, str->_, s, rest->_);
+  struct cee_str *rest = cee_str_mk(state, "%.*s",
+				    strlen(str->_) - (offset + len),
+				    str->_ + (offset + len));
+  return cee_str_replace(str, "%.*s%s%s", offset, str->_, new_substr, rest->_);
 }
 
+
+/*
+ * this is not super efficent, we can optimize this later to
+ * reduce memory allocations and copies.
+ */
+struct cee_str*
+cee_str_replace_all(struct cee_str *str, const char * old_substr, const char * new_substr){
+  size_t len = strlen(old_substr);
+  char *pos = strstr(str->_, old_substr);
+  struct cee_str *prev;
+  while( pos != NULL ){
+    prev = str;
+    str = cee_str_replace_at_offset(str, pos - str->_, len, (char*)new_substr);
+    if( prev != str ) /* reallocated */
+      cee_del(prev);
+    pos = strstr(str->_ + len, old_substr);
+  }
+  return str;
+}
 
 #undef _CEE_NEWSIZE
