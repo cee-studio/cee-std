@@ -232,6 +232,10 @@ extern void cee_str_rtrim(struct cee_str *);
 extern void cee_str_ltrim(struct cee_str *);
 
 
+extern struct cee_str* cee_str_replace_n(struct cee_str *str, size_t offset, size_t len, char *s);
+
+
+
 struct cee_strview {
   size_t count;
   const char *data;
@@ -2061,6 +2065,18 @@ void cee_str_ltrim(struct cee_str *s){
   memmove(s->_, s->_ + start, new_len);
   s->_[new_len] = 0;
   return;
+}
+
+
+/*
+ * replace len characters  at the offset in str with
+ * s
+ */
+struct cee_str*
+cee_str_replace_n(struct cee_str *str, size_t offset, size_t len, char *s){
+  struct cee_state *state = cee_get_state(str);
+  struct cee_str *rest = cee_str_mk(state, "%.*s", strlen(str->_) - (offset + len), str->_ + (offset + len));
+  return cee_str_replace(str, "%.*s%s%s", offset, str->_, s, rest->_);
 }
 
 struct _cee_dict_header {

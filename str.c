@@ -255,4 +255,16 @@ void cee_str_ltrim(struct cee_str *s){
 }
 
 
+/*
+ * replace len characters  at the offset in str with
+ * s
+ */ 
+struct cee_str*
+cee_str_replace_n(struct cee_str *str, size_t offset, size_t len, char *s){
+  struct cee_state *state = cee_get_state(str);
+  struct cee_str *rest = cee_str_mk(state, "%.*s", strlen(str->_) - (offset + len), str->_ + (offset + len));
+  return cee_str_replace(str, "%.*s%s%s", offset, str->_, s, rest->_);
+}
+
+
 #undef _CEE_NEWSIZE

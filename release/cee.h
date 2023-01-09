@@ -223,6 +223,10 @@ extern void cee_str_rtrim(struct cee_str *);
 extern void cee_str_ltrim(struct cee_str *);
 
 
+extern struct cee_str* cee_str_replace_n(struct cee_str *str, size_t offset, size_t len, char *s);
+
+
+
 struct cee_strview {
   size_t count;
   const char *data;
