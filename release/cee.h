@@ -210,6 +210,19 @@ extern struct cee_str * cee_str_ncat (struct cee_str *, char * s, size_t);
 extern struct cee_str * cee_str_replace (struct cee_str *, const char *fmt, ...);
 
 
+/*
+ * trim(remove) all white spaces from the right side of a string, 
+ * i.e. remove all trailing white spaces
+ */
+extern void cee_str_rtrim(struct cee_str *);
+
+/*
+ * trim(remove) all white spaces from the left side of a string, 
+ * i.e. remove all leading white spaces
+ */
+extern void cee_str_ltrim(struct cee_str *);
+
+
 struct cee_strview {
   size_t count;
   const char *data;

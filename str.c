@@ -226,4 +226,33 @@ struct cee_str* cee_str_replace(struct cee_str *str, const char *fmt, ...) {
   }
 }
 
+
+void cee_str_rtrim(struct cee_str *s){
+  int slen = strlen(s->_);
+  for( int i = slen - 1; i > 0; i -- ){
+    char c = s->_[i];
+    if( c == ' ' || c == '\n' || c == '\r' || c == '\t' )
+      s->_[i] = 0;
+    else
+      break;
+  }
+  return;
+}
+
+void cee_str_ltrim(struct cee_str *s){
+  int start = 0;
+  for( int i = 0; s->_[i]; i ++ ){
+    char c = s->_[i];
+    if( c == ' ' || c == '\n' || c == '\r' || c == '\t' )
+      start = i;
+    else
+      break;
+  }
+  int new_len = strlen(s->_) - start;
+  memmove(s->_, s->_ + start, new_len);
+  s->_[new_len] = 0;
+  return;
+}
+
+
 #undef _CEE_NEWSIZE
