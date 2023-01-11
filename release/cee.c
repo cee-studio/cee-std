@@ -2091,13 +2091,14 @@ cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *
  */
 struct cee_str*
 cee_str_replace_all(struct cee_str *str, const char * old_substr, const char * new_substr){
+  struct cee_str *first = str;
   size_t len = strlen(old_substr);
   char *pos = strstr(str->_, old_substr);
   struct cee_str *prev;
   while( pos != NULL ){
     prev = str;
     str = cee_str_replace_at_offset(str, pos - str->_, len, (char*)new_substr);
-    if( prev != str ) /* reallocated */
+    if( prev != str && prev != first ) /* reallocated */
       cee_del(prev);
     pos = strstr(str->_ + len, old_substr);
   }
