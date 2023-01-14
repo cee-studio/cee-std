@@ -265,7 +265,9 @@ cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *
   struct cee_str *rest = cee_str_mk(state, "%.*s",
 				    strlen(str->_) - (offset + len),
 				    str->_ + (offset + len));
-  return cee_str_replace(str, "%.*s%s%s", offset, str->_, new_substr, rest->_);
+  struct cee_str *head = cee_str_mk(state, "%.*s", offset, str->_);
+  struct cee_str *ret = cee_str_replace(str, "%s%s%s", head, new_substr, rest->_);
+  return ret;
 }
 
 
