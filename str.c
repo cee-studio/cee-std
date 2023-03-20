@@ -298,7 +298,7 @@ str_replace_all(const char *str, const char *old_substr, const char *new_substr)
 
   int i_src = 0, i_dest = 0;
   while( i_src < orig_len ){
-    if( strcmp(str+i_src, old_substr) == 0 ){
+    if( strncmp(str+i_src, old_substr, old_len) == 0 ){
       for( int n = 0; n < new_len; n++ ){
         new_str[i_dest+n] = new_substr[n];
         i_dest ++;
@@ -351,16 +351,15 @@ char* str_replace_all_ext(const char *str, int n_pairs, ...){
   while( i_src < orig_len ){
     used_pair = NULL;
     for( int x = 0; x < n_pairs; x++ ){
-      if( strcmp(str+i_src, pairs[x].old_needle) == 0 ){
+      if( strncmp(str+i_src, pairs[x].old_needle, pairs[x].old_len) == 0 ){
         used_pair = pairs+x;
         break;
       }
     }
     if( used_pair ){
-      for( int n = 0; n < used_pair->new_len; n++ ){
+      for( int n = 0; n < used_pair->new_len; n++ )
         new_str[i_dest+n] = used_pair->new_needle[n];
-        i_dest ++;
-      }
+      i_dest += used_pair->new_len;
       i_src += used_pair->old_len;
     }else{
       new_str[i_dest] = str[i_src];
