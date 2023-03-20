@@ -2161,8 +2161,8 @@ char* str_replace_all_ext(const char *str, int n_pairs, ...){
   va_end(ap);
 
   size_t orig_len = strlen(str);
-  double ratio = max_new_len/min_old_len + 1;
-  char *new_str = malloc(orig_len * ratio);
+  size_t new_strlen = (orig_len/min_old_len + 1) * max_new_len;
+  char *new_str = malloc(new_strlen + 1);
 
   size_t i_src = 0, i_dest = 0;
   while( i_src < orig_len ){
