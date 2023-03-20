@@ -367,6 +367,7 @@ char* str_replace_all_ext(const char *str, int n_pairs, ...){
     }
   }
   new_str[i_dest] = 0;
+  free(pairs);
   return new_str;
 }
 
