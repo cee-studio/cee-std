@@ -2116,6 +2116,65 @@ cee_str_replace_all(struct cee_str *str, const char * old_substr, const char * n
   return new_str;
 }
 
+
+
+struct cee_str*
+cee_str_replace_all_ext(struct cee_str *str, int n_pairs, ...){
+  struct pair {
+    char *old_needle, *new_needle;
+    size_t old_len, new_len;
+  };
+  int min_old_len = 1000, max_new_len = 0;
+  char *old_needle, *new_needle;
+
+  struct pair *pairs = malloc(sizeof(struct pair) * n_pairs), *used_pair = NULL;
+
+  va_list ap;
+  va_start(ap, n_pairs);
+  for( int i = 0; i < n_pairs; i++ ){
+    pairs[i].old_needle = va_arg(ap, char*);
+    pairs[i].new_needle = va_arg(ap, char*);
+
+    pairs[i].old_len = strlen(pairs[i].old_needle);
+    pairs[i].new_len = strlen(pairs[i].new_needle);
+
+    if( pairs[i].old_len < min_old_len )
+      min_old_len = pairs[i].old_len;
+
+    if( pairs[i].new_len > max_new_len )
+      max_new_len = pairs[i].new_len;
+  }
+  va_end(ap);
+
+  size_t orig_len = strlen(str->_);
+  double ratio = max_new_len/min_old_len + 1;
+  struct cee_str *new_str = cee_str_mk_e(cee_get_state(str), orig_len * ratio, NULL);
+
+  size_t i_src = 0, i_dest = 0;
+  while( i_src < orig_len ){
+    used_pair = NULL;
+    for( int x = 0; x < n_pairs; x++ ){
+      if( strcmp(str->_+i_src, pairs[x].old_needle) == 0 ){
+ used_pair = pairs+x;
+ break;
+      }
+    }
+    if( used_pair ){
+      for( int n = 0; n < used_pair->new_len; n++ ){
+        new_str->_[i_dest+n] = used_pair->new_needle[n];
+        i_dest ++;
+      }
+      i_src += used_pair->old_len;
+    }else{
+      new_str->_[i_dest] = str->_[i_src];
+      i_dest ++;
+      i_src ++;
+    }
+  }
+  new_str->_[i_dest] = 0;
+  return new_str;
+}
+
 struct _cee_dict_header {
   struct cee_list * keys;
   struct cee_list * vals;
