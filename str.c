@@ -257,17 +257,32 @@ void cee_str_ltrim(struct cee_str *s){
 
 /*
  * replace len characters  at the offset in str with
- * s
+ * new_substr
  */ 
-struct cee_str*
-cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *new_substr){
-  struct cee_state *state = cee_get_state(str);
-  struct cee_str *rest = cee_str_mk(state, "%.*s",
-				    strlen(str->_) - (offset + len),
-				    str->_ + (offset + len));
-  struct cee_str *head = cee_str_mk(state, "%.*s", offset, str->_);
-  struct cee_str *ret = cee_str_replace(str, "%s%s%s", head, new_substr, rest->_);
-  return ret;
+char*
+str_replace_at_offset(const char *str, size_t offset, size_t len, char *new_substr){
+  size_t i, i_src = 0, i_dest = 0, new_substr_len = strlen(new_substr);
+  size_t orig_len = strlen(str);
+  
+  char *new_str = malloc(orig_len - len + new_substr_len + 1);
+  
+  for( i = 0; i < offset; i++ )
+    new_str[i] = str[i];
+
+  for( i_dest = 0; i_dest < new_substr_len; i_dest ++ )
+    new_str[i+i_dest] = new_substr[i_dest];
+
+  i_dest += i;
+
+  i += len; /* skip len */
+  while( i < orig_len){
+    new_str[i_dest] = str[i];
+    i++;
+    i_dest ++;
+  }
+
+  new_str[i_dest] = 0;
+  return new_str;
 }
 
 
@@ -276,7 +291,7 @@ cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *
  * reduce memory allocations and copies.
  */
 char*
-str_replace_all(char *str, const char * old_substr, const char * new_substr){
+str_replace_all(const char *str, const char *old_substr, const char *new_substr){
   size_t old_len = strlen(old_substr), new_len = strlen(new_substr), orig_len = strlen(str);
   double ratio = new_len/old_len + 1;
   char  *new_str = malloc(orig_len * ratio);
@@ -301,7 +316,7 @@ str_replace_all(char *str, const char * old_substr, const char * new_substr){
 
 
 
-char* str_replace_all_ext(char *str, int n_pairs, ...){
+char* str_replace_all_ext(const char *str, int n_pairs, ...){
   struct pair {
     char *old_needle, *new_needle;
     size_t old_len, new_len;
@@ -356,4 +371,11 @@ char* str_replace_all_ext(char *str, int n_pairs, ...){
   new_str[i_dest] = 0;
   return new_str;
 }
+
+int str_ends_with(const char *str, const char *suffix){
+  size_t str_len = strlen(str);
+  size_t suffix_len = strlen(suffix);
+  return str_len > suffix_len && !strcmp(str + (str_len - suffix_len), suffix);
+}
+
 #undef _CEE_NEWSIZE

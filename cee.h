@@ -222,13 +222,13 @@ extern void cee_str_rtrim(struct cee_str *);
  */
 extern void cee_str_ltrim(struct cee_str *);
 
+extern char* str_replace_at_offset(const char *str, size_t offset, size_t len, char *s);
 
-extern struct cee_str* cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *s);
+extern char* str_replace_all(const char *str, const char * old_substr, const char * new_substr);
 
-extern char*
-str_replace_all(char *str, const char * old_substr, const char * new_substr);
+extern char* str_replace_all_ext(const char *str, int n_pairs, ...);
 
-extern char* str_replace_all_ext(char *str, int n_pairs, ...);
+extern int str_ends_with(const char *str, const char *suffix);
 
 
 struct cee_strview {
