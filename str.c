@@ -299,10 +299,9 @@ str_replace_all(const char *str, const char *old_substr, const char *new_substr)
   int i_src = 0, i_dest = 0;
   while( i_src < orig_len ){
     if( strncmp(str+i_src, old_substr, old_len) == 0 ){
-      for( int n = 0; n < new_len; n++ ){
+      for( int n = 0; n < new_len; n++ )
         new_str[i_dest+n] = new_substr[n];
-        i_dest ++;
-      }
+      i_dest += new_len;
       i_src += old_len;
     }else{
       new_str[i_dest] = str[i_src];
