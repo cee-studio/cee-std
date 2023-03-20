@@ -225,11 +225,10 @@ extern void cee_str_ltrim(struct cee_str *);
 
 extern struct cee_str* cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *s);
 
-extern struct cee_str*
-cee_str_replace_all(struct cee_str *str, const char * old_substr, const char * new_substr);
+extern char*
+str_replace_all(char *str, const char * old_substr, const char * new_substr);
 
-extern struct cee_str*
-cee_str_replace_all_ext(struct cee_str *str, int n_pairs, ...);
+extern char* str_replace_all_ext(char *str, int n_pairs, ...);
 
 
 struct cee_strview {

@@ -234,11 +234,10 @@ extern void cee_str_ltrim(struct cee_str *);
 
 extern struct cee_str* cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *s);
 
-extern struct cee_str*
-cee_str_replace_all(struct cee_str *str, const char * old_substr, const char * new_substr);
+extern char*
+str_replace_all(char *str, const char * old_substr, const char * new_substr);
 
-extern struct cee_str*
-cee_str_replace_all_ext(struct cee_str *str, int n_pairs, ...);
+extern char* str_replace_all_ext(char *str, int n_pairs, ...);
 
 
 struct cee_strview {
@@ -2093,35 +2092,33 @@ cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *
  * this is not super efficent, we can optimize this later to
  * reduce memory allocations and copies.
  */
-struct cee_str*
-cee_str_replace_all(struct cee_str *str, const char * old_substr, const char * new_substr){
-  struct cee_str *first = str;
-  size_t old_len = strlen(old_substr), new_len = strlen(new_substr), orig_len = strlen(str->_);
+char*
+str_replace_all(char *str, const char * old_substr, const char * new_substr){
+  size_t old_len = strlen(old_substr), new_len = strlen(new_substr), orig_len = strlen(str);
   double ratio = new_len/old_len + 1;
-  struct cee_str *new_str = cee_str_mk_e(cee_get_state(str), orig_len * ratio, NULL);
+  char *new_str = malloc(orig_len * ratio);
 
   int i_src = 0, i_dest = 0;
   while( i_src < orig_len ){
-    if( strcmp(str->_+i_src, old_substr) == 0 ){
+    if( strcmp(str+i_src, old_substr) == 0 ){
       for( int n = 0; n < new_len; n++ ){
-        new_str->_[i_dest+n] = new_substr[n];
+        new_str[i_dest+n] = new_substr[n];
         i_dest ++;
       }
       i_src += old_len;
     }else{
-      new_str->_[i_dest] = str->_[i_src];
+      new_str[i_dest] = str[i_src];
       i_dest ++;
       i_src ++;
     }
   }
-  new_str->_[i_dest] = 0;
+  new_str[i_dest] = 0;
   return new_str;
 }
 
 
 
-struct cee_str*
-cee_str_replace_all_ext(struct cee_str *str, int n_pairs, ...){
+char* str_replace_all_ext(char *str, int n_pairs, ...){
   struct pair {
     char *old_needle, *new_needle;
     size_t old_len, new_len;
@@ -2148,32 +2145,32 @@ cee_str_replace_all_ext(struct cee_str *str, int n_pairs, ...){
   }
   va_end(ap);
 
-  size_t orig_len = strlen(str->_);
+  size_t orig_len = strlen(str);
   double ratio = max_new_len/min_old_len + 1;
-  struct cee_str *new_str = cee_str_mk_e(cee_get_state(str), orig_len * ratio, NULL);
+  char *new_str = malloc(orig_len * ratio);
 
   size_t i_src = 0, i_dest = 0;
   while( i_src < orig_len ){
     used_pair = NULL;
     for( int x = 0; x < n_pairs; x++ ){
-      if( strcmp(str->_+i_src, pairs[x].old_needle) == 0 ){
- used_pair = pairs+x;
- break;
+      if( strcmp(str+i_src, pairs[x].old_needle) == 0 ){
+        used_pair = pairs+x;
+        break;
       }
     }
     if( used_pair ){
       for( int n = 0; n < used_pair->new_len; n++ ){
-        new_str->_[i_dest+n] = used_pair->new_needle[n];
+        new_str[i_dest+n] = used_pair->new_needle[n];
         i_dest ++;
       }
       i_src += used_pair->old_len;
     }else{
-      new_str->_[i_dest] = str->_[i_src];
+      new_str[i_dest] = str[i_src];
       i_dest ++;
       i_src ++;
     }
   }
-  new_str->_[i_dest] = 0;
+  new_str[i_dest] = 0;
   return new_str;
 }
 
