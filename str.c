@@ -278,17 +278,26 @@ cee_str_replace_at_offset(struct cee_str *str, size_t offset, size_t len, char *
 struct cee_str*
 cee_str_replace_all(struct cee_str *str, const char * old_substr, const char * new_substr){
   struct cee_str *first = str;
-  size_t len = strlen(old_substr);
-  char *pos = strstr(str->_, old_substr);
-  struct cee_str *prev;
-  while( pos != NULL ){
-    prev = str;
-    str = cee_str_replace_at_offset(str, pos - str->_, len, (char*)new_substr);
-    if( prev != str && prev != first ) /* reallocated */
-      cee_del(prev);
-    pos = strstr(str->_ + len, old_substr);
+  size_t old_len = strlen(old_substr), new_len = strlen(new_substr), orig_len = strlen(str->_);
+  double ratio = new_len/old_len + 1;
+  struct cee_str *new_str = cee_str_mk_e(cee_get_state(str), orig_len * ratio, NULL);
+
+  int i_src = 0, i_dest = 0;
+  while( i_src < orig_len ){
+    if( strcmp(str->_+i_src, old_substr) == 0 ){
+      for( int n = 0; n < new_len; n++ ){
+        new_str->_[i_dest+n] = new_substr[n];
+        i_dest ++;
+      }
+      i_src += old_len;
+    }else{
+      new_str->_[i_dest] = str->_[i_src];
+      i_dest ++;
+      i_src ++;
+    }
   }
-  return str;
+  new_str->_[i_dest] = 0;
+  return new_str;
 }
 
 #undef _CEE_NEWSIZE
