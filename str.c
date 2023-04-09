@@ -315,7 +315,7 @@ str_replace_all(const char *str, const char *old_substr, const char *new_substr)
 
 
 
-char* str_replace_all_ext(const char *str, int n_pairs, ...){
+char* str_replace_all_ext(const char *str, size_t str_len, int n_pairs, ...){
   struct pair {
     char *old_needle, *new_needle;
     size_t old_len, new_len;
@@ -342,12 +342,11 @@ char* str_replace_all_ext(const char *str, int n_pairs, ...){
   }
   va_end(ap);
 
-  size_t orig_len = strlen(str);
-  size_t new_strlen = (orig_len/min_old_len + 1) * max_new_len;
+  size_t new_strlen = (str_len/min_old_len + 1) * max_new_len;
   char *new_str = malloc(new_strlen + 1);
 
   size_t i_src = 0, i_dest = 0;
-  while( i_src < orig_len ){
+  while( i_src < str_len ){
     used_pair = NULL;
     for( int x = 0; x < n_pairs; x++ ){
       if( strncmp(str+i_src, pairs[x].old_needle, pairs[x].old_len) == 0 ){

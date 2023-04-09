@@ -226,7 +226,7 @@ extern char* str_replace_at_offset(const char *str, size_t offset, size_t len, c
 
 extern char* str_replace_all(const char *str, const char * old_substr, const char * new_substr);
 
-extern char* str_replace_all_ext(const char *str, int n_pairs, ...);
+extern char* str_replace_all_ext(const char *str, size_t str_len, int n_pairs, ...);
 
 extern int str_ends_with(const char *str, const char *suffix);
 
