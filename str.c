@@ -320,7 +320,7 @@ char* str_replace_all_ext(const char *str, size_t str_len, int n_pairs, ...){
     char *old_needle, *new_needle;
     size_t old_len, new_len;
   };
-  int min_old_len = 1000, max_new_len = 0;
+  int min_old_len = 1000, max_new_len = 0, max_len, min_len;
   char *old_needle, *new_needle;
 
   struct pair *pairs = malloc(sizeof(struct pair) * n_pairs), *used_pair = NULL;
@@ -342,7 +342,10 @@ char* str_replace_all_ext(const char *str, size_t str_len, int n_pairs, ...){
   }
   va_end(ap);
 
-  size_t new_strlen = (str_len/min_old_len + 1) * max_new_len;
+  max_len = max_new_len > min_old_len ? max_new_len : min_old_len;
+  min_len = max_new_len > min_old_len ? min_old_len : max_new_len;
+
+  size_t new_strlen = (str_len/min_len) * max_len; /* make it larger to be safer */
   char *new_str = malloc(new_strlen + 1);
 
   size_t i_src = 0, i_dest = 0;
