@@ -235,7 +235,7 @@ extern char* str_replace_at_offset(const char *str, size_t offset, size_t len, c
 
 extern char* str_replace_all(const char *str, const char * old_substr, const char * new_substr);
 
-extern char* str_replace_all_ext(const char *str, size_t str_len, int n_pairs, ...);
+extern char* str_replace_all_ext(const char *str, size_t str_len, size_t *out_size, int n_pairs, ...);
 
 extern int str_ends_with(const char *str, const char *suffix);
 
@@ -2132,7 +2132,7 @@ str_replace_all(const char *str, const char *old_substr, const char *new_substr)
 
 
 
-char* str_replace_all_ext(const char *str, size_t str_len, int n_pairs, ...){
+char* str_replace_all_ext(const char *str, size_t str_len, size_t *out_size, int n_pairs, ...){
   struct pair {
     char *old_needle, *new_needle;
     size_t old_len, new_len;
@@ -2140,7 +2140,11 @@ char* str_replace_all_ext(const char *str, size_t str_len, int n_pairs, ...){
   int min_old_len = 1000, max_new_len = 0, max_len, min_len;
   char *old_needle, *new_needle;
 
-  struct pair *pairs = malloc(sizeof(struct pair) * n_pairs), *used_pair = NULL;
+  struct pair *pairs, *used_pair = NULL;
+  if( n_pairs <= 16 )
+     pairs = alloca(sizeof(struct pair) * n_pairs);
+  else
+     pairs = malloc(sizeof(struct pair) * n_pairs);
 
   va_list ap;
   va_start(ap, n_pairs);
@@ -2187,7 +2191,10 @@ char* str_replace_all_ext(const char *str, size_t str_len, int n_pairs, ...){
     }
   }
   new_str[i_dest] = 0;
-  free(pairs);
+  if( out_size )
+    *out_size = i_dest;
+  if( n_pairs > 16 )
+    free(pairs);
   return new_str;
 }
 
