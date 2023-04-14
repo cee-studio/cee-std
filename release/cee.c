@@ -2173,7 +2173,7 @@ char* str_replace_all_ext(const char *str, size_t str_len, size_t *out_size, int
   while( i_src < str_len ){
     used_pair = NULL;
     for( int x = 0; x < n_pairs; x++ ){
-      if( i_src + pairs[x].old_len < str_len
+      if( i_src + pairs[x].old_len <= str_len
           && strncmp(str+i_src, pairs[x].old_needle, pairs[x].old_len) == 0 ){
         used_pair = pairs+x;
         break;
