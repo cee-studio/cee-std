@@ -687,10 +687,6 @@ extern void cee_decr_indegree (enum cee_del_policy o, void * p);
  */
 extern uint16_t cee_get_rc (void *);
 
-/*
- * call this to cause segfault for non-recoverable errors
- */
-extern void cee_segfault() __attribute__((noreturn));
 
 struct cee_state {
   struct cee_stack * stack;  /* the stack */
@@ -737,6 +733,13 @@ extern struct cee_state* cee_get_state(void *p);
 
 #ifndef NULL
 #define NULL     ((void *)0)
+#endif
+
+/*
+ * call this to cause segfault for non-recoverable errors
+ */
+#ifndef cee_segfault
+#define cee_segfault() do{volatile char*_c_=0;*_c_=0;__builtin_unreachable();}while(0)
 #endif
 
 #endif /* CEE_H */

@@ -65,12 +65,6 @@ void cee_use_malloc(void * p) {
     cs->resize_method = CEE_RESIZE_WITH_MALLOC;
 }
 
-void cee_segfault() {
-  volatile char * c = 0;
-  *c = 0;
-  __builtin_unreachable();
-}
-
 static void _cee_common_incr_rc (void * p) {
   struct cee_sect * cs = FIND_SECT(p);
   if (cs->retained) return;
