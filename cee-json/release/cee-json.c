@@ -964,9 +964,9 @@ int cee_json_select_as_int(struct cee_json *o, int *x, char *fmt){
   return 1;
 }
 
-void cee_json_escape_string(const char *s, size_t s_size,
-       char *dest, size_t dest_size,
-       char **next_dest_p, size_t *next_size){
+size_t cee_json_escape_string(const char *s, size_t s_size,
+         char *dest, size_t dest_size,
+         char **next_dest_p, size_t *next_dest_size){
   int j = 0, c, i;
   for( i = 0; i < s_size; i++ ){
     c = s[i];
@@ -988,13 +988,13 @@ void cee_json_escape_string(const char *s, size_t s_size,
       }
     }
   }
-  if( next_size )
-    *next_size = dest_size - j;
+  if( next_dest_size )
+    *next_dest_size = dest_size - j;
 
   if( next_dest_p )
     *next_dest_p = dest + j;
 
-  return;
+  return j;
 }
 /* cee_json parser
    C reimplementation of cppcms's json.cpp
