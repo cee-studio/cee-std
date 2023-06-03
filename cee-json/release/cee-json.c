@@ -963,6 +963,39 @@ int cee_json_select_as_int(struct cee_json *o, int *x, char *fmt){
     return cee_json_to_intx(i, x);
   return 1;
 }
+
+void cee_json_escape_string(const char *s, size_t s_size,
+       char *dest, size_t dest_size,
+       char **next_dest_p, size_t *next_size){
+  int j = 0, c, i;
+  for( i = 0; i < s_size; i++ ){
+    c = s[i];
+    switch( c ){
+    case '"' : dest[j] = '\\', dest[j+1] = '"', j+= 2; break;
+    case '\\': dest[j] = '\\', dest[j+1] = '\\', j+= 2; break;
+    case '\b': dest[j] = '\\', dest[j+1] = 'b', j+= 2; break;
+    case '\f': dest[j] = '\\', dest[j+1] = 'f', j+= 2; break;
+    case '\n': dest[j] = '\\', dest[j+1] = 'n', j+= 2; break;
+    case '\r': dest[j] = '\\', dest[j+1] = 'r', j+= 2; break;
+    case '\t': dest[j] = '\\', dest[j+1] = 't', j+= 2; break;
+    default:
+      if( '\x00' <= c && c <= '\x1f' ){
+ dest[j] = '\\', dest[j+1] = 'u';
+ snprintf(dest+j+2, dest_size - j - 2, "%04x", c);
+ j += 4;
+      }else{
+ dest[j] = c, j++;
+      }
+    }
+  }
+  if( next_size )
+    *next_size = dest_size - j;
+
+  if( next_dest_p )
+    *next_dest_p = dest + j;
+
+  return;
+}
 /* cee_json parser
    C reimplementation of cppcms's json.cpp
 */
