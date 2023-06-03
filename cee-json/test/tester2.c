@@ -16,7 +16,7 @@ int main () {
 
   struct cee_json *result = NULL;
   int line = 0;
-  if (!cee_json_parse(state, buf, strlen(buf),  &result, true, &line)) {
+  if (!cee_json_parsex(state, buf, strlen(buf),  &result, true, &line)) {
     fprintf(stderr, "parsing error at line %d\n", line);
     return 0;
   }
@@ -28,7 +28,7 @@ int main () {
 
 
   struct cee_json *result1 = NULL;
-  if (!cee_json_parse(state, buf1, strlen(buf1), &result1, true, &line)) {
+  if (!cee_json_parsex(state, buf1, strlen(buf1), &result1, true, &line)) {
     fprintf(stderr, "parsing error at line %d\n", line);
     return 0;
   }

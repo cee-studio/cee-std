@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <alloca.h>
 #endif
 #include "cee-header.h"
 

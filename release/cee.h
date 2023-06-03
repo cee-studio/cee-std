@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <alloca.h>
 
 /*
  * for operations that might fail, this is aligned with

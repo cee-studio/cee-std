@@ -36,7 +36,7 @@ int main () {
   struct cee_json * result = NULL;
   int line;
   printf ("parsing\n");
-  cee_json_parse(st, buf, jlen, &result, true, &line);
+  cee_json_parsex(st, buf, jlen, &result, true, &line);
   printf ("end of parsing\n");
   
   cee_json_snprint (st, buf, 109, result, 0);

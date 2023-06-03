@@ -74,7 +74,7 @@ char* _check_cee_json(char str[], long len)
   struct cee_json  *json    = NULL;
   int               errline = -1;
 
-  cee_json_parse(st, str, len, &json, true, &errline);
+  cee_json_parsex(st, str, len, &json, true, &errline);
   if (errline != -1) return NULL;
 
   cee_json_asprint(st, &jsonstr, NULL, json, CEE_JSON_FMT_COMPACT);

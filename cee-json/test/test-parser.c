@@ -59,7 +59,7 @@ TEST check_parser(char str[], long len, enum action expected)
     struct cee_json  *json    = NULL;
     int               errline = -1;
 
-    cee_json_parse(st, str, len, &json, true, &errline);
+    cee_json_parsex(st, str, len, &json, true, &errline);
     _exit( -1 == errline ? EXIT_SUCCESS : EXIT_FAILURE );
   }
 
