@@ -8,6 +8,11 @@
 #include <sys/types.h> /* ssize_t */
 #endif
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #define MAX_JSON_DEPTH 500
 
 enum cee_json_type {
@@ -161,5 +166,10 @@ extern int cee_json_parsex(struct cee_state *st, char *buf, uintptr_t len, struc
  * transitively and recursively
  */
 extern struct cee_json* cee_json_has(struct cee_json *, char *key);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CEE_JSON_H */

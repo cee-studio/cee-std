@@ -7,6 +7,11 @@
 #include <stdarg.h>
 #include <alloca.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /*
  * for operations that might fail, this is aligned with
  * how shell treats the exit of a process.
@@ -469,7 +474,7 @@ extern int cee_map_iterate(struct cee_map *m, void *ctx, int (*f)(void *ctx, voi
  *
  */
 extern void cee_map_merge(struct cee_map *dest, struct cee_map *src,
-			  void *ctx, void* (*merge)(void *ctx, void *old, void *new));
+			  void *ctx, void* (*merge)(void *ctx, void *old_map, void *new_map));
 
 
 /*
@@ -741,6 +746,11 @@ extern struct cee_state* cee_get_state(void *p);
  */
 #ifndef cee_segfault
 #define cee_segfault() do{volatile char*_c_=0;*_c_=0;__builtin_unreachable();}while(0)
+#endif
+
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* CEE_H */
