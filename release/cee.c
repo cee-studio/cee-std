@@ -1874,10 +1874,10 @@ struct cee_str * cee_str_mkv (struct cee_state *st, const char *fmt, va_list ap)
   }
 
   uintptr_t s;
-  va_list saved_ap;
-  va_copy(saved_ap, ap);
-
+  va_list prob_ap;
+  va_copy(prob_ap, ap);
   s = vsnprintf(NULL, 0, fmt, ap);
+  va_end(prob_ap);
   s ++;
 
   s += sizeof(struct _cee_str_header);
@@ -1897,7 +1897,7 @@ struct cee_str * cee_str_mkv (struct cee_state *st, const char *fmt, va_list ap)
 
   h->capacity = s - sizeof(struct _cee_str_header);
 
-  vsnprintf(h->_, s, fmt, saved_ap);
+  vsnprintf(h->_, s, fmt, ap);
   return (struct cee_str *)(h->_);
 }
 
