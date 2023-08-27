@@ -71,7 +71,7 @@ extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int ho
 extern struct cee_json * cee_json_load_from_file (struct cee_state *,
                                                   FILE *, bool force_eof, 
                                                   int * error_at_line);
-extern struct cee_json * cee_json_load_from_buffer (int size, char *, int line);
+extern struct cee_json *cee_json_load_from_buffer(char *buf, size_t buf_size);
 extern int cee_json_cmp (struct cee_json *, struct cee_json *);
 
 extern bool cee_json_merge (struct cee_json *dest, struct cee_json *src);
@@ -808,6 +808,18 @@ struct cee_json * cee_json_load_from_file (struct cee_state * st,
     j = NULL;
   }
   free(b);
+  return j;
+}
+
+
+struct cee_json *cee_json_load_from_buffer(char *buf, size_t buf_size){
+  struct cee_state *st = cee_state_mk(512);
+  struct cee_json *j = NULL;
+  int line = 0;
+  if( cee_json_parsex(st, buf, buf_size, &j, true, &line) ){
+    fprintf(stderr, "failed to parse at %d\n", line);
+    j = NULL;
+  }
   return j;
 }
 

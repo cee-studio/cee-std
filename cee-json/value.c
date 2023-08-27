@@ -603,6 +603,18 @@ struct cee_json * cee_json_load_from_file (struct cee_state * st,
   return j;
 }
 
+
+struct cee_json *cee_json_load_from_buffer(char *buf, size_t buf_size){
+  struct cee_state *st = cee_state_mk(512);
+  struct cee_json *j = NULL;
+  int line = 0;
+  if( cee_json_parsex(st, buf, buf_size, &j, true, &line) ){
+    fprintf(stderr, "failed to parse at %d\n", line);
+    j = NULL;
+  }
+  return j;
+}
+
 bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how) {
   size_t s = cee_json_snprint (st, NULL, 0, j, how);
   char * p = malloc(s+1);
