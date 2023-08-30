@@ -117,6 +117,7 @@ struct cee_block {
  *         can be freed by cee_del
  */
 extern void * cee_block_mk (struct cee_state * s, size_t n);
+extern void * cee_block_mk_nonzero(struct cee_state * s, size_t n);
 
 /*
  * @param init_f: a function to initialize the allocated block

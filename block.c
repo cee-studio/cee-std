@@ -45,7 +45,7 @@ static void S(mark) (void * p) {
    */
 };
 
-void * cee_block_mk (struct cee_state * s, size_t n) {
+void *cee_block_mk_nonzero(struct cee_state *s, size_t n){
   size_t mem_block_size;
   va_list ap;
   
@@ -65,11 +65,16 @@ void * cee_block_mk (struct cee_state * s, size_t n) {
   return (struct cee_block *)(m->_);
 }
 
+void *cee_block_mk(struct cee_state *s, size_t n){
+  void *p = cee_block_mk_nonzero(s, n);
+  memset(p, 0, n);
+  return p;
+}
+
 /*
  * @param init_f: a function to initialize the allocated block
  */
-void * cee_block_mk_e (struct cee_state *s, size_t n, void *cxt, void (*init_f)(void *cxt, void *block))
-{
+void *cee_block_mk_e(struct cee_state *s, size_t n, void *cxt, void (*init_f)(void *cxt, void *block)){
   void *block = cee_block_mk(s, n);
   init_f(cxt, block);
   return block;
