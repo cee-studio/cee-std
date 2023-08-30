@@ -926,12 +926,11 @@ new_cee_sqlite3_db_op(struct cee_state *state,
                       struct cee_sqlite3_db_op *op,
                       size_t size_of_bind_infos)
 {
-  struct cee_sqlite3_db_op *new_op = cee_block_mk(state, sizeof (struct cee_sqlite3_db_op));
+  struct cee_sqlite3_db_op *new_op = cee_block_mk_nonzero(state, sizeof(struct cee_sqlite3_db_op));
   memcpy(new_op, op, sizeof(*op));
   size_t s = sizeof(struct cee_sqlite3_bind_data) *
     size_of_bind_infos/(sizeof (struct cee_sqlite3_bind_info));
   new_op->data = cee_block_mk(state, s);
-  memset(new_op->data, 0, s);
   return new_op;
 }
 
@@ -1036,7 +1035,6 @@ cee_json_to_bind_info(struct cee_json *input) {
   struct cee_block *block = cee_block_mk(state, m_size);
   
   struct info_state is = { .state = state, .info = (void *)block, .size = size };
-  memset(block->_, 0, m_size);
   cee_json_object_iterate(input, &is, f);
   return (void *)block;
 }
@@ -1143,7 +1141,7 @@ insert_one_json_object (void *ctx, struct cee_json *one, int idx) {
                   one_ctx.insert_colums->_,
                   one_ctx.insert_values->_);
   size ++;
-  sql = cee_block_mk(state, size);
+  sql = cee_block_mk_nonzero(state, size);
   snprintf(sql->_, size, "insert into %s (%s) values (%s);",
            p->table_name,
            one_ctx.insert_colums->_,

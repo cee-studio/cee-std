@@ -503,7 +503,7 @@ struct cee_json * cee_json_object_kv(struct cee_state *st, char *key, struct cee
 }
 
 struct cee_json* cee_json_blob_mk(struct cee_state *st, const void *src, size_t bytes) {
-  struct cee_block *m = cee_block_mk(st, bytes);
+  struct cee_block *m = cee_block_mk_nonzero(st, bytes);
   memcpy(m->_, src, bytes);
   struct cee_tagged *t = cee_tagged_mk (st, CEE_JSON_BLOB, m);
   return (struct cee_json*)t;
@@ -1292,14 +1292,14 @@ static struct counter * push(struct cee_state * st, uintptr_t tabs, bool more_si
                              struct cee_stack * sp, struct cee_json * j) {
   struct counter * p = NULL;
   if (j == NULL) {
-    p = cee_block_mk(st, sizeof(struct counter));
+    p = cee_block_mk_nonzero(st, sizeof(struct counter));
     p->tabs = 0;
   }
   else {
     switch(j->t) {
       case CEE_JSON_OBJECT:
         {
-          p = cee_block_mk(st, sizeof(struct counter));
+          p = cee_block_mk_nonzero(st, sizeof(struct counter));
           struct cee_map * mp = cee_json_to_object(j);
           p->array = cee_map_keys(mp);
           p->object = cee_json_to_object(j);
@@ -1310,7 +1310,7 @@ static struct counter * push(struct cee_state * st, uintptr_t tabs, bool more_si
         break;
       case CEE_JSON_ARRAY:
         {
-          p = cee_block_mk(st, sizeof(struct counter));
+          p = cee_block_mk_nonzero(st, sizeof(struct counter));
           p->array = cee_json_to_array(j);
           p->tabs = tabs;
           p->next = 0;
@@ -1319,7 +1319,7 @@ static struct counter * push(struct cee_state * st, uintptr_t tabs, bool more_si
         break;
       default:
         {
-          p = cee_block_mk(st, sizeof(struct counter));
+          p = cee_block_mk_nonzero(st, sizeof(struct counter));
           p->array = NULL;
           p->tabs = tabs;
           p->next = 0;
@@ -1614,7 +1614,7 @@ cee_json_asprint(struct cee_state *st, char **buf_p, size_t *buf_size_p, struct 
                  enum cee_json_fmt f)
 {
   size_t buf_size = cee_json_snprint(st, NULL, 0, j, f) + 1/*\0*/;
-  char *buf = cee_block_mk(st, buf_size);
+  char *buf = cee_block_mk_nonzero(st, buf_size);
   if (buf_size_p) *buf_size_p = buf_size;
   *buf_p = buf;
   return cee_json_snprint(st, buf, buf_size, j, f);

@@ -295,7 +295,7 @@ struct cee_json * cee_json_object_kv(struct cee_state *st, char *key, struct cee
 }
 
 struct cee_json* cee_json_blob_mk(struct cee_state *st, const void *src, size_t bytes) {
-  struct cee_block *m = cee_block_mk(st, bytes);
+  struct cee_block *m = cee_block_mk_nonzero(st, bytes);
   memcpy(m->_, src, bytes);
   struct cee_tagged *t = cee_tagged_mk (st, CEE_JSON_BLOB, m);
   return (struct cee_json*)t;

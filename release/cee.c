@@ -4180,7 +4180,7 @@ void *cee_block_mk(struct cee_state *s, size_t n){
  * @param init_f: a function to initialize the allocated block
  */
 void *cee_block_mk_e(struct cee_state *s, size_t n, void *cxt, void (*init_f)(void *cxt, void *block)){
-  void *block = cee_block_mk(s, n);
+  void *block = cee_block_mk_nonzero(s, n);
   init_f(cxt, block);
   return block;
 }
