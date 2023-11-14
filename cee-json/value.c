@@ -779,8 +779,8 @@ int cee_json_select_as_int(struct cee_json *o, int *x, char *fmt){
 }
 
 size_t cee_json_escape_string(const char *s,  size_t s_size,
-			      char *dest, size_t dest_size,
-			      char **next_dest_p, size_t *next_dest_size){
+                              char *dest, size_t dest_size,
+                              char **next_dest_p, size_t *next_dest_size){
   int j = 0, c, i;
   for( i = 0; i < s_size; i++ ){
     c = s[i];
@@ -794,19 +794,19 @@ size_t cee_json_escape_string(const char *s,  size_t s_size,
     case '\t': dest[j] = '\\', dest[j+1] = 't',  j+= 2; break;
     default:
       if( '\x00' <= c && c <= '\x1f' ){
-	dest[j] = '\\', dest[j+1] = 'u';
-	snprintf(dest+j+2, dest_size - j - 2, "%04x", c);
-	j += 4;
+        dest[j] = '\\', dest[j+1] = 'u';
+        snprintf(dest+j+2, dest_size - j - 2, "%04x", c);
+        j += 4;
       }else{
-	dest[j] = c, j++;
+        dest[j] = c, j++;
       }
     }
   }
   if( next_dest_size )
     *next_dest_size = dest_size - j;
-  
+
   if( next_dest_p )
     *next_dest_p = dest + j;
-  
+
   return j;
 }

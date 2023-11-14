@@ -27,8 +27,12 @@ extern "C"
  */
 enum cee_status {
   cee_success = 0,
-  cee_failure = 100
+  cee_continue = 0,
+  cee_failure = 100,
+  cee_break = 100
 };
+
+typedef enum cee_status cee_status_t;
 
 struct cee_state; /* forwarding */
 
@@ -335,8 +339,8 @@ extern struct cee_tuple * cee_tuple_mk_e (struct cee_state * s,
  * 
  */
 extern void cee_tuple_update_del_policy(struct cee_tuple *t,
-					int index,
-					enum cee_del_policy v);
+                                        int index,
+                                        enum cee_del_policy v);
 
 struct cee_triple {
   void * _[3];
@@ -422,7 +426,7 @@ extern struct cee_list * cee_set_values (struct cee_set * m);
 extern struct cee_set * cee_set_union_sets (struct cee_set * s1, struct cee_set * s2);
 
 extern void cee_set_iterate (struct cee_set *s, void *ctx,
-			     void (*f)(void *ctx, void *value));
+                             void (*f)(void *ctx, void *value));
 
 struct cee_map {
   void * _;
@@ -484,7 +488,7 @@ extern int cee_map_iterate(struct cee_map *m, void *ctx, int (*f)(void *ctx, voi
  *
  */
 extern void cee_map_merge(struct cee_map *dest, struct cee_map *src,
-			  void *ctx, void* (*merge)(void *ctx, void *old_map, void *new_map));
+                          void *ctx, void* (*merge)(void *ctx, void *old_map, void *new_map));
 
 
 /*
@@ -758,6 +762,10 @@ extern struct cee_state* cee_get_state(void *p);
 #define cee_segfault() do{volatile char*_c_=0;*_c_=0;__builtin_unreachable();}while(0)
 #endif
 
+
+extern size_t cee_json_escape_string(const char *s, size_t s_size,
+                                     char *dest, size_t dest_size,
+                                     char **next_dest_p, size_t *next_dest_size);
 
 #ifdef __cplusplus
 }
