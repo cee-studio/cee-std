@@ -1613,7 +1613,7 @@ ssize_t
 cee_json_asprint(struct cee_state *st, char **buf_p, size_t *buf_size_p, struct cee_json *j,
                  enum cee_json_fmt f)
 {
-  size_t buf_size = cee_json_snprint(st, NULL, 0, j, f) + 1/*\0*/;
+  size_t buf_size = cee_json_snprint(st, NULL, 0, j, f);
   char *buf = cee_block_mk_nonzero(st, buf_size);
   if (buf_size_p) *buf_size_p = buf_size;
   *buf_p = buf;
