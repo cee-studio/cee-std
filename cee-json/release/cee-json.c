@@ -827,7 +827,7 @@ bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how)
   size_t s = cee_json_snprint (st, NULL, 0, j, how);
   char * p = malloc(s+1);
   cee_json_snprint (st, p, s+1, j, how);
-  if (fwrite(p, s+1, 1, f) != 1) {
+  if (fwrite(p, s, 1, f) != 1) {
     fprintf(stderr, "%s", strerror(errno));
     free(p);
     return false;
