@@ -622,17 +622,21 @@ struct cee_json *cee_json_load_from_buffer(char *buf, size_t buf_size){
   return j;
 }
 
-bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how) {
+bool cee_json_save_fileno(struct cee_state * st, struct cee_json * j, int fd, int how) {
   size_t s = cee_json_snprint (st, NULL, 0, j, how);
   char * p = malloc(s+1);
   cee_json_snprint (st, p, s+1, j, how);
-  if (fwrite(p, s, 1, f) != 1) {
+  if( write(fd, p, s) != s ){
     fprintf(stderr, "%s", strerror(errno));
     free(p);
     return false;
   }
   free(p);
   return true;
+}
+
+bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how) {
+  return cee_json_save_fileno(st, j, fileno(f), how);
 }
 
 
