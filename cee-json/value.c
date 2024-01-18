@@ -582,15 +582,14 @@ void cee_json_array_concat (struct cee_json *dest, struct cee_json *src)
 /*
  * this function assume the file pointer points to the begin of a file
  */
-struct cee_json * cee_json_load_from_file (struct cee_state * st,
-                                           FILE * f, bool force_eof, 
+struct cee_json * cee_json_load_from_fileno(struct cee_state * st,
+                                           int fd, bool force_eof, 
                                            int * error_at_line) {
-  int fd = fileno(f);
   struct stat buf;
   fstat(fd, &buf);
   off_t size = buf.st_size;
   char * b = malloc(size);
-  fread(b, 1, size, f);
+  read(fd, b, size);
 
   int line = 0;
   struct cee_json * j = NULL;
@@ -601,6 +600,14 @@ struct cee_json * cee_json_load_from_file (struct cee_state * st,
   }
   free(b);
   return j;
+}
+/*
+ * this function assume the file pointer points to the begin of a file
+ */
+struct cee_json * cee_json_load_from_file(struct cee_state * st,
+                                          FILE * f, bool force_eof, 
+                                          int * error_at_line){
+  return cee_json_load_from_fileno(st, fileno(f), force_eof, error_at_line);
 }
 
 
