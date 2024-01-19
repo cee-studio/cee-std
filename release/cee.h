@@ -650,6 +650,8 @@ union cee_tagged_ptr {
 struct cee_tagged {
   cee_tag_t tag;
   union cee_tagged_ptr ptr;
+  char *buf;
+  size_t buf_size;
 };
 
 /*

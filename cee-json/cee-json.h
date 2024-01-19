@@ -40,11 +40,9 @@ struct cee_json {
     struct cee_block     * blob;
     struct cee_list      * array;
     struct cee_map       * object;
-    struct {
-        char *start;
-        size_t size;
-    } strn;
   } value;
+  char *buf;
+  size_t buf_size;
 };
 
 enum cee_json_fmt {
