@@ -42,6 +42,31 @@ static void S(trace) (void * p, enum cee_trace_action ta) {
   }
 }
 
+struct cee_str * cee_str_strn(struct cee_state *st, char *str, size_t size) {
+  uintptr_t s;
+  s = size + 1;
+
+  s += sizeof(struct S(header));
+  s = (s / CEE_BLOCK + 1) * CEE_BLOCK;
+  size_t mem_block_size = s;
+  struct S(header) * h = malloc(mem_block_size);
+
+  ZERO_CEE_SECT(&h->cs);
+  S(chain)(h, st);
+  
+  h->cs.trace = S(trace);
+  h->cs.resize_method = CEE_RESIZE_WITH_MALLOC;
+  h->cs.mem_block_size = mem_block_size;
+  h->cs.cmp = (void *)strcmp;
+  h->cs.cmp_stop_at_null = 1;
+  h->cs.n_product = 0;
+  
+  h->capacity = s - sizeof(struct S(header));
+
+  memcpy(h->_, str, size);
+  return (struct cee_str *)(h->_);
+}
+
 struct cee_str * cee_str_mkv (struct cee_state *st, const char *fmt, va_list ap) {
   if (!fmt) {
     /* fmt cannot be null */

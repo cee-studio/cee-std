@@ -147,6 +147,8 @@ struct cee_str {
 };
 
 
+extern struct cee_str * cee_str_strn(struct cee_state *st, char *str, size_t size);
+  
 /*
  * the function performs the following task
  * 1  allocate a memory block to include enough consecutive bytes

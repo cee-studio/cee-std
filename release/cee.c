@@ -156,6 +156,8 @@ struct cee_str {
 };
 
 
+extern struct cee_str * cee_str_strn(struct cee_state *st, char *str, size_t size);
+  
 /*
  * the function performs the following task
  * 1  allocate a memory block to include enough consecutive bytes
@@ -1873,6 +1875,31 @@ static void _cee_str_trace (void * p, enum cee_trace_action ta) {
       m->cs.gc_mark = ta - CEE_TRACE_MARK;
       break;
   }
+}
+
+struct cee_str * cee_str_strn(struct cee_state *st, char *str, size_t size) {
+  uintptr_t s;
+  s = size + 1;
+
+  s += sizeof(struct _cee_str_header);
+  s = (s / 64 + 1) * 64;
+  size_t mem_block_size = s;
+  struct _cee_str_header * h = malloc(mem_block_size);
+
+  do{ memset(&h->cs, 0, sizeof(struct cee_sect)); } while(0);;
+  _cee_str_chain(h, st);
+
+  h->cs.trace = _cee_str_trace;
+  h->cs.resize_method = CEE_RESIZE_WITH_MALLOC;
+  h->cs.mem_block_size = mem_block_size;
+  h->cs.cmp = (void *)strcmp;
+  h->cs.cmp_stop_at_null = 1;
+  h->cs.n_product = 0;
+
+  h->capacity = s - sizeof(struct _cee_str_header);
+
+  memcpy(h->_, str, size);
+  return (struct cee_str *)(h->_);
 }
 
 struct cee_str * cee_str_mkv (struct cee_state *st, const char *fmt, va_list ap) {
