@@ -50,7 +50,8 @@ struct cee_tagged * cee_tagged_mk_e (struct cee_state * st, enum cee_del_policy 
   b->_.tag = tag;
   b->_.ptr._ = p;
   b->del_policy = o;
-  cee_incr_indegree(o, p);
+  if( p )
+    cee_incr_indegree(o, p);
   return &b->_;
 }
 
