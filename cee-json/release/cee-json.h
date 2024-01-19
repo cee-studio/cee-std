@@ -25,7 +25,8 @@ enum cee_json_type {
   CEE_JSON_STRING,       /**<  string value */
   CEE_JSON_BLOB,         /**<  blob value, it should be printed as base64 */
   CEE_JSON_OBJECT,       /**<  object value  */
-  CEE_JSON_ARRAY         /**<  array value */
+  CEE_JSON_ARRAY,        /**<  array value */
+  CEE_JSON_STRN
 };
 
 struct cee_json {
@@ -39,6 +40,10 @@ struct cee_json {
     struct cee_block     * blob;
     struct cee_list      * array;
     struct cee_map       * object;
+    struct {
+        char *start;
+        size_t size;
+    } strn;
   } value;
 };
 
@@ -75,6 +80,7 @@ extern struct cee_list * cee_json_to_array (struct cee_json *);
 extern struct cee_map * cee_json_to_object (struct cee_json *);
 extern struct cee_boxed * cee_json_to_boxed (struct cee_json *);
 extern struct cee_str* cee_json_to_str (struct cee_json *);
+extern bool cee_json_to_strn(struct cee_json *p, char **start_p, size_t *size_p);
 extern struct cee_block* cee_json_to_blob (struct cee_json *);
 /*
  * convert object/str to [object/str]
@@ -98,10 +104,11 @@ extern struct cee_json * cee_json_object_kv (struct cee_state *, char *key, stru
 extern struct cee_json * cee_json_double_mk (struct cee_state *, double d);
 extern struct cee_json * cee_json_i64_mk(struct cee_state *, int64_t);
 extern struct cee_json * cee_json_u64_mk(struct cee_state *, uint64_t);
-extern struct cee_json * cee_json_str_mk (struct cee_state *, struct cee_str * s);
-extern struct cee_json * cee_json_str_mkf (struct cee_state *, const char *fmt, ...);
-extern struct cee_json * cee_json_blob_mk (struct cee_state *, const void *src, size_t bytes);
-extern struct cee_json * cee_json_array_mk (struct cee_state *, int s);
+extern struct cee_json * cee_json_str_mk(struct cee_state *, struct cee_str * s);
+extern struct cee_json * cee_json_str_mkf(struct cee_state *, const char *fmt, ...);
+extern struct cee_json * cee_json_blob_mk(struct cee_state *, const void *src, size_t bytes);
+extern struct cee_json * cee_json_array_mk(struct cee_state *, int s);
+extern struct cee_json * cee_json_strn_mk(struct cee_state *, char *start, size_t size);
 
 /*
  * return 1 if cee_json is an empty object or is an empty array

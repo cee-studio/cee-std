@@ -121,6 +121,16 @@ struct cee_str * cee_json_to_str (struct cee_json *p) {
   return (p->t == CEE_JSON_STRING) ? p->value.string : NULL;
 }
 
+bool cee_json_to_strn (struct cee_json *p, char **start_p, size_t *size_p) {
+  if( p->t == CEE_JSON_STRN ){
+    *start_p = p->value.strn.start;
+    *size_p = p->value.strn.size;
+    return true;
+  }else{
+    return false;
+  }
+}
+
 struct cee_boxed * cee_json_to_boxed (struct cee_json *p) {
   if (p->t == CEE_JSON_U64 || p->t == CEE_JSON_I64 || p->t == CEE_JSON_DOUBLE)
     return p->value.boxed;
@@ -298,6 +308,17 @@ struct cee_json* cee_json_blob_mk(struct cee_state *st, const void *src, size_t 
   struct cee_block *m = cee_block_mk_nonzero(st, bytes);
   memcpy(m->_, src, bytes);
   struct cee_tagged *t = cee_tagged_mk (st, CEE_JSON_BLOB, m);
+  return (struct cee_json*)t;
+}
+
+struct cee_json* cee_json_strn_mk(struct cee_state *st, char *start, size_t bytes){
+  struct cee_block *m = cee_block_mk_nonzero(st, sizeof(char*) + sizeof(size_t));
+  char **p = (char**)m->_;
+
+  *p = start;
+  *(size_t *)(p + 1) = bytes;
+
+  struct cee_tagged *t = cee_tagged_mk (st, CEE_JSON_STRN, m);
   return (struct cee_json*)t;
 }
 

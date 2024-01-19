@@ -246,6 +246,18 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
           cee_del(cee_stack_pop(sp));
         }
         break;
+      case CEE_JSON_STRN:
+        {
+          char *str;
+          size_t slen;
+          cee_json_to_strn(cur_json, &str, &slen);
+          pad(&offset, buf, ccnt, f);
+          str_append(buf, &offset, str, slen);
+          if( ccnt->more_siblings)
+            delimiter(&offset, buf, f, ccnt, ',');
+          cee_del(cee_stack_pop(sp));
+        }
+        break;
       case CEE_JSON_BLOB:
         {
           /* TODO: encode as base64 */
