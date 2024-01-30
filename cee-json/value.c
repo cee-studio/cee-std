@@ -498,6 +498,17 @@ int cee_json_object_iterate (struct cee_json *j, void *ctx,
   return cee_map_iterate(o, ctx, (fnt)f);
 };
 
+void cee_json_array_insert(struct cee_json * j, int idx, struct cee_json *v) {
+  struct cee_list *o = cee_json_to_array(j);
+  if (NULL == o) 
+    cee_segfault();
+  cee_list_insert(o, idx, v);
+  if (o != j->value.array) {
+    /*  free j->value.array */
+    j->value.array = o;
+  }
+}
+
 void cee_json_array_append (struct cee_json * j, struct cee_json *v) {
   struct cee_list *o = cee_json_to_array(j);
   if (NULL == o) 

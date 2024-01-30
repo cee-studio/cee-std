@@ -151,7 +151,7 @@ extern void cee_json_object_remove (struct cee_json *, char *);
 extern int cee_json_object_iterate (struct cee_json *, void *ctx, 
                                     int (*f)(void *ctx, struct cee_str *key, struct cee_json *val));
 
-
+extern void cee_json_array_insert(struct cee_json * j, int idx, struct cee_json *v);
 extern void cee_json_array_append (struct cee_json *, struct cee_json *);
 extern void cee_json_array_append_bool (struct cee_json *, bool);
 extern void cee_json_array_append_str (struct cee_json *, char *);
@@ -714,6 +714,17 @@ int cee_json_object_iterate (struct cee_json *j, void *ctx,
   typedef int (*fnt)(void *, void*, void*);
   return cee_map_iterate(o, ctx, (fnt)f);
 };
+
+void cee_json_array_insert(struct cee_json * j, int idx, struct cee_json *v) {
+  struct cee_list *o = cee_json_to_array(j);
+  if (NULL == o)
+    cee_segfault();
+  cee_list_insert(o, idx, v);
+  if (o != j->value.array) {
+    /*  free j->value.array */
+    j->value.array = o;
+  }
+}
 
 void cee_json_array_append (struct cee_json * j, struct cee_json *v) {
   struct cee_list *o = cee_json_to_array(j);
