@@ -337,6 +337,8 @@ ssize_t cee_json_snprint (struct cee_state *st, char *buf, size_t size, struct c
           }
         }
         break;
+      default:
+        cee_segfault();
     }
   }
   cee_del (sp);
