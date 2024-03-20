@@ -176,6 +176,7 @@ extern int cee_json_parsex(struct cee_state *st, char *buf, uintptr_t len, struc
  */
 extern struct cee_json* cee_json_has(struct cee_json *, char *key);
 
+extern int cee_json_merge_all(char **json_files, int json_file_count, char *merged);
 
 #ifdef __cplusplus
 }

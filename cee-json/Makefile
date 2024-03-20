@@ -4,7 +4,7 @@ CC ?= gcc
 OBJDIR  = obj
 TESTDIR = test
 
-SRC     = value.c parser.c snprint.c tokenizer.c
+SRC     = value.c parser.c snprint.c tokenizer.c cee_json_merge.c
 HDR     = cee-json.h tokenizer.h 
 STD_HDR = stdlib.h string.h errno.h sys/types.h sys/stat.h unistd.h stdio.h ctype.h
 OBJS    = $(SRC:%.c=$(OBJDIR)/%.o)
