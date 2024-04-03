@@ -29,7 +29,7 @@ static struct counter * push(struct cee_state * st, uintptr_t tabs, bool more_si
         {
           p = cee_block_mk_nonzero(st, sizeof(struct counter));
           struct cee_map * mp = cee_json_to_object(j);
-          p->array = cee_map_keys(mp);
+          p->array = cee_map_insertion_ordered_keys(mp);
           p->object = cee_json_to_object(j);
           p->tabs = tabs;
           p->next = 0;

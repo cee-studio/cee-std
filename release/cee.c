@@ -467,9 +467,10 @@ extern bool cee_map_rename(struct cee_map *m, void *old_key, void *new_key);
 /*
  * if the map is null, return NULL
  */
-extern void * cee_map_remove(struct cee_map *m, void * key);
+extern void * cee_map_remove(struct cee_map *m, void *key);
 extern struct cee_list * cee_map_keys(struct cee_map *m);
 extern struct cee_list * cee_map_values(struct cee_map *m);
+extern struct cee_list * cee_map_insertion_ordered_keys(struct cee_map *m);
 
 /*
  * applies f to each (k,v) of the map m with ctx
@@ -2407,7 +2408,8 @@ void * cee_dict_find(struct cee_dict * d, char * key) {
 }
 
 
-struct _cee_map_header {
+struct _cee_map_header{
+  struct cee_list *insertion_ordered_keys;
   int (*cmp)(const void *l, const void *r);
   uintptr_t size;
   union {
@@ -2511,11 +2513,13 @@ static void _cee_map_trace(void * p, enum cee_trace_action ta) {
   struct _cee_map_header * h = (struct _cee_map_header *)((void *)((char *)(p) - (__builtin_offsetof(struct _cee_map_header, _))));
   switch (ta) {
     case CEE_TRACE_DEL_NO_FOLLOW:
+      cee_del(h->insertion_ordered_keys);
       musl_tdestroy(NULL, h->_[0], NULL);
       _cee_map_de_chain(h);
       free(h);
       break;
     case CEE_TRACE_DEL_FOLLOW:
+      cee_del(h->insertion_ordered_keys);
       musl_tdestroy(&ta, h->_[0], _cee_map_free_pair_follow);
       _cee_map_de_chain(h);
       free(h);
@@ -2540,6 +2544,7 @@ struct cee_map * cee_map_mk_e (struct cee_state * st, enum cee_del_policy o[2],
                   int (*cmp)(const void *, const void *)) {
   size_t mem_block_size = sizeof(struct _cee_map_header);
   struct _cee_map_header * m = malloc(mem_block_size);
+  m->insertion_ordered_keys = cee_list_mk(st, 16);
   m->cmp = cmp;
   m->size = 0;
   do{ memset(&m->cs, 0, sizeof(struct cee_sect)); } while(0);;
@@ -2572,7 +2577,7 @@ uintptr_t cee_map_size(struct cee_map * m) {
 void* cee_map_add_e(struct cee_map * m, void * key, void * value,
       void *ctx, void* (*merge)(void *ctx, void *old_value, void *new_value)) {
   if( key == NULL ) return NULL;
-  struct _cee_map_header * b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
+  struct _cee_map_header *b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
 
   struct cee_tuple *t, *t1 = NULL, **oldp;
   t = cee_tuple_mk_e(b->cs.state, b->del_policies.a, key, value);
@@ -2595,8 +2600,10 @@ void* cee_map_add_e(struct cee_map * m, void * key, void * value,
     cee_tuple_update_del_policy(t, 1, CEE_DP_NOOP); /* do nothing for t[1] */
     cee_del(t);
     return old_value;
-  }else
+  }else{
+    cee_list_append(b->insertion_ordered_keys, t->_[0]);
     b->size ++;
+  }
   return NULL;
 }
 
@@ -2617,6 +2624,19 @@ void* cee_map_find(struct cee_map * m, void * key){
   }
 }
 
+static void cee_map_ordered_key_delete(struct _cee_map_header *b, void *deleted_key){
+  int i, s = cee_list_size(b->insertion_ordered_keys);
+
+  for( i = 0; i < s; i++ ){
+    char *inserted_key = b->insertion_ordered_keys->a[i];
+    if( b->cmp(deleted_key, inserted_key) == 0 ){
+      cee_list_remove(b->insertion_ordered_keys, i);
+      return;
+    }
+  }
+  cee_segfault();
+}
+
 void* cee_map_remove(struct cee_map * m, void *key){
   if( key == NULL ) return NULL;
   struct _cee_map_header *b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
@@ -2634,6 +2654,7 @@ void* cee_map_remove(struct cee_map * m, void *key){
     cee_tuple_update_del_policy(old_t, 0, CEE_DP_NOOP); /* do nothing for t[0] */
     cee_tuple_update_del_policy(old_t, 1, CEE_DP_NOOP); /* do nothing for t[1] */
     cee_del(old_t);
+    cee_map_ordered_key_delete(b, key);
     return old_value;
   }
 }
@@ -2666,6 +2687,17 @@ struct cee_list * cee_map_keys(struct cee_map * m) {
   struct _cee_map_header * b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
   struct cee_list *keys = cee_list_mk(b->cs.state, n);
   musl_twalk(keys, b->_[0], _cee_map_get_key);
+  return keys;
+}
+
+struct cee_list * cee_map_insertion_ordered_keys(struct cee_map * m){
+  struct _cee_map_header * b = (struct _cee_map_header *)((void *)((char *)(m) - (__builtin_offsetof(struct _cee_map_header, _))));
+  uintptr_t n = cee_list_size(b->insertion_ordered_keys);
+  struct cee_list *keys = cee_list_mk(b->cs.state, n);
+
+  for( int i = 0; i < n; i++ ){
+    cee_list_append(keys, b->insertion_ordered_keys->a[i]);
+  }
   return keys;
 }
 

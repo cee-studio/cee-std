@@ -458,9 +458,10 @@ extern bool cee_map_rename(struct cee_map *m, void *old_key, void *new_key);
 /*
  * if the map is null, return NULL
  */
-extern void * cee_map_remove(struct cee_map *m, void * key);
+extern void * cee_map_remove(struct cee_map *m, void *key);
 extern struct cee_list * cee_map_keys(struct cee_map *m);
 extern struct cee_list * cee_map_values(struct cee_map *m);
+extern struct cee_list * cee_map_insertion_ordered_keys(struct cee_map *m);
 
 /*
  * applies f to each (k,v) of the map m with ctx
