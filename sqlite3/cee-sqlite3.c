@@ -382,6 +382,17 @@ dont_return_colum(struct cee_sqlite3_bind_info *info, char *colum_name)
   return false;
 }
 
+static bool
+dont_label(struct cee_sqlite3_bind_info *info, char *colum_name)
+{
+  int i;
+  if (!info) return false;
+  for (i = 0; info[i].var_name || info[i].col_name; i++)
+    if (info[i].col_name && strcmp(info[i].col_name, colum_name) == 0)
+      return info[i].no_label;
+  return false;
+}
+
 /*
  * returned value is a JSON array
  */
@@ -427,39 +438,51 @@ int cee_sqlite3_select_iter(struct cee_sqlite3 *cs,
 }
 
 static int
-get_a_row (void *cls, struct cee_state *state,
-	   struct cee_sqlite3_bind_info *info,
-	   sqlite3_stmt *stmt) {
+get_a_row(void *cls, struct cee_state *state,
+          struct cee_sqlite3_bind_info *info,
+          sqlite3_stmt *stmt){
   struct cee_json *array = cls;
   struct cee_json *obj = cee_json_object_mk(state);
-  cee_json_array_append(array, obj);
+  struct cee_json *single_value = NULL;
 
-  int i, num_cols = sqlite3_column_count(stmt);
-  for (i = 0; i < num_cols; i++) {
+  int i, num_cols = sqlite3_column_count(stmt), n_values = 0;
+  bool no_label = false;
+  for( i = 0; i < num_cols; i++ ){
     char *name = (char *)sqlite3_column_name(stmt, i);
-    if (dont_return_colum(info, name)) continue;
-    switch(sqlite3_column_type(stmt, i)) {
+    if( dont_return_colum(info, name) ) continue;
+    no_label = dont_label(info, name);
+
+    switch( sqlite3_column_type(stmt, i) ){
     case SQLITE_INTEGER:
-      cee_json_object_set_i64(obj, name, sqlite3_column_int64(stmt, i));
+      single_value = cee_json_i64_mk(state, sqlite3_column_int64(stmt, i));
+      cee_json_object_set(obj, name, single_value);
       break;
     case SQLITE_FLOAT:
-      cee_json_object_set_double(obj, name, sqlite3_column_double(stmt, i));
+      single_value = cee_json_double_mk(state, sqlite3_column_double(stmt, i));
+      cee_json_object_set(obj, name, single_value);
       break;
     case SQLITE_TEXT:
-      cee_json_object_set_str(obj, name, (char*)sqlite3_column_text(stmt, i));
+      single_value = cee_json_str_mkf(state, "%s", (char*)sqlite3_column_text(stmt, i));
+      cee_json_object_set(obj, name, single_value);
       break;
     case SQLITE_NULL:
-      cee_json_object_set(obj, name, cee_json_null());
+      single_value = cee_json_null();
+      cee_json_object_set(obj, name, single_value);
       break;
     case SQLITE_BLOB: {
       size_t bytes = sqlite3_column_bytes(stmt, i);
       const void *data = sqlite3_column_blob(stmt, i);
-      struct cee_json *blob = cee_json_blob_mk (state, data, bytes);
-      cee_json_object_set(obj, name, blob);
+      single_value = cee_json_blob_mk (state, data, bytes);
+      cee_json_object_set(obj, name, single_value);
     }
       break;
     }
   }
+
+  if( num_cols == 1 && no_label )
+    cee_json_array_append(array, single_value);
+  else
+    cee_json_array_append(array, obj);
   return 0; /* success */
 }
 /*

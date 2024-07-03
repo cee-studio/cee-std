@@ -73,6 +73,7 @@ struct cee_sqlite3_bind_info {
    */
   bool not_null;  /* the default is 0/false */
   bool no_return; /* dont return this colum, it's only effective for select, the default is 0/false */
+  bool no_label; /* dont return this label */
 };
 
 
