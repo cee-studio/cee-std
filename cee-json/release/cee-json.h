@@ -167,6 +167,8 @@ extern ssize_t cee_json_snprint (struct cee_state *, char *buf,
 extern ssize_t cee_json_asprint (struct cee_state *, char **buf_p, size_t *buf_size_p,
                                  struct cee_json *json, enum cee_json_fmt);
 
+void cee_json_dprintf(int fd, struct cee_json *json, const char *fmt, ...);
+
 extern int cee_json_parsex(struct cee_state *st, char *buf, uintptr_t len, struct cee_json **out, 
 			   bool force_eof, int *error_at_line);
 

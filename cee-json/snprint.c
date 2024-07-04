@@ -361,3 +361,22 @@ cee_json_asprint(struct cee_state *st, char **buf_p, size_t *buf_size_p, struct 
   *buf_p = buf;
   return cee_json_snprint(st, buf, buf_size, j, f);
 }
+
+
+void
+cee_json_dprintf(int fd, struct cee_json *json, const char *fmt, ...){
+  struct cee_state *_st = cee_state_mk(10);
+  char *_1p = NULL; size_t _1s = 0;
+  if( json )
+    cee_json_asprint(_st, &_1p, &_1s, json, 0);
+
+  char *new_fmt;
+  if( fmt ){
+    va_list ap;
+    va_start(ap, fmt);
+    vdprintf(fd, fmt, ap);
+    va_end(ap);
+  }
+  dprintf(fd, "%s\n", _1p ? _1p:"null");
+  cee_del(_st);
+}
