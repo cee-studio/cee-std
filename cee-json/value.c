@@ -397,7 +397,7 @@ void cee_json_set_error(struct cee_json **x, const char *fmt, ...) {
 
 
 static int is_json(struct cee_json *v){
-  if( v->t >= 0 && v->t <= CEE_JSON_STRN )
+  if( v->t <= CEE_JSON_STRN )
     return 1;
   return 0;
 }
