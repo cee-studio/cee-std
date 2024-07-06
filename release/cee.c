@@ -2513,7 +2513,7 @@ static void _cee_map_trace(void * p, enum cee_trace_action ta) {
   struct _cee_map_header * h = (struct _cee_map_header *)((void *)((char *)(p) - (__builtin_offsetof(struct _cee_map_header, _))));
   switch (ta) {
     case CEE_TRACE_DEL_NO_FOLLOW:
-      cee_del(h->insertion_ordered_keys);
+      //cee_del(h->insertion_ordered_keys);
       musl_tdestroy(NULL, h->_[0], NULL);
       _cee_map_de_chain(h);
       free(h);

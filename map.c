@@ -53,7 +53,7 @@ static void S(trace)(void * p, enum cee_trace_action ta) {
   struct S(header) * h = FIND_HEADER (p);
   switch (ta) {
     case CEE_TRACE_DEL_NO_FOLLOW:
-      cee_del(h->insertion_ordered_keys);
+      //cee_del(h->insertion_ordered_keys);
       musl_tdestroy(NULL, h->_[0], NULL);
       S(de_chain)(h);
       free(h);
