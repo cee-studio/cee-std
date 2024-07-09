@@ -83,13 +83,13 @@ static enum stmt_type get_stmt_type(const char *stmt) {
   const char *p = stmt;
   while (isspace(*p)) p++;
   char *loc; ;
-  if ((loc = strcasestr(p, "select")) == p)
+  if( (loc = strcasestr(p, "select")) == p )
     return SELECT;
-  else if ((loc = strcasestr(p, "insert")) == p)
+  else if( (loc = strcasestr(p, "insert")) == p )
     return INSERT;
-  else if ((loc = strcasestr(p, "update")) == p)
+  else if( (loc = strcasestr(p, "update")) == p )
     return UPDATE;
-  else if ((loc = strcasestr(p, "delete")) == p)
+  else if( (loc = strcasestr(p, "delete")) == p )
     return DELETE;
   else
     return OTHER;
@@ -145,13 +145,13 @@ int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
           continue;
         bound[idx-1] = 1;
 
-        if (data && data[i].has_value)
+        if( data && data[i].has_value )
           data_p = data+i;
-        else if (info[i].data.has_value)
+        else if( info[i].data.has_value )
           data_p = &(info[i].data);
-        else if (stmt_type == INSERT && info[i].not_null) {
+        else if( stmt_type == INSERT && info[i].not_null ){
           /* use default values for non-null fields */
-          switch(info[i].type) {
+          switch( info[i].type ){
           case CEE_SQLITE3_UNDEF:
             cee_segfault();
           case CEE_SQLITE3_INT:
@@ -174,12 +174,12 @@ int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
         }else
           continue;
 
-        if (data_p->is_null && !info[i].not_null) {
+        if( data_p->is_null && !info[i].not_null ){
           sqlite3_bind_null(sql_stmt, idx);
           continue;
         }
 
-        switch (info[i].type) {
+        switch( info[i].type ){
         case CEE_SQLITE3_UNDEF:
           cee_segfault();
         case CEE_SQLITE3_INT:
@@ -210,7 +210,7 @@ int cee_sqlite3_bind_run_sql(struct cee_sqlite3 *cs,
       }
     }
     rc = sqlite3_step(sql_stmt);
-    if (!sql_stmt_pp)
+    if( !sql_stmt_pp )
       sqlite3_finalize(sql_stmt);
     return rc;
   }else
@@ -244,25 +244,25 @@ int cee_sqlite3_update_or_insert(struct cee_sqlite3 *cs,
   accept_result(state, status, &result);
   
   rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->select_stmt, NULL, status);
-  if (rc == SQLITE_ROW) {
+  if( rc == SQLITE_ROW ){
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
-    if (!update) {
-      if (status) {
+    if( !update ){
+      if( status ){
         cee_json_object_set_strf(*status, "warning", "nothing to update %s", stmts->table_name);
         return SQLITE_DONE;
       }
       cee_segfault();
     }
     rc = cee_sqlite3_bind_run_sql(cs, info, data, update, NULL, status);
-    if (rc != SQLITE_DONE)
+    if( rc != SQLITE_DONE )
       cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s", cs->db_name, rc, update, sqlite3_errmsg(db));
   }else{
     char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;
     rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
-    if (rc != SQLITE_DONE)
+    if( rc != SQLITE_DONE )
       cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s",
                          cs->db_name, rc, insert, sqlite3_errmsg(db));
-    else if (result) {
+    else if( result ){
       int row_id = sqlite3_last_insert_rowid(db);
       cee_json_object_set_i64(result, "last_insert_rowid", row_id);
     }
@@ -313,10 +313,10 @@ int cee_sqlite3_delete(struct cee_sqlite3 *cs,
 
   accept_result(state, status, &result);
   rc = cee_sqlite3_bind_run_sql(cs, info, data, delete_sql, NULL, status);
-  if (rc != SQLITE_DONE)
+  if( rc != SQLITE_DONE )
     cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s",
 		       cs->db_name, rc, delete_sql, sqlite3_errmsg(db));
-  if (key)
+  if( key )
     cee_json_object_set_i64(result, key, sqlite3_changes(cs->db));
   else
     cee_json_object_set_i64(result, "deleted", sqlite3_changes(cs->db));
@@ -332,7 +332,7 @@ int cee_sqlite3_update(struct cee_sqlite3 *cs,
 {
   int rc;
   rc = cee_sqlite3_update_if_exists(cs, info, data, stmts, status);
-  if (rc == SQLITE_OK)
+  if( rc == SQLITE_OK )
     cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s",
                        cs->db_name, rc, stmts->select_stmt,
                        sqlite3_errmsg(cs->db));
@@ -351,20 +351,20 @@ int cee_sqlite3_update_if_exists(struct cee_sqlite3 *cs,
   accept_result(cs->state, status, &result);
 
   rc = cee_sqlite3_bind_run_sql(cs, info, data, stmts->select_stmt, NULL, status);
-  if (rc == SQLITE_ROW) {
+  if( rc == SQLITE_ROW ){
     char *update = stmts->update_stmt ? stmts->update_stmt : stmts->update_stmt_x;
-    if (!update) {
-      if (status) {
+    if( !update ){
+      if( status ){
         cee_json_object_set_strf(*status, "warning", "nothing to update %s", stmts->table_name);
         return SQLITE_DONE;
       }
       cee_segfault();
     }
     rc = cee_sqlite3_bind_run_sql(cs, info, data, update, NULL, status);
-    if (rc != SQLITE_DONE)
+    if( rc != SQLITE_DONE )
       cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s",
                          cs->db_name, rc, update, sqlite3_errmsg(db));
-    else if (status)
+    else if( status )
       cee_json_object_set_i64(*status, "updated_rows",
                               sqlite3_total_changes(db));
   }
@@ -375,9 +375,9 @@ static bool
 dont_return_colum(struct cee_sqlite3_bind_info *info, char *colum_name)
 {
   int i;
-  if (!info) return false;
-  for (i = 0; info[i].var_name || info[i].col_name; i++)
-    if (info[i].col_name && strcmp(info[i].col_name, colum_name) == 0)
+  if( !info ) return false;
+  for( i = 0; info[i].var_name || info[i].col_name; i++ )
+    if( info[i].col_name && strcmp(info[i].col_name, colum_name) == 0 )
       return info[i].no_return;
   return false;
 }
@@ -386,9 +386,9 @@ static bool
 dont_label(struct cee_sqlite3_bind_info *info, char *colum_name)
 {
   int i;
-  if (!info) return false;
-  for (i = 0; info[i].var_name || info[i].col_name; i++)
-    if (info[i].col_name && strcmp(info[i].col_name, colum_name) == 0)
+  if( !info ) return false;
+  for( i = 0; info[i].var_name || info[i].col_name; i++ )
+    if( info[i].col_name && strcmp(info[i].col_name, colum_name) == 0 )
       return info[i].no_label;
   return false;
 }
@@ -406,8 +406,8 @@ int cee_sqlite3_select_iter(struct cee_sqlite3 *cs,
                                      struct cee_sqlite3_bind_info *info,
                                      sqlite3_stmt *stmt),
                             struct cee_json **status){
-  if (status) {
-    if (*status && (NULL == cee_json_to_array(*status)))
+  if( status ){
+    if( *status && (NULL == cee_json_to_array(*status)) )
       /* we don't support *status is not an array */
       cee_segfault();
   }
@@ -418,16 +418,16 @@ int cee_sqlite3_select_iter(struct cee_sqlite3 *cs,
   struct cee_json *result = NULL, *my_status = NULL;
   
   int rc = cee_sqlite3_bind_run_sql(cs, info, data, sql, &stmt, &my_status);
-  if (rc != SQLITE_ROW && rc != SQLITE_DONE) {
-    if (status) {
+  if( rc != SQLITE_ROW && rc != SQLITE_DONE ){
+    if( status ){
       accept_result(state, status, &result);
       cee_json_object_append(*status, "error", cee_json_select(my_status, ".error"));
       cee_json_set_error(status, "SQL:%s:[%d]'%s' %s", cs->db_name, rc, sql, sqlite3_errmsg(db));
     }
     return rc;
   }
-  while (rc != SQLITE_DONE) {
-    if (f(cls, state, info, stmt)) {
+  while( rc != SQLITE_DONE ){
+    if( f(cls, state, info, stmt) ){
       sqlite3_finalize(stmt);
       return SQLITE_DONE;
     }
@@ -495,8 +495,8 @@ int cee_sqlite3_select(struct cee_sqlite3 *cs,
                        struct cee_json **status){
   struct cee_json *array = cee_json_array_mk(cs->state, 10);
   int rc = cee_sqlite3_select_iter(cs, info, data, sql, array, get_a_row, status);
-  if (rc == SQLITE_DONE && status) {
-    if (*status)
+  if( rc == SQLITE_DONE && status ){
+    if( *status )
       cee_json_merge(*status, array);
     else
       *status = array;
@@ -516,8 +516,8 @@ int cee_sqlite3_select1(struct cee_sqlite3 *cs,
   
   int rc = cee_sqlite3_select(cs, info, data, sql, &result);
   
-  if ((error = cee_json_select(result, ".error"))) {
-    if (status) {
+  if( (error = cee_json_select(result, ".error")) ){
+    if( status ){
       accept_result(cs->state, status, &x);
       cee_json_object_append(*status, "error", error);
     }
@@ -525,8 +525,8 @@ int cee_sqlite3_select1(struct cee_sqlite3 *cs,
   }
   
   struct cee_json *one = cee_json_select(result, "[0]");
-  if (one && status) {
-    if (*status)
+  if( one && status ){
+    if( *status )
       cee_json_merge(*status, one);
     else
       *status = one;
@@ -564,16 +564,16 @@ int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
   struct cee_json *result = NULL, *error;
   int rc = cee_sqlite3_select1(cs, info, data, stmts->select_stmt, &result);
   
-  if (result) {
-    if (status) {
-      if ((error = cee_json_select(result, ".error"))) {
-        if (*status)
+  if( result ){
+    if( status ){
+      if( (error = cee_json_select(result, ".error")) ){
+        if( *status )
           cee_json_object_append(*status, "error", error);
         else
           *status = result;
         return rc;
       }
-      if (*status)
+      if( *status )
         cee_json_merge(*status, result);
       else
         *status = result;
@@ -585,10 +585,10 @@ int cee_sqlite3_select1_or_insert(struct cee_sqlite3 *cs,
   char *insert = stmts->insert_dynamic ? stmts->insert_stmt_x : stmts->insert_stmt;  
   rc = cee_sqlite3_bind_run_sql(cs, info, data, insert, NULL, status);
 
-  if (rc != SQLITE_DONE)
+  if( rc != SQLITE_DONE )
     cee_json_set_error(status, "SQL:%s:[%d]'%s' -> %s",
                        cs->db_name, rc, insert, sqlite3_errmsg(db));
-  else if (result) {
+  else if( result ){
     int row_id = sqlite3_last_insert_rowid(db);
     cee_json_object_set_i64(*status, "last_insert_rowid", row_id);
   }
@@ -697,22 +697,22 @@ compose_dyn_stmts(struct cee_json *input, struct _combo *p) {
   struct cee_sqlite3_bind_data *data = p->data;
   int i;
 
-  for (i = 0; info[i].var_name; i++) {
-    if (cee_json_object_get(input, info[i].col_name)) {
-      if (p->update_set
+  for( i = 0; info[i].var_name; i++ ){
+    if( cee_json_object_get(input, info[i].col_name) ){
+      if( p->update_set
           && !info[i].no_update
-          && ((data && data[i].has_value) || info[i].data.has_value)) {
+          && ((data && data[i].has_value) || info[i].data.has_value) ){
 
-        if (strlen(p->update_set->_) == 0)
+        if( strlen(p->update_set->_) == 0 )
           p->update_set = cee_str_catf(p->update_set, "%s=%s", info[i].col_name, info[i].var_name);
         else
           p->update_set = cee_str_catf(p->update_set, ",%s=%s", info[i].col_name, info[i].var_name);
       }
     }
 
-    if (p->insert_colums
-        && ((data && data[i].has_value) || info[i].data.has_value || info[i].not_null)) {
-      if (strlen(p->insert_colums->_) == 0) {
+    if( p->insert_colums
+        && ((data && data[i].has_value) || info[i].data.has_value || info[i].not_null) ){
+      if( strlen(p->insert_colums->_) == 0 ){
         p->insert_colums = cee_str_catf(p->insert_colums, "%s", info[i].col_name);
         p->insert_values = cee_str_catf(p->insert_values, "%s", info[i].var_name);
       }else{
@@ -802,61 +802,61 @@ int cee_sqlite3_generic_opcode(struct cee_sqlite3 *cs,
   aaa.errors = cee_json_array_mk(state, 1);
   aaa.unused = cee_json_array_mk(state, 10);
   aaa.used = cee_json_array_mk(state, 10);
-  if (stmts->update_template)
+  if( stmts->update_template )
     aaa.update_set = cee_str_mk(state, "");
 
-  if (stmts->insert_dynamic) {
+  if( stmts->insert_dynamic ){
     aaa.insert_colums = cee_str_mk(state, "");
     aaa.insert_values = cee_str_mk(state, "");
   }
 
   /* populate aaa.data with the key/value pairs from json */
-  if (aaa.info)
+  if( aaa.info )
     cee_json_object_iterate(json, &aaa, populate_usage);
   else {
-    if (NULL != aaa.data)
+    if( NULL != aaa.data )
       cee_segfault();
     aaa.info = cee_json_to_bind_info(json);
   }
   compose_dyn_stmts(json, &aaa);
 
-  if (stmts->update_template) {
-    if (strlen(aaa.update_set->_))
+  if( stmts->update_template ){
+    if( strlen(aaa.update_set->_) )
       stmts->update_stmt_x = (char*)cee_str_mk(state, stmts->update_template, aaa.update_set);
     else
       stmts->update_stmt_x = NULL;
   }
 
-  if (stmts->insert_dynamic)
+  if( stmts->insert_dynamic )
     stmts->insert_stmt_x = (char*)cee_str_mk(state, "insert into %s (%s) values (%s)",
                                              stmts->table_name, aaa.insert_colums, aaa.insert_values);
 
   int rc = f (cs, aaa.info, data, stmts, status);
 
   struct cee_json *debug = cee_json_object_mk(state);
-  if (stmts->update_template) {
+  if( stmts->update_template ){
     cee_json_object_set_strf(debug, "update", "%s", stmts->update_stmt_x);
     cee_del(stmts->update_stmt_x);
     stmts->update_stmt_x = NULL;
   }
 
-  if (stmts->insert_dynamic) {
+  if( stmts->insert_dynamic ){
     cee_json_object_set_strf(debug, "insert", "%s", stmts->insert_stmt_x);
     cee_del(stmts->insert_stmt_x);
     stmts->insert_stmt_x = NULL;
   }
 
-  if (result == NULL) return rc;
+  if( result == NULL ) return rc;
   
   cee_json_object_set(debug, "used_keys", aaa.used);
 
-  if (cee_json_select(aaa.unused, "[0]"))
+  if( cee_json_select(aaa.unused, "[0]") )
     cee_json_object_set(debug, "unused_keys", aaa.unused);
   else
     cee_del(aaa.unused);
 
   cee_json_object_set(result, "debug", debug);
-  if (cee_json_select(aaa.errors, "[0]"))
+  if( cee_json_select(aaa.errors, "[0]") )
     cee_json_object_set(result, "error", aaa.errors);
   else
     cee_del(aaa.errors);
@@ -969,15 +969,15 @@ cee_sqlite3_select1_as(struct cee_sqlite3 *cs,
   struct cee_json *result = NULL, *one = NULL;
   int ret = cee_sqlite3_select1(cs, info, data, sql, &one);
 
-  if (cee_json_select(one, ".error") && status) {
+  if( cee_json_select(one, ".error") && status ){
     *status = one;
     return ret;
   }
 
   accept_result(cs->state, status, &result);
-  if (status) {
+  if( status ){
     struct cee_json *old = cee_json_object_get(*status, key);
-    if (old)
+    if( old )
       cee_json_merge(old, one);
     else
       old = one;
@@ -997,16 +997,16 @@ cee_sqlite3_select_as(struct cee_sqlite3 *cs,
   struct cee_json *result = NULL, *array = NULL;
   int ret = cee_sqlite3_select(cs, info, data, sql, &array);
 
-  if (cee_json_select(array, ".error") && status) {
-    if (*status)
+  if( cee_json_select(array, ".error") && status ){
+    if( *status )
       cee_json_object_append(*status, "error", cee_json_select(array, ".error"));
     else
       *status = array;
     return ret;
   }
 
-  if (status) {
-    if (*status)
+  if( status ){
+    if( *status )
       cee_json_object_append(*status, key, array);
     else
       *status = array;
@@ -1025,9 +1025,9 @@ static int f (void *cxt, struct cee_str *key, struct cee_json *val) {
   struct info_state *is = cxt;
   struct cee_sqlite3_bind_info *info = is->info;
 
-  for (int i = 0; i < is->size; i++) {
-    if (info[i].var_name) continue;
-    switch (val->t) {
+  for( int i = 0; i < is->size; i++ ){
+    if( info[i].var_name ) continue;
+    switch( val->t ){
     case CEE_JSON_I64:
       if ( cee_json_to_intx(val, &info[i].data.i))
         cee_segfault();
@@ -1079,16 +1079,16 @@ cee_sqlite3_next_int(struct cee_sqlite3 *cs, char *int_column_name,
 
   struct cee_json *input = NULL, *max_value = NULL;
   cee_sqlite3_select1(cs, NULL, NULL, qx, &input);
-  if (cee_json_select(input, ".error")) {
+  if( cee_json_select(input, ".error") ){
     *status = input;
     return -1;
   }
 
-  if ((max_value = cee_json_select(input, ".max_value:n"))) {
+  if( (max_value = cee_json_select(input, ".max_value:n")) ){
     int int_value = 0;
-    if(!cee_json_to_intx(max_value, &int_value))
+    if( !cee_json_to_intx(max_value, &int_value) )
       return int_value + 1;
-  }else if (cee_json_select(input, ".max_value:!")) {
+  }else if( cee_json_select(input, ".max_value:!") ){
     /* no rows */
     return 1;
   }
@@ -1112,12 +1112,12 @@ collect_colums_values (void *ctx, struct cee_str *key, struct cee_json *val) {
   struct cee_state *state = cee_get_state(p->insert_colums);
   char comma = ',';
 
-  if (strcmp(p->insert_colums->_, "") == 0)
+  if( strcmp(p->insert_colums->_, "") == 0 )
     comma = ' ';
 
   p->insert_colums = cee_str_catf(p->insert_colums, "%c%s", comma, key->_);
 
-  switch(val->t) {
+  switch( val->t ){
   case CEE_JSON_NULL:
     p->insert_values = cee_str_catf(p->insert_values, "%cnull", comma);
     return 0;
