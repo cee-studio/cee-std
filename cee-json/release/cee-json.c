@@ -75,9 +75,12 @@ extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int ho
 extern struct cee_json * cee_json_load_from_fileno(struct cee_state *,
                                                    int fd, bool force_eof, 
                                                    int * error_at_line);
-extern struct cee_json * cee_json_load_from_file (struct cee_state *,
-                                                  FILE *, bool force_eof, 
-                                                  int * error_at_line);
+extern struct cee_json * cee_json_load_from_FILE(struct cee_state *,
+                                                 FILE *, bool force_eof, 
+                                                 int * error_at_line);
+struct cee_json * cee_json_load_from_file_path(struct cee_state *st,
+                                               char *file_path, bool force_eof, 
+                                               int *error_at_line);
 extern struct cee_json *cee_json_load_from_buffer(char *buf, size_t buf_size);
 extern int cee_json_cmp (struct cee_json *, struct cee_json *);
 
@@ -860,10 +863,26 @@ struct cee_json * cee_json_load_from_fileno(struct cee_state * st,
 /*
  * this function assume the file pointer points to the begin of a file
  */
-struct cee_json * cee_json_load_from_file(struct cee_state * st,
+struct cee_json * cee_json_load_from_FILE(struct cee_state * st,
                                           FILE * f, bool force_eof,
                                           int * error_at_line){
   return cee_json_load_from_fileno(st, fileno(f), force_eof, error_at_line);
+}
+
+/*
+ * 
+ */
+struct cee_json* cee_json_load_from_file_path(struct cee_state *st,
+                                              char *file_path, bool force_eof,
+                                              int *error_at_line){
+  FILE *fp = fopen(file_path, "r");
+  if( fp == NULL ){
+     fprintf(stderr, "failed to open %s", file_path);
+     cee_segfault();
+  }
+  struct cee_json *ret = cee_json_load_from_FILE(st, fp, force_eof, error_at_line);
+  fclose(fp);
+  return ret;
 }
 
 
