@@ -16,7 +16,7 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
   struct cee_state *state = cee_state_mk(100);
   int line;
   struct cee_json *j0, *jn;
-  j0 = cee_json_load_from_file(state, f0, true, &line);
+  j0 = cee_json_load_from_FILE(state, f0, true, &line);
 
   for( int i = 1; i < json_file_count; i++ ){
     fn = fopen(json_files[i], "r");
@@ -25,7 +25,7 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
       perror(perror_buf);
       return 1;
     }
-    jn = cee_json_load_from_file(state, fn, true, &line);
+    jn = cee_json_load_from_FILE(state, fn, true, &line);
     cee_json_merge(j0, jn);
     fclose(fn);
   }
