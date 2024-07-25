@@ -124,7 +124,7 @@ void cee_dbm_open_db(struct cee_state *state, struct cee_sqlite3 *cs,
     fprintf(stderr, "db file %s does not exist\n", file);
     cee_segfault();
   }
-  cee_sqlite3_init(cs, db_kind, state, open_db(file));
+  cee_sqlite3_init(cs, db_kind, file, state, open_db(file));
 }
 
 void cee_dbm_attach_db(struct cee_sqlite3 *cs,

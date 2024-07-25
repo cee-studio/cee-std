@@ -95,9 +95,11 @@ static enum stmt_type get_stmt_type(const char *stmt) {
     return OTHER;
 }
 
-void cee_sqlite3_init(struct cee_sqlite3 *x, char *db_name, struct cee_state *state, sqlite3 *db)
+void cee_sqlite3_init(struct cee_sqlite3 *x, char *db_name, char *db_path,
+                      struct cee_state *state, sqlite3 *db)
 {
    x->db_name = db_name;
+   x->db_path = db_path;
    x->state = state;
    x->db = db;
 }

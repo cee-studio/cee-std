@@ -15,11 +15,12 @@
 
 struct cee_sqlite3 {
   char *db_name;
+  char *db_path;
   sqlite3 *db;
   struct cee_state *state;
 };
 
-extern void cee_sqlite3_init(struct cee_sqlite3 *x, char *db_name, 
+extern void cee_sqlite3_init(struct cee_sqlite3 *x, char *db_name, char *db_path,
                              struct cee_state *state, sqlite3 *db);
 
 extern void cee_sqlite3_init_db(sqlite3 **db_p, char *db_file, char *sqlstmts, bool transaction);
