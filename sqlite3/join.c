@@ -15,22 +15,22 @@ static int join_one (void *ctx, void *elem, int idx) {
   struct cee_json *one = elem;
 
   int i;
-  for (i = 0; info[i].var_name; i++) {
+  for( i = 0; info[i].var_name; i++ ){
     item = NULL;
-    if (data && data[i].has_value)
+    if( data && data[i].has_value )
       item = data + i;
-    else if (info[i].data.has_value)
+    else if( info[i].data.has_value )
       item = &info[i].data;
 
-    if (item == NULL) continue;
+    if( item == NULL ) continue;
 
     struct cee_json *value = cee_json_object_get(elem, info[i].col_name);
-    if (value == NULL) {
+    if( value == NULL ){
       cee_json_object_set_strf(one, "error", "cannot find json key %s for %s",
                                info[i].col_name, info[i].var_name);
       return 1; /* stop */
     }
-    switch (value->t) {
+    switch( value->t ){
       case CEE_JSON_I64:
         if( cee_json_to_intx(value, &item->i) ){
           cee_json_object_set_strf(
@@ -57,7 +57,7 @@ static int join_one (void *ctx, void *elem, int idx) {
   }
   if( join_ctx->key == NULL ){
     cee_sqlite3_select1(join_ctx->cs, info, data, join_ctx->sql, &one);
-    if (cee_json_select(one, ".error"))
+    if( cee_json_select(one, ".error") )
       return 1;
   }else{
     struct cee_json *rows = NULL, *error = NULL;
@@ -66,9 +66,7 @@ static int join_one (void *ctx, void *elem, int idx) {
     if( (error = cee_json_select(rows, ".error")) ){
       return 1;
     }
-    
   }
-
 
   return 0;
 }

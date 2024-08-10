@@ -305,14 +305,14 @@ cee_json_to_bind_info(struct cee_json *);
 
 extern void
 cee_sqlite3_json_array_join_table(struct cee_sqlite3 *cs,
-                                  struct cee_json *json,
+                                  struct cee_json *json_array,
                                   struct cee_sqlite3_bind_info *info,
                                   struct cee_sqlite3_bind_data *data,
                                   char *sql, char *key);
 
 extern void
 cee_sqlite3_json_object_join_table(struct cee_sqlite3 *cs,
-                                   struct cee_json *json,
+                                   struct cee_json *json_obj,
                                    struct cee_sqlite3_bind_info *info,
                                    struct cee_sqlite3_bind_data *data,
                                    char *sql, char *key);
