@@ -14,8 +14,8 @@
  */
 
 struct cee_sqlite3 {
-  char *db_name;
-  char *db_path;
+  char db_name[64];
+  char db_path[128];
   sqlite3 *db;
   struct cee_state *state;
 };
