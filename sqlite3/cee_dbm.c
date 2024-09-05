@@ -171,7 +171,6 @@ void open_dbm_log(struct cee_dbm_path_info *path_info, sqlite3 **db){
 }
 
 void add_log(struct cee_sqlite3 *cs, char *kind, char *action, char *row){
-#if 0
   static struct cee_sqlite3_bind_info info[] = {
     {.var_name = "@kind", .col_name = "kind", .type = CEE_SQLITE3_TEXT },
     {.var_name = "@action", .col_name = "action", .type = CEE_SQLITE3_TEXT },
@@ -187,8 +186,7 @@ void add_log(struct cee_sqlite3 *cs, char *kind, char *action, char *row){
                      "insert into log "
                      "(kind, action, info) values"
                      "(@kind, @action, @info)", NULL, NULL, NULL);
-  logconf_error(&settings, "%s %s %s", kind, action, row);
-#endif
+  fprintf(stderr, "%s %s %s", kind, action, row);
 }
 
 static
@@ -218,7 +216,7 @@ bool cee_dbm_db_init(struct cee_dbm_path_info *path_info,
                      int *db_version){
   struct cee_sqlite3 log_cs = {0};
   char log[256];
-  //open_dbm_log(path_info, &log_cs.db);
+  open_dbm_log(path_info, &log_cs.db);
 
   char db_script[128];
   char db_file[128], *kind = s->kind;

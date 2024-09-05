@@ -855,6 +855,7 @@ struct cee_json * cee_json_load_from_fileno(struct cee_state * st,
   if( cee_json_parsex(st, b, size, &j, true, &line) ){
     /*  report error */
     fprintf(stderr, "failed to parse at %d\n", line);
+    *error_at_line = line;
     j = NULL;
   }
   free(b);
@@ -2258,23 +2259,32 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
 
   FILE *f0 = fopen(json_files[0], "r"), *fn, *f_combined;
   if( !f0 ){
-    snprintf(perror_buf, sizeof perror_buf, "%s", json_files[0]);
+    snprintf(perror_buf, sizeof perror_buf, "fopen(%s)", json_files[0]);
     perror(perror_buf);
     return 1;
   }
   struct cee_state *state = cee_state_mk(100);
-  int line;
+  int line = -1;
   struct cee_json *j0, *jn;
   j0 = cee_json_load_from_FILE(state, f0, true, &line);
+  if( j0 == NULL ){
+    fprintf(stderr, "error at %s:%d\n", json_files[0], line);
+    return 1;
+  }
 
   for( int i = 1; i < json_file_count; i++ ){
     fn = fopen(json_files[i], "r");
     if( !fn ){
-      snprintf(perror_buf, sizeof perror_buf, "%s", json_files[i]);
+      snprintf(perror_buf, sizeof perror_buf, "fopen(%s)", json_files[i]);
       perror(perror_buf);
       return 1;
     }
+    line = -1;
     jn = cee_json_load_from_FILE(state, fn, true, &line);
+    if( jn == NULL ){
+      fprintf(stderr, "error at %s:%d\n", json_files[i], line);
+      return 1;
+    }
     cee_json_merge(j0, jn);
     fclose(fn);
   }

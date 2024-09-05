@@ -632,6 +632,7 @@ struct cee_json * cee_json_load_from_fileno(struct cee_state * st,
   if( cee_json_parsex(st, b, size, &j, true, &line) ){
     /*  report error */
     fprintf(stderr, "failed to parse at %d\n", line);
+    *error_at_line = line;
     j = NULL;
   }
   free(b);
