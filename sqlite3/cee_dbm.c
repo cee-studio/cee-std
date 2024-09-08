@@ -317,3 +317,48 @@ bool cee_dbm_db_init(struct cee_dbm_path_info *path_info,
   //sqlite3_close(log_cs.db);
   return is_new_db;
 }
+
+
+void cee_dbm_path_info2str(struct cee_dbm_path_info *info, size_t buf_size, char *buf){
+  size_t remaining_size = buf_size, n;
+  char *next = buf;
+  n = snprintf(next, remaining_size, "schema_script_path:%s, ",  info->schema_script_path);
+  remaining_size -= n;
+  next += n;
+
+  n = snprintf(next, remaining_size, "data_script_path:%s, ",  info->data_script_path);
+  remaining_size -= n;
+  next += n;
+
+  n = snprintf(next, remaining_size, "db_file_path:%s",  info->db_file_path);
+  remaining_size -= n;
+  next += n;
+}
+
+void cee_dbm_db_info2str(struct cee_dbm_db_info *info, size_t buf_size, char *buf){
+  size_t remaining_size = buf_size, n;
+  char *next = buf;
+  n = snprintf(next, remaining_size, "kind:%s, ",  info->kind);
+  remaining_size -= n;
+  next += n;
+
+  n = snprintf(next, remaining_size, "file:%s, ",  info->file);
+  remaining_size -= n;
+  next += n;
+
+  n = snprintf(next, remaining_size, "recreate_db:%d, ",  info->recreate_db);
+  remaining_size -= n;
+  next += n;
+
+  n = snprintf(next, remaining_size, "restore_db:%d, ",  info->restore_db);
+  remaining_size -= n;
+  next += n;
+
+  n = snprintf(next, remaining_size, "create_version:%d, ",  info->create_version);
+  remaining_size -= n;
+  next += n;
+
+  n = snprintf(next, remaining_size, "final_version:%d",  info->final_version);
+  remaining_size -= n;
+  next += n;
+}

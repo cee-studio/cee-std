@@ -53,4 +53,6 @@ extern bool cee_dbm_db_init(struct cee_dbm_path_info *path_info,
 extern bool cee_dbm_db_exist(struct cee_dbm_path_info *path_info, const char *db_file);
 
 
+void cee_dbm_path_info2str(struct cee_dbm_path_info *info, size_t buf_size, char *buf);
+void cee_dbm_db_info2str(struct cee_dbm_db_info *info, size_t buf_size, char *buf);
 #endif //CEE_DBM_H
