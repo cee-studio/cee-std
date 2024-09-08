@@ -55,4 +55,9 @@ extern bool cee_dbm_db_exist(struct cee_dbm_path_info *path_info, const char *db
 
 void cee_dbm_path_info2str(struct cee_dbm_path_info *info, size_t buf_size, char *buf);
 void cee_dbm_db_info2str(struct cee_dbm_db_info *info, size_t buf_size, char *buf);
+
+bool cee_dbm_db_backup(struct cee_dbm_path_info *path_info,
+                       struct cee_dbm_db_info *s,
+                       const char *db_file_,
+                       const char *restore_data_prefix);
 #endif //CEE_DBM_H

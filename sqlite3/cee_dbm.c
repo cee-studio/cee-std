@@ -182,11 +182,12 @@ void add_log(struct cee_sqlite3 *cs, char *kind, char *action, char *row){
     { .value = action, .has_value = 1 },
     { .value = row, .has_value = 1 },
   };
-  cee_sqlite3_insert(cs, info, data,
-                     "insert into log "
-                     "(kind, action, info) values"
-                     "(@kind, @action, @info)", NULL, NULL, NULL);
-  fprintf(stderr, "%s %s %s", kind, action, row);
+  int ret = cee_sqlite3_insert(cs, info, data,
+                               "insert into log "
+                               "(kind, action, info) values"
+                               "(@kind, @action, @info)", NULL, NULL, NULL);
+  if( ret != SQLITE_DONE )
+    fprintf(stderr, "%s %s %s\n", kind, action, row);
 }
 
 static
@@ -223,7 +224,11 @@ bool cee_dbm_db_init(struct cee_dbm_path_info *path_info,
   bool is_new_db = false;
   int current_version, migrated_version;
 
-  snprintf(db_file, sizeof db_file, "%s/%s", path_info->db_file_path, db_file_);
+  if( db_file_ )
+    snprintf(db_file, sizeof db_file, "%s/%s", path_info->db_file_path, db_file_);
+  else
+    snprintf(db_file, sizeof db_file, "%s/%s", path_info->db_file_path, s->file);
+
   snprintf(log, sizeof log, "%s", db_file);
   add_log(&log_cs, kind, "open", log);
 
@@ -366,4 +371,55 @@ void cee_dbm_db_info2str(struct cee_dbm_db_info *info, size_t buf_size, char *bu
                info->final_version);
   remaining_size -= n;
   next += n;
+}
+
+
+bool cee_dbm_db_backup(struct cee_dbm_path_info *path_info,
+                       struct cee_dbm_db_info *s,
+                       const char *db_file_,
+                       const char *restore_data_prefix){
+  struct cee_sqlite3 log_cs = {0};
+  char log[256];
+  open_dbm_log(path_info, &log_cs.db);
+
+  char db_script[128];
+  char db_file[128], *kind = s->kind;
+  int current_version;
+
+  snprintf(db_file, sizeof db_file, "%s/%s", path_info->db_file_path, db_file_);
+  snprintf(log, sizeof log, "%s", db_file);
+  add_log(&log_cs, kind, "open", log);
+
+  if( access(db_file, F_OK) != 0 ){
+    snprintf(log, sizeof log, "%s does not exist", db_file);
+    add_log(&log_cs, kind, "backup_failed", log);
+    return false;
+  }
+
+  current_version = get_user_version(db_file);
+  snprintf(log, sizeof log, "user_version %d", current_version);
+  add_log(&log_cs, kind, "open", log);
+
+  /* backup data */
+  if( restore_data_prefix )
+    snprintf(db_script, sizeof db_script,
+             "/codata/code/bin/dump_insert.sh %s > %s/%s_insert.%d.sql",
+             db_file,
+             path_info->data_script_path,
+             restore_data_prefix, current_version);
+  else
+    snprintf(db_script, sizeof db_script,
+             "/codata/code/bin/dump_insert.sh %s > %s/%s_insert.%d.sql",
+             db_file,
+             path_info->data_script_path,
+             s->kind, current_version);
+
+  int ret = system(db_script);
+  if( ret == 0 )
+    add_log(&log_cs, kind, "backup", db_script);
+  else
+    add_log(&log_cs, kind, "backup_failed", db_script);
+
+  sqlite3_close(log_cs.db);
+  return true;
 }
