@@ -314,7 +314,7 @@ bool cee_dbm_db_init(struct cee_dbm_path_info *path_info,
   }
 
   *db_version = get_user_version(db_file);
-  //sqlite3_close(log_cs.db);
+  sqlite3_close(log_cs.db);
   return is_new_db;
 }
 
