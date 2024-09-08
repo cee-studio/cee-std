@@ -305,7 +305,8 @@ bool cee_dbm_db_init(struct cee_dbm_path_info *path_info,
     my_apply_script(kind, db_file, db_script, &log_cs);
     migrated_version = get_user_version(db_file);
     if( migrated_version != current_version ){
-      snprintf(log, sizeof log, "ran %s to migrate %s to version %d", db_script, db_file, migrated_version);
+      snprintf(log, sizeof log, "ran %s to migrate %s to version %d",
+               db_script, db_file, migrated_version);
       add_log(&log_cs, kind, "migrate", log);
     }
   }else{
@@ -346,19 +347,23 @@ void cee_dbm_db_info2str(struct cee_dbm_db_info *info, size_t buf_size, char *bu
   remaining_size -= n;
   next += n;
 
-  n = snprintf(next, remaining_size, "recreate_db:%d, ",  info->recreate_db);
+  n = snprintf(next, remaining_size, "recreate_db:%s, ",
+               info->recreate_db ? "true":"false");
   remaining_size -= n;
   next += n;
 
-  n = snprintf(next, remaining_size, "restore_db:%d, ",  info->restore_db);
+  n = snprintf(next, remaining_size, "restore_db:%s, ",
+               info->restore_db ? "true":"false");
   remaining_size -= n;
   next += n;
 
-  n = snprintf(next, remaining_size, "create_version:%d, ",  info->create_version);
+  n = snprintf(next, remaining_size, "create_version:%d, ",
+               info->create_version);
   remaining_size -= n;
   next += n;
 
-  n = snprintf(next, remaining_size, "final_version:%d",  info->final_version);
+  n = snprintf(next, remaining_size, "final_version:%d",
+               info->final_version);
   remaining_size -= n;
   next += n;
 }
