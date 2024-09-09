@@ -386,7 +386,11 @@ bool cee_dbm_db_backup(struct cee_dbm_path_info *path_info,
   char db_file[128], *kind = s->kind;
   int current_version;
 
-  snprintf(db_file, sizeof db_file, "%s/%s", path_info->db_file_path, db_file_);
+  if( db_file_ )
+    snprintf(db_file, sizeof db_file, "%s/%s", path_info->db_file_path, db_file_);
+  else
+    snprintf(db_file, sizeof db_file, "%s/%s", path_info->db_file_path, s->file);
+
   snprintf(log, sizeof log, "%s", db_file);
   add_log(&log_cs, kind, "open", log);
 
