@@ -44,6 +44,13 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
     perror(merged);
     return 1;
   }
+  struct cee_json *inputs = cee_json_array_mk(state, json_file_count);
+  cee_json_object_set(j0, "originals", inputs);
+  for( int i = 0; i < json_file_count; i++ ){
+    struct cee_json *a = cee_json_str_mkf(state, "%s", json_files[i]);
+    cee_json_array_append(inputs, a);
+  }
+
   cee_json_save(state, j0, f_combined, 1);
   fclose(f_combined);
   fclose(f0);
