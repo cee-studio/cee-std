@@ -407,13 +407,13 @@ bool cee_dbm_db_backup(struct cee_dbm_path_info *path_info,
   /* backup data */
   if( restore_data_prefix )
     snprintf(db_script, sizeof db_script,
-             "/codata/code/bin/dump_insert.sh %s > %s/%s_insert.%d.sql",
+             "/cxd/s/dump_insert.sh %s > %s/%s_insert.%d.sql",
              db_file,
              path_info->data_script_path,
              restore_data_prefix, current_version);
   else
     snprintf(db_script, sizeof db_script,
-             "/codata/code/bin/dump_insert.sh %s > %s/%s_insert.%d.sql",
+             "/cxd/s/dump_insert.sh %s > %s/%s_insert.%d.sql",
              db_file,
              path_info->data_script_path,
              s->kind, current_version);
