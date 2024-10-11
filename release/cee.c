@@ -250,7 +250,6 @@ extern char* str_replace_all(const char *str, const char * old_substr, const cha
 
 extern char* str_replace_all_ext(const char *str, size_t str_len, size_t *out_size, int n_pairs, ...);
 
-extern int str_ends_with(const char *str, const char *suffix);
 
 
 struct cee_strview {
@@ -2243,12 +2242,6 @@ char* str_replace_all_ext(const char *str, size_t str_len, size_t *out_size, int
   if( n_pairs > 16 )
     free(pairs);
   return new_str;
-}
-
-int str_ends_with(const char *str, const char *suffix){
-  size_t str_len = strlen(str);
-  size_t suffix_len = strlen(suffix);
-  return str_len > suffix_len && !strcmp(str + (str_len - suffix_len), suffix);
 }
 
 struct _cee_dict_header {

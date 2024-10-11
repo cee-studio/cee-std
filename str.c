@@ -407,10 +407,5 @@ char* str_replace_all_ext(const char *str, size_t str_len, size_t *out_size, int
   return new_str;
 }
 
-int str_ends_with(const char *str, const char *suffix){
-  size_t str_len = strlen(str);
-  size_t suffix_len = strlen(suffix);
-  return str_len > suffix_len && !strcmp(str + (str_len - suffix_len), suffix);
-}
 
 #undef _CEE_NEWSIZE

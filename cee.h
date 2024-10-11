@@ -241,7 +241,6 @@ extern char* str_replace_all(const char *str, const char * old_substr, const cha
 
 extern char* str_replace_all_ext(const char *str, size_t str_len, size_t *out_size, int n_pairs, ...);
 
-extern int str_ends_with(const char *str, const char *suffix);
 
 
 struct cee_strview {
