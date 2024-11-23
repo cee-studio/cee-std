@@ -123,6 +123,7 @@ extern void cee_json_object_set (struct cee_json *, char *, struct cee_json *);
  * otherwise, convert the value to an array of this value, and append to the end
  */
 extern void cee_json_object_append (struct cee_json *, char *, struct cee_json *);
+extern void cee_json_object_set_null (struct cee_json *, char *);
 extern void cee_json_object_set_bool (struct cee_json *, char *, bool);
 extern void cee_json_object_set_str (struct cee_json *, char *, char *);
 extern void cee_json_object_set_strf (struct cee_json *, char *, const char *fmt, ...);

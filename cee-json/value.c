@@ -436,6 +436,15 @@ void cee_json_object_append(struct cee_json *j, char *key, struct cee_json *v) {
     cee_json_object_set(j, key, v);
 }
 
+void cee_json_object_set_null(struct cee_json *j, char *key) {
+  if (NULL == j) return;
+  struct cee_map *o = cee_json_to_object(j);
+  if (NULL == o) 
+    cee_segfault();
+  struct cee_state *st = cee_get_state(o);
+  cee_map_add(o, cee_str_mk(st, "%s", key), cee_json_null());
+}
+
 void cee_json_object_set_bool(struct cee_json *j, char *key, bool b) {
   if (NULL == j) return;
   struct cee_map *o = cee_json_to_object(j);
