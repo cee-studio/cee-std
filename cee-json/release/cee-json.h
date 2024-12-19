@@ -142,6 +142,8 @@ extern void cee_json_object_remove (struct cee_json *, char *);
 extern int cee_json_object_iterate (struct cee_json *, void *ctx, 
                                     int (*f)(void *ctx, struct cee_str *key, struct cee_json *val));
 
+extern void cee_json_replace(struct cee_json *main, struct cee_map *re_map);
+
 extern void cee_json_array_insert(struct cee_json * j, int idx, struct cee_json *v);
 extern void cee_json_array_append (struct cee_json *, struct cee_json *);
 extern void cee_json_array_append_bool (struct cee_json *, bool);

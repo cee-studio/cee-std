@@ -884,3 +884,36 @@ size_t cee_json_escape_string(const char *s,  size_t s_size,
 
   return j;
 }
+
+static int re(void *ctx, void *key, void *value){
+  struct cee_map *re_map = ctx;
+  cee_json_replace((struct cee_json *)value, re_map);
+  return 0;
+}
+
+void cee_json_replace(struct cee_json *main, struct cee_map *re_map){
+  switch( main->t ){
+  case CEE_JSON_OBJECT:{
+    struct cee_map *main_obj = main->value.object;
+    cee_map_iterate(main_obj, re_map, re);
+    break;
+  }
+  case CEE_JSON_ARRAY:{
+    size_t len = cee_list_size(main->value.array);
+    for( int i = 0; i < len; i ++ ){
+      cee_json_replace(main->value.array->a[i], re_map);
+    }
+    break;
+  }
+  case CEE_JSON_STRING:{
+    struct cee_str *str = main->value.string;
+    struct cee_str *val = cee_map_find(re_map, str->_);
+    if( val ){
+      cee_str_replace(str, "%s", val->_);
+    }
+    break;
+  }
+  default:
+    break;
+  }
+}
