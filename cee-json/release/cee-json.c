@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <fcntl.h>
 #include "cee.h"
  
 #ifndef CEE_JSON_H
@@ -71,6 +72,8 @@ extern struct cee_json* cee_json_select (struct cee_json *, char *selector, ...)
 extern int cee_json_select_as_int (struct cee_json *, int *, char *selector);
 
 extern bool cee_json_save_fileno(struct cee_state *, struct cee_json *, int fd, int how);
+extern bool cee_json_save_FILE(struct cee_state *, struct cee_json *, FILE *fp, int how);
+extern bool cee_json_save_file_path(struct cee_state *, struct cee_json *, char *filename, int how);
 extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int how);
 extern struct cee_json * cee_json_load_from_fileno(struct cee_state *,
                                                    int fd, bool force_eof, 
@@ -926,6 +929,21 @@ bool cee_json_save_fileno(struct cee_state * st, struct cee_json * j, int fd, in
 
 bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how) {
   return cee_json_save_fileno(st, j, fileno(f), how);
+}
+
+bool cee_json_save_FILE(struct cee_state * st, struct cee_json * j, FILE *f, int how) {
+  return cee_json_save_fileno(st, j, fileno(f), how);
+}
+
+bool cee_json_save_file_path(struct cee_state * st, struct cee_json * j, char *filename, int how) {
+  int fd = open(filename, O_WRONLY|O_TRUNC|O_CREAT, 0600);
+  if( fd < 0 ){
+    perror(filename);
+    cee_segfault();
+  }
+  bool ret = cee_json_save_fileno(st, j, fd, how);
+  close(fd);
+  return ret;
 }
 
 
@@ -2317,6 +2335,7 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
     fprintf(stderr, "error at %s:%d\n", json_files[0], line);
     return 1;
   }
+  fclose(f0);
 
   for( int i = 1; i < json_file_count; i++ ){
     fn = fopen(json_files[i], "r");
@@ -2349,7 +2368,6 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
 
   cee_json_save(state, j0, f_combined, 1);
   fclose(f_combined);
-  fclose(f0);
   cee_del(state);
   return 0;
 }

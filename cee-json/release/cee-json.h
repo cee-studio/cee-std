@@ -58,6 +58,8 @@ extern struct cee_json* cee_json_select (struct cee_json *, char *selector, ...)
 extern int cee_json_select_as_int (struct cee_json *, int *, char *selector);
 
 extern bool cee_json_save_fileno(struct cee_state *, struct cee_json *, int fd, int how);
+extern bool cee_json_save_FILE(struct cee_state *, struct cee_json *, FILE *fp, int how);
+extern bool cee_json_save_file_path(struct cee_state *, struct cee_json *, char *filename, int how);
 extern bool cee_json_save (struct cee_state *, struct cee_json *, FILE *, int how);
 extern struct cee_json * cee_json_load_from_fileno(struct cee_state *,
                                                    int fd, bool force_eof, 

@@ -21,6 +21,7 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
     fprintf(stderr, "error at %s:%d\n", json_files[0], line);
     return 1;
   }
+  fclose(f0);
 
   for( int i = 1; i < json_file_count; i++ ){
     fn = fopen(json_files[i], "r");
@@ -53,7 +54,6 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
 
   cee_json_save(state, j0, f_combined, 1);
   fclose(f_combined);
-  fclose(f0);
   cee_del(state);
   return 0;
 }

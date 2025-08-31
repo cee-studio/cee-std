@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <inttypes.h>
+#include <fcntl.h>
 #endif
 
 
@@ -700,6 +701,21 @@ bool cee_json_save_fileno(struct cee_state * st, struct cee_json * j, int fd, in
 
 bool cee_json_save(struct cee_state * st, struct cee_json * j, FILE *f, int how) {
   return cee_json_save_fileno(st, j, fileno(f), how);
+}
+
+bool cee_json_save_FILE(struct cee_state * st, struct cee_json * j, FILE *f, int how) {
+  return cee_json_save_fileno(st, j, fileno(f), how);
+}
+
+bool cee_json_save_file_path(struct cee_state * st, struct cee_json * j, char *filename, int how) {
+  int fd = open(filename, O_WRONLY|O_TRUNC|O_CREAT, 0600);
+  if( fd < 0 ){
+    perror(filename);
+    cee_segfault();
+  }
+  bool ret = cee_json_save_fileno(st, j, fd, how);
+  close(fd);
+  return ret;
 }
 
 
