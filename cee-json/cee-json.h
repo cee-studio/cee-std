@@ -47,7 +47,9 @@ struct cee_json {
 
 enum cee_json_fmt {
   CEE_JSON_FMT_COMPACT = 0,
-  CEE_JSON_FMT_PRETTY  = 1
+  CEE_JSON_FMT_PRETTY  = 1,
+  CEE_JSON_FMT_AS_JS_COMPACT = 2,
+  CEE_JSON_FMT_AS_JS_PRETTY = 3,
 };
 
 /*
@@ -187,6 +189,7 @@ extern int cee_json_parsex(struct cee_state *st, char *buf, uintptr_t len, struc
 extern struct cee_json* cee_json_has(struct cee_json *, char *key);
 
 extern int cee_json_merge_all(char **json_files, int json_file_count, char *merged);
+int cee_json_merge_all_fileno(char **json_files, int json_file_count, int combined_fd);
 
 #ifdef __cplusplus
 }

@@ -61,7 +61,9 @@ struct cee_json {
 
 enum cee_json_fmt {
   CEE_JSON_FMT_COMPACT = 0,
-  CEE_JSON_FMT_PRETTY  = 1
+  CEE_JSON_FMT_PRETTY  = 1,
+  CEE_JSON_FMT_AS_JS_COMPACT = 2,
+  CEE_JSON_FMT_AS_JS_PRETTY = 3,
 };
 
 /*
@@ -201,6 +203,7 @@ extern int cee_json_parsex(struct cee_state *st, char *buf, uintptr_t len, struc
 extern struct cee_json* cee_json_has(struct cee_json *, char *key);
 
 extern int cee_json_merge_all(char **json_files, int json_file_count, char *merged);
+int cee_json_merge_all_fileno(char **json_files, int json_file_count, int combined_fd);
 
 #ifdef __cplusplus
 }
@@ -2318,7 +2321,7 @@ enum token cee_json_next_token(struct cee_state * st, struct tokenizer * t) {
 
 
 
-int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
+int cee_json_merge_all_fileno(char **json_files, int json_file_count, int combined_fd){
   static char perror_buf[128] = {0};
 
   FILE *f0 = fopen(json_files[0], "r"), *fn, *f_combined;
@@ -2354,11 +2357,6 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
     fclose(fn);
   }
 
-  f_combined = fopen(merged, "w");
-  if( !f_combined ){
-    perror(merged);
-    return 1;
-  }
   struct cee_json *inputs = cee_json_array_mk(state, json_file_count);
   cee_json_object_set(j0, "originals", inputs);
   for( int i = 0; i < json_file_count; i++ ){
@@ -2366,10 +2364,20 @@ int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
     cee_json_array_append(inputs, a);
   }
 
-  cee_json_save(state, j0, f_combined, 1);
-  fclose(f_combined);
+  cee_json_save_fileno(state, j0, combined_fd, 1);
   cee_del(state);
   return 0;
+}
+
+int cee_json_merge_all(char **json_files, int json_file_count, char *merged){
+  FILE *f_combined = fopen(merged, "w");
+  if( !f_combined ){
+    perror(merged);
+    return 1;
+  }
+  int ret = cee_json_merge_all_fileno(json_files, json_file_count, fileno(f_combined));
+  fclose(f_combined);
+  return ret;
 }
 
 #endif
